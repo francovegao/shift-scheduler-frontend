@@ -18,7 +18,7 @@ const links = [
   { name: 'Home', href: '/dashboard', icon: HomeIcon, visible: ["admin", "pharmacist", "manager"], },
   { name: 'Shifts', href: '/dashboard/shifts', icon: CalendarDaysIcon, visible: ["admin", "pharmacist", "manager"], },
   { name: 'Pharmacists', href: '/dashboard/list/pharmacists', icon: UserGroupIcon, visible: ["admin"], },
-  { name: 'Locations', href: '/dashboard/locations', icon: BuildingOffice2Icon, visible: ["admin", "manager"], },
+  { name: 'Locations', href: '/dashboard/list/locations', icon: BuildingOffice2Icon, visible: ["admin", "manager"], },
   {
     name: 'Reports',
     href: '/dashboard/reports',
