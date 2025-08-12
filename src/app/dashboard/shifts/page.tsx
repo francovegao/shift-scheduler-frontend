@@ -2,6 +2,7 @@ import { companiesData, role, shiftsData } from "@/app/lib/data";
 import BigCalendar from "@/app/ui/dashboard/big-calendar";
 import { lusitana } from "@/app/ui/fonts";
 import { AddPharmacist, DeletePharmacist, UpdatePharmacist } from "@/app/ui/list/buttons";
+import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
@@ -81,11 +82,13 @@ export default async function ShiftsList() {
       <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">{item.pharmacist}</td>
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex justify-end gap-3">
-            {/*//TODO UPDATE BUTTONS */}
-          <UpdatePharmacist id={item.id} /> 
           {role === "admin" && (
-             <DeletePharmacist id={item.id} /> //TODO UPDATE BUTTONS
-            //<FormModal table="teacher" type="delete" id={item.id}/>
+            <>
+              {/*<UpdatePharmacist id={item.id} /> */}
+              <FormModal table="shift" type="update" id={item.id}/>
+              {/*<DeletePharmacist id={item.id} /> */}
+              <FormModal table="shift" type="delete" id={item.id}/>
+            </>
           )}
         </div>
       </td>
@@ -102,7 +105,8 @@ export default async function ShiftsList() {
             <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
                 <TableSearch placeholder="Search shifts..." />
                 {role === "admin" && (
-                <AddPharmacist /> //TODO UPDATE BUTTONS
+                  //<AddPharmacist />
+                  <FormModal table="shift" type="create" />
                 )}
             </div>
             {/* LIST */}
