@@ -6,6 +6,8 @@ import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/table-search";
+import Link from "next/link";
+import { EyeIcon } from "@heroicons/react/24/outline";
 
 type Company = {
     id: number,
@@ -72,6 +74,12 @@ export default async function LocationsList() {
       <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">{item.address}</td>
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex justify-end gap-3">
+          <Link 
+            href={`locations/${item.id}`}
+            className="rounded-md border p-2 hover:bg-gray-100"
+          >
+            <EyeIcon className="w-5"  />
+          </Link>
           {role === "admin" && (
             <>
               {/* <UpdatePharmacist id={item.id} /> */}

@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
-import InputField from "../forms/input-field";
+import InputField from "../input-field";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 
 const schema = z.object({
@@ -48,7 +48,7 @@ export default function PharmacistForm({
 
     return(
         <form className="flex flex-col gap-8" onSubmit={onSubmit}>
-          <h1 className="text-xl font-semibold">Create a new pharmacist</h1>
+          <h1 className="text-xl font-semibold">{type === "create" ? "Create a new pharmacist" : "Update pharmacist"}</h1>
           <span className="text-xs text-gray-400 font-medium">
             User Information
           </span>
