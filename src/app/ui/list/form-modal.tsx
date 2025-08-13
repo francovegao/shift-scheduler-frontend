@@ -4,6 +4,7 @@ import { PencilIcon, PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/
 import clsx from 'clsx';
 import Link from 'next/link';
 import { useState } from 'react';
+import PharmacistForm from '../pharmacists/pharmacist-form';
 
 export default function FormModal({ table, type, data, id }:{ 
     table: "shift" | "pharmacist" | "location";
@@ -23,7 +24,7 @@ export default function FormModal({ table, type, data, id }:{
         </button>
       </form>
     ) : (
-      "Create or Update Form"
+      <PharmacistForm type='update' data={data}/>
     )
   };
   return (

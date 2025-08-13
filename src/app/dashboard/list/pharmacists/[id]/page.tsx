@@ -1,5 +1,6 @@
 import Announcements from "@/app/ui/dashboard/announcements";
 import BigCalendar from "@/app/ui/dashboard/big-calendar";
+import FormModal from "@/app/ui/list/form-modal";
 import ShiftsGraph from "@/app/ui/list/shifts-graph";
 import { 
     UserCircleIcon, PhoneIcon, EnvelopeIcon, 
@@ -21,7 +22,29 @@ export default async function SinglePharmacistPage() {
                         <UserCircleIcon className="w-36 h-36 text-gray-600" />
                     </div>
                     <div className="w-2/3 flex flex-col justify-between gap-4">
-                        <h1 className="text-xl font-semibold">Leonard Snyder</h1>
+                        <div className="flex items-center gap-4">
+                            <h1 className="text-xl font-semibold">Leonard Snyder</h1>
+                            <FormModal
+                                table="pharmacist"
+                                type="update"
+                                data={{
+                                    firstName: "Leonard",
+                                    lastName: "Snyder",
+                                    email: "example@gmail.com",
+                                    phone: "+1 236 833 5241",
+                                    resume: "",
+                                    licenseNumber: "234789",
+                                    address: "123 Fake Street",
+                                    city: "Calgary",
+                                    province: "AB",
+                                    postalCode: "V3K0J2",
+                                    etransferEmail: "",
+                                    bio: "Lorem ipsum, dolor sit amet consectetyr adipisicing elit",
+                                    experienceYears: 9,
+                                    approved: true,
+                                }}
+                            />
+                        </div>
                         <p className="text-sm text-gray-500">
                             Lorem ipsum, dolor sit amet consectetyr adipisicing elit.
                         </p>
