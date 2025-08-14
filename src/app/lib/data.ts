@@ -1,3 +1,80 @@
+
+const ITEMS_PER_PAGE = 2; //TODO adjust this number to 10
+
+export async function fetchLocations() {
+  try {
+    console.log('Fetching locations data...');
+
+    const response = await fetch('http://localhost:5001/locations');
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    //throw new Error('Failed to fetch locations');
+    return null;
+  }
+}
+
+export async function fetchCompanies(query: string, currentPage: number) {
+  try {
+    console.log('Fetching companies data...');
+
+    const url = new URL('http://localhost:5001/companies');
+    url.searchParams.append('search', query);
+    url.searchParams.append('page', currentPage.toString());
+    url.searchParams.append('limit', ITEMS_PER_PAGE.toString());
+
+    const response = await fetch(url.toString());
+    
+    
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    //throw new Error('Failed to fetch companies');
+    return null;
+  }
+}
+
+export async function fetchShifts(query: string, currentPage: number) {
+  try {
+    console.log('Fetching shifts data...');
+
+    const url = new URL('http://localhost:5001/shifts');
+    url.searchParams.append('search', query);
+    url.searchParams.append('page', currentPage.toString());
+    url.searchParams.append('limit', ITEMS_PER_PAGE.toString());
+
+    const response = await fetch(url.toString());
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    //throw new Error('Failed to fetch locations');
+    return null;
+  }
+}
+
+
+
 // TEMPORARY DATA
 
 export let role = "admin";  //["admin", "pharmacist", "manager"]

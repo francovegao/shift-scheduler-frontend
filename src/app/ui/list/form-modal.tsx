@@ -11,6 +11,9 @@ import dynamic from 'next/dynamic';
 const PharmacistForm = dynamic(() => import("../forms/pharmacists/pharmacist-form"), {
   loading: () => <h1>Loading...</h1>,
 });
+const CompanyForm = dynamic(() => import("../forms/locations/company-form"), {
+  loading: () => <h1>Loading...</h1>,
+});
 const LocationForm = dynamic(() => import("../forms/locations/location-form"), {
   loading: () => <h1>Loading...</h1>,
 });
@@ -22,12 +25,13 @@ const forms: {
   [key: string]: (type: "create" | "update", data?: any) => JSX.Element;
 } = {
   pharmacist: (type, data) => <PharmacistForm type={type} data={data} />,
+  company: (type, data) => <CompanyForm type={type} data={data} />,
   location: (type, data) => <LocationForm type={type} data={data} />,
   shift: (type, data) => <ShiftForm type={type} data={data} />,
 }
 
 export default function FormModal({ table, type, data, id }:{ 
-    table: "shift" | "pharmacist" | "location";
+    table: "shift" | "pharmacist" |"company" | "location";
     type: "create" | "update" | "delete";
     data?: any;
     id?: number;

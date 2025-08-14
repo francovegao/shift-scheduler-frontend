@@ -1,4 +1,4 @@
-import { companiesData, role, shiftsData } from "@/app/lib/data";
+import { companiesData, fetchShifts, role, shiftsData } from "@/app/lib/data";
 import BigCalendar from "@/app/ui/dashboard/big-calendar";
 import { lusitana } from "@/app/ui/fonts";
 import { AddPharmacist, DeletePharmacist, UpdatePharmacist } from "@/app/ui/list/buttons";
@@ -10,8 +10,8 @@ import TableSearch from "@/app/ui/table-search";
 
 type Shift = {
     id: number,
-    locationName?: string,
-    companyName: string,
+    companyId: string,
+    locationId?: string,
     title: string,
     description?: string,
     startTime: string,
@@ -59,23 +59,20 @@ const columns = [
   },
 ];
 
-export default async function ShiftsList() {
-    const totalPages=4  ///Modify for use with pagination
-
-    const renderRow = (item: Shift) => (
+const renderRow = (item: Shift) => (
     <tr
       key={item.id}
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-purple-50"
     >
       <td className="flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex flex-col">
-          <h3 className="font-semibold">{item.companyName}</h3>
-          <p className="text-xs text-gray-500">{item?.locationName}</p>
+          <h3 className="font-semibold">{item.companyId}</h3>
+          <p className="text-xs text-gray-500">{item?.locationId}</p>
         </div>
       </td>
       <td className="hidden table-cell whitespace-nowrap px-3 py-3">{item.startTime.slice(0,10)}</td>
       <td className="hidden table-cell whitespace-nowrap px-3 py-3">{item.startTime.slice(11,16)}-{item.endTime.slice(11,16)}</td>
-      <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">{item.payRate}</td>
+      <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">${parseFloat(item.payRate).toFixed(2)}</td>
       <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">
         <ApprovedStatus status={item.status} />
       </td>
@@ -95,6 +92,21 @@ export default async function ShiftsList() {
     </tr>
   );
 
+export default async function ShiftsList({
+  searchParams,
+  }:{
+    searchParams: Promise< { [key: string]: string | undefined} >;
+  }){
+
+    const searchParameters = await searchParams;
+    const query = searchParameters?.query || '';
+    const currentPage = Number(searchParameters?.page) || 1;
+
+    const shiftsResponse = await fetchShifts(query, currentPage);
+    const shifts = shiftsResponse?.data;
+    const totalPages=shiftsResponse.meta?.totalPages;
+    //const totalPages=4;
+
   return (
     <div className="p-4 lg:p-8">
         <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
@@ -111,16 +123,16 @@ export default async function ShiftsList() {
             </div>
             {/* LIST */}
             <div style={{overflowX: 'scroll'}}>
-                <Table columns={columns} renderRow={renderRow} data={shiftsData}/>
+                <Table columns={columns} renderRow={renderRow} data={shifts}/>
             </div>
             {/* PAGINATION */}
             <div className="mt-5 flex w-full justify-center">
                 <Pagination totalPages={totalPages} />
             </div>
         </div>
-                      <div className="w-full xl:w-2/3">
-                          <BigCalendar/>
-                      </div>
+        <div className="w-full xl:w-2/3">
+          <BigCalendar/>
+        </div>
     </div>
   );
 }
