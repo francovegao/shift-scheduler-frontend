@@ -4,12 +4,12 @@ import FormModal from "@/app/ui/list/form-modal";
 import ShiftsGraph from "@/app/ui/list/shifts-graph";
 import { 
     UserCircleIcon, PhoneIcon, EnvelopeIcon, 
-    CalendarIcon, MapPinIcon, CheckCircleIcon,
-    ClockIcon, BuildingStorefrontIcon, XCircleIcon,
-    BuildingOfficeIcon } from "@heroicons/react/24/outline";
+    IdentificationIcon, MapPinIcon, CheckCircleIcon,
+    ClockIcon, BuildingStorefrontIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
-export default async function SingleLocationPage() {
+export default async function SinglePharmacistPage() {
+
   return (
     <div className="flex-1 p-4 flex flex-col gap-4 xl:flex-row">
         {/* LEFT */}
@@ -19,23 +19,29 @@ export default async function SingleLocationPage() {
                 {/* USER INFO CARD */}
                 <div className="bg-blue-200 py-6 px-4 rounded-md flex-1 flex gap-4">
                     <div className="w-1/3">
-                        <BuildingStorefrontIcon className="w-36 h-36 text-gray-600" />
+                        <UserCircleIcon className="w-36 h-36 text-gray-600" />
                     </div>
                     <div className="w-2/3 flex flex-col justify-between gap-4">
                         <div className="flex items-center gap-4">
-                            <h1 className="text-xl font-semibold">Fast Pharma 275</h1>
+                            <h1 className="text-xl font-semibold">Leonard Snyder</h1>
                             <FormModal
-                                table="location"
+                                table="pharmacist"
                                 type="update"
                                 data={{
-                                    name: "Fast Pharma 275",
+                                    firstName: "Leonard",
+                                    lastName: "Snyder",
                                     email: "example@gmail.com",
                                     phone: "+1 236 833 5241",
-                                    company: "Master Company",
+                                    resume: "",
+                                    licenseNumber: "234789",
                                     address: "123 Fake Street",
                                     city: "Calgary",
                                     province: "AB",
                                     postalCode: "V3K0J2",
+                                    etransferEmail: "",
+                                    bio: "Lorem ipsum, dolor sit amet consectetyr adipisicing elit",
+                                    experienceYears: 9,
+                                    approved: true,
                                 }}
                             />
                         </div>
@@ -44,12 +50,12 @@ export default async function SingleLocationPage() {
                         </p>
                         <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
                             <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                                <BuildingOfficeIcon className="w-5"/>
-                                <span>Fast Pharma</span>
+                                <IdentificationIcon className="w-5"/>
+                                <span>234789</span>
                             </div>
                             <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                 <MapPinIcon className="w-5"/>
-                                <span>123 Fake St, Calgary, AB</span>
+                                <span>Calgary</span>
                             </div>
                             <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                 <EnvelopeIcon className="w-5"/>
@@ -66,41 +72,41 @@ export default async function SingleLocationPage() {
                 <div className="flex-1 flex gap-4 justify-between flex-wrap">
                     {/* CARD */}
                     <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
-                        <CalendarIcon className="w-6 h-6" />
+                        <CheckCircleIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">3</h1>
-                            <span className="text-sm text-gray-400">Open Shifts</span>
-                        </div>
-                    </div>
-                    {/* CARD */}
-                    <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
-                        <ClockIcon className="w-6 h-6" />
-                        <div className="">
-                            <h1 className="text-xl font-semibold">4</h1>
-                            <span className="text-sm text-gray-400">Scheduled Shifts</span>
+                            <h1 className="text-xl font-semibold">10</h1>
+                            <span className="text-sm text-gray-400">Completed Shifts</span>
                         </div>
                     </div>
                     {/* CARD */}
                     <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <XCircleIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">5</h1>
+                            <h1 className="text-xl font-semibold">2</h1>
                             <span className="text-sm text-gray-400">Cancelled Shifts</span>
                         </div>
                     </div>
                     {/* CARD */}
                     <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
-                        <CheckCircleIcon className="w-6 h-6" />
+                        <ClockIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">25</h1>
-                            <span className="text-sm text-gray-400">Completed Shifts</span>
+                            <h1 className="text-xl font-semibold">3</h1>
+                            <span className="text-sm text-gray-400">Scheduled Shifts</span>
+                        </div>
+                    </div>
+                    {/* CARD */}
+                    <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+                        <BuildingStorefrontIcon className="w-6 h-6" />
+                        <div className="">
+                            <h1 className="text-xl font-semibold">3</h1>
+                            <span className="text-sm text-gray-400">Locations Worked</span>
                         </div>
                     </div>
                 </div>
             </div>
             {/* BOTTOM */}
             <div className="mt-4 rounded-md p-4 h-[800px]">
-               <h1 className="text-xl font-semibold">Location&apos;s Calendar</h1>
+               <h1 className="text-xl font-semibold">Pharmacist&apos;s Schedule</h1>
                <BigCalendar />
             </div>
         </div>
@@ -109,11 +115,11 @@ export default async function SingleLocationPage() {
             <div className="bg-white p-4 rounded-md">
                 <h1 className="text-xl font-semibold">Shortcuts</h1>
                 <div className="mt-4 flex gap-4 flex-wrap text-xs text-gray-500">
-                    <Link className="p-3 rounded-md bg-blue-50" href={`/dashboard/shifts?locationId=${"location2"}`}>Location&apos;s Shifts</Link>
-                    <Link className="p-3 rounded-md bg-purple-50" href={`/dashboard/list/users?locationId=${"location2"}`}>Location&apos;s Users</Link>
-                    <Link className="p-3 rounded-md bg-yellow-50" href="/">Location&apos;s Reports</Link>
-                    <Link className="p-3 rounded-md bg-pink-50" href="/">Location&apos;s Files</Link>
-                    <Link className="p-3 rounded-md bg-blue-50" href="/">Location&apos;s Notifications</Link>
+                    <Link className="p-3 rounded-md bg-blue-50" href="/">User&apos;s Reports</Link>
+                    <Link className="p-3 rounded-md bg-purple-50" href="/">User&apos;s Notifications</Link>
+                    <Link className="p-3 rounded-md bg-yellow-50" href="/">User&apos;s Files</Link>
+                    <Link className="p-3 rounded-md bg-pink-50" href="/">User&apos;s Contact</Link>
+                    <Link className="p-3 rounded-md bg-blue-50" href="/">User&apos;s Info</Link>
                 </div>
             </div>
             <ShiftsGraph />

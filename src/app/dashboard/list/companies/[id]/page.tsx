@@ -100,7 +100,7 @@ export default async function SingleLocationPage() {
             </div>
             {/* BOTTOM */}
             <div className="mt-4 rounded-md p-4 h-[800px]">
-               <h1 className="text-xl font-semibold">Location&apos;s Calendar</h1>
+               <h1 className="text-xl font-semibold">Company&apos;s Calendar</h1>
                <BigCalendar />
             </div>
         </div>
@@ -109,11 +109,12 @@ export default async function SingleLocationPage() {
             <div className="bg-white p-4 rounded-md">
                 <h1 className="text-xl font-semibold">Shortcuts</h1>
                 <div className="mt-4 flex gap-4 flex-wrap text-xs text-gray-500">
-                    <Link className="p-3 rounded-md bg-blue-50" href={`/dashboard/shifts?locationId=${"location2"}`}>Location&apos;s Shifts</Link>
-                    <Link className="p-3 rounded-md bg-purple-50" href={`/dashboard/list/users?locationId=${"location2"}`}>Location&apos;s Users</Link>
-                    <Link className="p-3 rounded-md bg-yellow-50" href="/">Location&apos;s Reports</Link>
-                    <Link className="p-3 rounded-md bg-pink-50" href="/">Location&apos;s Files</Link>
-                    <Link className="p-3 rounded-md bg-blue-50" href="/">Location&apos;s Notifications</Link>
+                    <Link className="p-3 rounded-md bg-blue-50" href={`/dashboard/shifts?companyId=${"company2"}`}>Company&apos;s Shifts</Link>
+                    <Link className="p-3 rounded-md bg-purple-50" href={`/dashboard/list/users?companyId=${"company2"}`}>Company&apos;s Users</Link>
+                    <Link className="p-3 rounded-md bg-yellow-50" href={`/dashboard/list/locations?companyId=${"company2"}`}>Company&apos;s Locations</Link>
+                    <Link className="p-3 rounded-md bg-pink-50" href="/">Company&apos;s Reports</Link>
+                    <Link className="p-3 rounded-md bg-blue-50" href="/">Company&apos;s Files</Link>
+                    <Link className="p-3 rounded-md bg-purple-50" href="/">Company&apos;s Notifications</Link>
                 </div>
             </div>
             <ShiftsGraph />
