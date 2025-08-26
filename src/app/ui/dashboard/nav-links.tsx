@@ -5,7 +5,10 @@ import {
   HomeIcon,
   DocumentDuplicateIcon,
   BuildingOffice2Icon,
-  CalendarDaysIcon
+  CalendarDaysIcon,
+  UserIcon,
+  BuildingOfficeIcon,
+  UserCircleIcon
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -17,7 +20,9 @@ import { role } from '@/app/lib/data';
 const links = [
   { name: 'Home', href: '/dashboard', icon: HomeIcon, visible: ["admin", "pharmacist", "manager"], },
   { name: 'Shifts', href: '/dashboard/shifts', icon: CalendarDaysIcon, visible: ["admin", "pharmacist", "manager"], },
-  { name: 'Pharmacists', href: '/dashboard/list/pharmacists', icon: UserGroupIcon, visible: ["admin"], },
+  { name: 'Users', href: '/dashboard/list/users', icon: UserGroupIcon, visible: ["admin"], },
+  { name: 'Pharmacists', href: '/dashboard/list/pharmacists', icon: UserIcon, visible: ["admin"], },
+  { name: 'Companies', href: '/dashboard/list/companies', icon: BuildingOfficeIcon, visible: ["admin"], },
   { name: 'Locations', href: '/dashboard/list/locations', icon: BuildingOffice2Icon, visible: ["admin", "manager"], },
   {
     name: 'Reports',
@@ -28,7 +33,7 @@ const links = [
   {
     name: 'Profile',
     href: '/dashboard/profile',
-    icon: DocumentDuplicateIcon,
+    icon: UserCircleIcon,
     visible: ["admin", "pharmacist", "manager"],
   },
 ];
