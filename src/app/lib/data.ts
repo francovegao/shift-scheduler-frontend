@@ -61,9 +61,11 @@ export async function fetchCompanies(query: string, currentPage: number) {
   }
 }
 
-export async function fetchShifts(query: string, currentPage: number, queryParams: Object) {
+export async function fetchShifts(query: string, currentPage: number, queryParams: Object, token: string) {
   try {
-    console.log('Fetching shifts data...');
+    console.log('Fetching shifts data with user token:', token);
+
+    
 
     const url = new URL('http://localhost:5001/shifts');
     url.searchParams.append('search', query);
@@ -78,7 +80,14 @@ export async function fetchShifts(query: string, currentPage: number, queryParam
       }
     }
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json', // Adjust content type as needed
+        'Authorization': `Bearer ${token}`
+      },
+      // body: JSON.stringify(yourData) // Include body for POST/PUT requests
+    });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
@@ -152,11 +161,33 @@ export async function fetchPharmacists(query: string, currentPage: number) {
   }
 }
 
+export async function fetchUser(uid: string) {
+  try {
+    console.log('Validating user...');
+
+    const url = new URL(`http://localhost:5001/users/fb/${uid}`);
+
+    const response = await fetch(url.toString());
+    console.log(response)
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    //throw new Error('Failed to fetch locations');
+    return null;
+  }
+}
+
 
 
 // TEMPORARY DATA
 
-export let role = "admin";  //["admin", "pharmacist", "manager"]
+export let role = "admin";  //["admin", "relief_pharmacist", "pharmacy_manager", "location_manager"]
 
 // YOU SHOULD CHANGE THE DATES OF THE EVENTS TO THE CURRENT DATE TO SEE THE EVENTS ON THE CALENDAR
 export const scheduledShifts = [

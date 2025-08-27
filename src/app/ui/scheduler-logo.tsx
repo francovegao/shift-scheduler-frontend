@@ -5,8 +5,8 @@ export default function SchedulerLogo() {
     <div
       className={` flex flex-row items-center leading-none text-white`}
     >
-      <BuildingStorefrontIcon className="h-12 w-12" />
-      <p className="text-[16px]">Relief Scheduler</p>
+      <BuildingStorefrontIcon className="h-12 md:h-24" />
+      <p className="text-[16px] md:text-[20px]">Pharmacist Scheduler</p>
     </div>
   );
 }

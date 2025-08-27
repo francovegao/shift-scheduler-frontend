@@ -147,15 +147,16 @@ export default async function ShiftsList({
   }){
 
     const searchParameters = await searchParams;
-    //const query = searchParameters?.query || '';
-    //const currentPage = Number(searchParameters?.page) || 1;
     const { page, query, ...queryParams } = searchParameters;
     const currentPage = page ? parseInt(page) : 1;
     const search = query ? query : '';
-   
+    
+    //initFirebase();
+    //const auth = getAuth();
+    //const [user, loading] = useAuthState(auth);
 
-
-    const shiftsResponse = await fetchShifts(search, currentPage, queryParams);
+    //const token = await user?.getIdToken();
+    const shiftsResponse = await fetchShifts(search, currentPage, queryParams, "token");
     const shifts = shiftsResponse?.data;
     const totalPages=shiftsResponse.meta?.totalPages;
     //const totalPages=4;
