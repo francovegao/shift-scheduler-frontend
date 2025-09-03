@@ -63,9 +63,7 @@ export async function fetchCompanies(query: string, currentPage: number) {
 
 export async function fetchShifts(query: string, currentPage: number, queryParams: Object, token: string) {
   try {
-    console.log('Fetching shifts data with user token:', token);
-
-    
+    console.log('Fetching shifts data...');
 
     const url = new URL('http://localhost:5001/shifts');
     url.searchParams.append('search', query);
@@ -81,12 +79,9 @@ export async function fetchShifts(query: string, currentPage: number, queryParam
     }
 
     const response = await fetch(url.toString(), {
-      method: 'GET',
       headers: {
-        'Content-Type': 'application/json', // Adjust content type as needed
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
       },
-      // body: JSON.stringify(yourData) // Include body for POST/PUT requests
     });
 
     if (!response.ok) {

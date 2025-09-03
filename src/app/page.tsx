@@ -37,7 +37,6 @@ export default function Home() {
 
   const redirectUser = async (user: any) => {
     const  userInfo = await fetchUser(user.uid);
-    console.log("User from DB:", userInfo)
 
     const role = userInfo.roles[0].role;  //TODO update roles to only allow one user to have only one role
 

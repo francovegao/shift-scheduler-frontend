@@ -4,12 +4,12 @@ import CardWrapper from "@/app/ui/dashboard/cards";
 import LatestShifts from "@/app/ui/dashboard/latest-shifts";
 import { lusitana } from "@/app/ui/fonts";
 
-export default async function CompanyManagerPage() {
+export default async function LocationManagerPage() {
 
   return (
     <main className="p-4 md:p-8">
           <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
-            Company Page Dashboard
+            Location Page Dashboard
           </h1>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               <CardWrapper />
@@ -19,7 +19,7 @@ export default async function CompanyManagerPage() {
             {/* LEFT */}
             <div className="w-full xl:w-2/3">
               <h2 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
-                Company's Shifts
+                Location's Shifts
               </h2>
               <div className="h-full bg-white p-4 rounded-md">
                   <BigCalendar/>

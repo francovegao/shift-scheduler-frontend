@@ -1,12 +1,17 @@
-import { companiesData, fetchShifts, role, shiftsData } from "@/app/lib/data";
+"use client";
+
+import { fetchShifts, role } from "@/app/lib/data";
+import { auth } from "@/app/lib/firebaseConfig";
 import BigCalendar from "@/app/ui/dashboard/big-calendar";
 import { lusitana } from "@/app/ui/fonts";
-import { AddPharmacist, DeletePharmacist, UpdatePharmacist } from "@/app/ui/list/buttons";
 import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/table-search";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 type ShiftList = Shift & { company: Company }
                  & { location: Location } 
@@ -140,53 +145,79 @@ const renderRow = (item: ShiftList) => (
     </tr>
   );
 
-export default async function ShiftsList({
+export default function ShiftsList({
   searchParams,
   }:{
-    searchParams: Promise< { [key: string]: string | undefined} >;
+    searchParams: { [key: string]: string | undefined};
   }){
 
-    const searchParameters = await searchParams;
-    const { page, query, ...queryParams } = searchParameters;
-    const currentPage = page ? parseInt(page) : 1;
-    const search = query ? query : '';
-    
-    //initFirebase();
-    //const auth = getAuth();
-    //const [user, loading] = useAuthState(auth);
+    const router = useRouter();
+    const [user, loading] = useAuthState(auth);
+    const [token, setToken] = useState("");
+    const [shifts, setShifts] = useState<any[]>([]);
+    const [totalPages, setTotalPages] = useState(1);
 
-    //const token = await user?.getIdToken();
-    const shiftsResponse = await fetchShifts(search, currentPage, queryParams, "token");
-    const shifts = shiftsResponse?.data;
-    const totalPages=shiftsResponse.meta?.totalPages;
-    //const totalPages=4;
+    const { page, query, ...queryParams } = searchParams;
+    const currentPage = page ? parseInt(page) : 1;
+    const search = query ?? '';  //query?query:"";
+
+    // Redirect if not logged in
+    useEffect(() => {
+      if (!loading && !user) {
+        router.push("/");
+      }
+    }, [loading, user, router]);
+
+    // Get token when user logs in
+    useEffect(() => {
+      if (user) {
+        user.getIdToken().then((idToken) => {
+          setToken(idToken);
+          console.log("User token:", idToken);
+        });
+      }
+    }, [user]);
+
+    // Fetch shifts when token is ready
+    useEffect(() => {
+      if (token) {
+        fetchShifts(search, currentPage, queryParams, token).then((res) => {
+          setShifts(res?.data || []);
+          setTotalPages(res?.meta?.totalPages || 1);
+        });
+      }
+    }, [token, search, currentPage, queryParams]);
+
+    if (loading) return <div>Loading...</div>;
+    if (!user) return <div>Please sign in to continue</div>;
 
   return (
     <div className="p-4 lg:p-8">
-        <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
-            Shifts List
-        </h1>
-        <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-            {/* TOP */}
-            <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-                <TableSearch placeholder="Search shifts..." />
-                {role === "admin" && (
-                  //<AddPharmacist />
-                  <FormModal table="shift" type="create" />
-                )}
-            </div>
-            {/* LIST */}
-            <div style={{overflowX: 'scroll'}}>
-                <Table columns={columns} renderRow={renderRow} data={shifts}/>
-            </div>
-            {/* PAGINATION */}
-            <div className="mt-5 flex w-full justify-center">
-                <Pagination totalPages={totalPages} />
-            </div>
+      <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
+        Shifts List
+      </h1>
+      <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
+        {/* TOP */}
+        <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+          <TableSearch placeholder="Search shifts..." />
+          {role === "admin" && (
+            //<AddPharmacist />
+            <FormModal table="shift" type="create" />
+          )}
         </div>
-        <div className="h-full bg-white p-4 rounded-md">
-          <BigCalendar/>
+        {/* LIST */}
+        <div style={{ overflowX: 'scroll' }}>
+          <Table columns={columns} renderRow={renderRow} data={shifts} />
         </div>
+        {/* PAGINATION */}
+        <div className="mt-5 flex w-full justify-center">
+          <Pagination totalPages={totalPages} />
+        </div>
+      </div>
+      <div className="h-full bg-white p-4 rounded-md">
+        <BigCalendar />
+      </div>
     </div>
   );
+    
 }
