@@ -12,15 +12,7 @@ export default function SignOutButton(){
   if (loading) {
     return <div>Loading...</div>
   }
-
-  //TODO activate this to return unsigned users to login page
-  /*if(!user){
-    router.push("/");
-    return <div>Loading...</div>
-  }*/
-
-
-
+  
     return(
         <form action={()=> auth.signOut()}>
           <button 

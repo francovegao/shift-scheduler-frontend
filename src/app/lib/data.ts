@@ -163,7 +163,7 @@ export async function fetchUser(uid: string) {
     const url = new URL(`http://localhost:5001/users/fb/${uid}`);
 
     const response = await fetch(url.toString());
-    console.log(response)
+    
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
@@ -173,12 +173,33 @@ export async function fetchUser(uid: string) {
     return response.json();
   } catch (error) {
     console.error('API Error:', error);
-    //throw new Error('Failed to fetch locations');
     return null;
   }
 }
 
+export async function fetchUserRole(uid: string, token: string) {
+  try {
 
+    const url = new URL(`http://localhost:5001/users/me/${uid}`);
+
+    const response = await fetch(url.toString(), {
+                    headers: {
+                    Authorization: `Bearer ${token}`,
+                    },
+                });
+    
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return null;
+  }
+}
 
 // TEMPORARY DATA
 

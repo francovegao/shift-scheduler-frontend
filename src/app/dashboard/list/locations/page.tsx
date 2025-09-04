@@ -8,6 +8,7 @@ import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/table-search";
 import Link from "next/link";
 import { EyeIcon } from "@heroicons/react/24/outline";
+import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 
 type LocationsList = Location & { company: Company };
 
@@ -134,28 +135,30 @@ export default async function LocationsList({
     const totalPages =locationsResponse.meta?.totalPages;
 
   return (
-    <div className="p-4 lg:p-8">
-        <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
-            Locations List
-        </h1>
-        <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-            {/* TOP */}
-            <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-                <TableSearch placeholder="Search locations..." />
-                {role === "admin" && (
-                //<AddPharmacist />
-                <FormModal table="location" type="create" />
-                )}
-            </div>
-            {/* LIST */}
-            <div style={{overflowX: 'scroll'}}>
-                <Table columns={columns} renderRow={renderRow} data={locations}/>
-            </div>
-            {/* PAGINATION */}
-            <div className="mt-5 flex w-full justify-center">
-                <Pagination totalPages={totalPages} />
-            </div>
-        </div>
-    </div>
+    <AuthWrapper allowedRoles={["admin", "pharmacy_manager"]}>
+      <div className="p-4 lg:p-8">
+          <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
+              Locations List
+          </h1>
+          <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
+              {/* TOP */}
+              <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+                  <TableSearch placeholder="Search locations..." />
+                  {role === "admin" && (
+                  //<AddPharmacist />
+                  <FormModal table="location" type="create" />
+                  )}
+              </div>
+              {/* LIST */}
+              <div style={{overflowX: 'scroll'}}>
+                  <Table columns={columns} renderRow={renderRow} data={locations}/>
+              </div>
+              {/* PAGINATION */}
+              <div className="mt-5 flex w-full justify-center">
+                  <Pagination totalPages={totalPages} />
+              </div>
+          </div>
+      </div>
+    </AuthWrapper>
   );
 }

@@ -1,4 +1,5 @@
 import { fetchUsers, pharmacistsData, role } from "@/app/lib/data";
+import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { lusitana } from "@/app/ui/fonts";
 import { AddPharmacist, DeletePharmacist, UpdatePharmacist } from "@/app/ui/list/buttons";
 import FormModal from "@/app/ui/list/form-modal";
@@ -119,27 +120,29 @@ export default async function UsersList({
     //const totalPages=4;
 
   return (
-    <div className="p-4 lg:p-8">
-        <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
-            Users List
-        </h1>
-        <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-            {/* TOP */}
-            <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-                <TableSearch placeholder="Search users..." />
-                {role === "admin" && (
-                <FormModal table="user" type="create" />
-                )}
-            </div>
-            {/* LIST */}
-            <div style={{overflowX: 'scroll'}}>
-                <Table columns={columns} renderRow={renderRow} data={users}/>
-            </div>
-            {/* PAGINATION */}
-            <div className="mt-5 flex w-full justify-center">
-                <Pagination totalPages={totalPages} />
-            </div>
-        </div>
-    </div>
+    <AuthWrapper allowedRoles={["admin"]}>
+      <div className="p-4 lg:p-8">
+          <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
+              Users List
+          </h1>
+          <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
+              {/* TOP */}
+              <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+                  <TableSearch placeholder="Search users..." />
+                  {role === "admin" && (
+                  <FormModal table="user" type="create" />
+                  )}
+              </div>
+              {/* LIST */}
+              <div style={{overflowX: 'scroll'}}>
+                  <Table columns={columns} renderRow={renderRow} data={users}/>
+              </div>
+              {/* PAGINATION */}
+              <div className="mt-5 flex w-full justify-center">
+                  <Pagination totalPages={totalPages} />
+              </div>
+          </div>
+      </div>
+    </AuthWrapper>
   );
 }

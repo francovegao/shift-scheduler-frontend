@@ -2,6 +2,7 @@
 
 import { fetchShifts, role } from "@/app/lib/data";
 import { auth } from "@/app/lib/firebaseConfig";
+import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import BigCalendar from "@/app/ui/dashboard/big-calendar";
 import { lusitana } from "@/app/ui/fonts";
 import FormModal from "@/app/ui/list/form-modal";
@@ -173,7 +174,6 @@ export default function ShiftsList({
       if (user) {
         user.getIdToken().then((idToken) => {
           setToken(idToken);
-          console.log("User token:", idToken);
         });
       }
     }, [user]);
@@ -192,32 +192,34 @@ export default function ShiftsList({
     if (!user) return <div>Please sign in to continue</div>;
 
   return (
-    <div className="p-4 lg:p-8">
-      <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
-        Shifts List
-      </h1>
-      <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-        {/* TOP */}
-        <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-          <TableSearch placeholder="Search shifts..." />
-          {role === "admin" && (
-            //<AddPharmacist />
-            <FormModal table="shift" type="create" />
-          )}
+    <AuthWrapper allowedRoles={["admin", "pharmacy_manager", "location_manager", "relief_pharmacist"]}>
+      <div className="p-4 lg:p-8">
+        <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
+          Shifts List
+        </h1>
+        <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
+          {/* TOP */}
+          <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+            <TableSearch placeholder="Search shifts..." />
+            {role === "admin" && (
+              //<AddPharmacist />
+              <FormModal table="shift" type="create" />
+            )}
+          </div>
+          {/* LIST */}
+          <div style={{ overflowX: 'scroll' }}>
+            <Table columns={columns} renderRow={renderRow} data={shifts} />
+          </div>
+          {/* PAGINATION */}
+          <div className="mt-5 flex w-full justify-center">
+            <Pagination totalPages={totalPages} />
+          </div>
         </div>
-        {/* LIST */}
-        <div style={{ overflowX: 'scroll' }}>
-          <Table columns={columns} renderRow={renderRow} data={shifts} />
-        </div>
-        {/* PAGINATION */}
-        <div className="mt-5 flex w-full justify-center">
-          <Pagination totalPages={totalPages} />
+        <div className="h-full bg-white p-4 rounded-md">
+          <BigCalendar />
         </div>
       </div>
-      <div className="h-full bg-white p-4 rounded-md">
-        <BigCalendar />
-      </div>
-    </div>
+    </AuthWrapper>
   );
     
 }

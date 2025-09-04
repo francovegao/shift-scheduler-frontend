@@ -37,8 +37,8 @@ export default function Home() {
 
   const redirectUser = async (user: any) => {
     const  userInfo = await fetchUser(user.uid);
-
-    const role = userInfo.roles[0].role; //TODO Check if will update DB to only allow one user, or keep it with multiple user roles
+    
+    const role = userInfo.role; 
 
     router.push(`/dashboard/${role}`);
   }
@@ -50,7 +50,7 @@ export default function Home() {
 
   if(user) {
     redirectUser(user);
-    return <div>Loading...</div>
+    return <div>Loading...</div>  //TODO add a signout button, this is reached when a user is registered but is not found in the DB
   }
 
   return (
