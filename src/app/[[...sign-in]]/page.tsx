@@ -1,13 +1,13 @@
 "use client";
 
-import { auth, login, loginGoogle } from "./lib/firebaseConfig";
+import { auth, login, loginGoogle } from "../lib/firebaseConfig";
 import { BuildingStorefrontIcon } from "@heroicons/react/16/solid";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { fetchUser } from "./lib/data";
+import { fetchUser } from "../lib/data";
 import Link from "next/link";
-import SchedulerLogo from "./ui/scheduler-logo";
+import SchedulerLogo from "../ui/scheduler-logo";
 
 
 export default function Home() {
@@ -38,7 +38,7 @@ export default function Home() {
   const redirectUser = async (user: any) => {
     const  userInfo = await fetchUser(user.uid);
 
-    const role = userInfo.roles[0].role;  //TODO update roles to only allow one user to have only one role
+    const role = userInfo.roles[0].role; //TODO Check if will update DB to only allow one user, or keep it with multiple user roles
 
     router.push(`/dashboard/${role}`);
   }
@@ -54,17 +54,17 @@ export default function Home() {
   }
 
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start bg-gray-200 p-8 rounded-lg">
-         <div className="w-48 text-white md:w-64 flex items-end justify-start rounded-md bg-blue-600">
+    <div className="h-screen flex items-center justify-center bg-blue-100">
+      <main className="bg-white p-12 rounded-md shadow-2xl flex flex-col gap-2 items-center">
+         <div className="w-48 text-white md:w-64 flex rounded-md bg-blue-600">
             <SchedulerLogo />
           </div>
-        <div className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-         <p>Please sign in to continue</p>
+          <h2 className="text-gray-400">Sign in to your account</h2>
+        <div className="font-mono list-inside list-decimal text-sm/6 text-center">
           <form onSubmit={logIn} className="p-4">
             <div>
               <input
-              className="p-2 m-1 rounded-md border border-solid border-black/[.08]"
+              className="p-2 m-1 rounded-md ring-1 ring-gray-300"
                 type="text"
                 placeholder="Email"
                 onChange={(e) => setEmail(e.target.value)}
@@ -72,16 +72,16 @@ export default function Home() {
             </div>
             <div>
               <input
-                className="p-2 m-1 rounded-md border border-solid border-black/[.08]"
+                className="p-2 m-1 rounded-md ring-1 ring-gray-300"
                 type="password"
                 placeholder="Password"
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <div>
-              {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+              {errorMessage && <p className="text-sm text-red-400 p-2">{errorMessage}</p>}
             </div>
-            <div className="flex gap-4 items-center flex-col sm:flex-row">
+            <div className="flex gap-4 p-2 items-center flex-col sm:flex-row">
               <button
                 className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
                 type="submit"
@@ -96,8 +96,7 @@ export default function Home() {
               </button>
             </div>
           </form>
-          <p>Don't have an account?</p>
-          <p>Please register</p>
+          <p>Don't have an account? Please register</p>
               <Link
                 className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
                 href="/register"

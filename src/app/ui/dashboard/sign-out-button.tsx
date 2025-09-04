@@ -13,10 +13,11 @@ export default function SignOutButton(){
     return <div>Loading...</div>
   }
 
-  if(!user){
+  //TODO activate this to return unsigned users to login page
+  /*if(!user){
     router.push("/");
     return <div>Loading...</div>
-  }
+  }*/
 
 
 
