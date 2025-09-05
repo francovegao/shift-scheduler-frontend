@@ -1,40 +1,14 @@
 'use client';
 
-import { fetchUserRole } from "@/app/lib/data";
-import { auth } from "@/app/lib/firebaseConfig";
 import { MagnifyingGlassIcon, BellIcon, UserCircleIcon } from "@heroicons/react/24/outline"
-import { useEffect, useState } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { useAuth } from "../context/auth-context";
 
 export default function NavBar() {
-  const [user, loading] = useAuthState(auth);
-  const [role, setRole] = useState<string | null>(null);
-  const [checkingRole, setCheckingRole] = useState(true);
+  const { firebaseUser, appUser, loading } = useAuth();
 
-  // Fetch role from backend once we have a user
-  useEffect(() => {
-      const fetchRole = async () => {
-        if (user) {
-          try {
-            const token = await user.getIdToken();
-            const res = await fetchUserRole(user.uid, token);
-            setRole(res.role); 
-          } catch (err) {
-            console.error("Error fetching role:", err);
-          } finally {
-            setCheckingRole(false);
-          }
-        }
-      };
+  if (loading) return <div>Loading...</div>;
 
-    fetchRole();
-  }, [user]);
-
-  if (loading || checkingRole) {
-    return <div>Loading...</div>;
-  }
-
-  if (!user) {
+  if (!firebaseUser || !appUser) {
     return null; // Prevent flicker before redirect
   }
 
@@ -53,7 +27,7 @@ export default function NavBar() {
         </div>
         <div className='flex flex-col'>
           <span className="text-xs leading-3 font-medium">John Doe</span>
-          <span className="text-[10px] text-gray-500 text-right">{role}</span>
+          <span className="text-[10px] text-gray-500 text-right">{appUser.role}</span>
         </div>
         <UserCircleIcon className="w-7 h-7" />
       </div>

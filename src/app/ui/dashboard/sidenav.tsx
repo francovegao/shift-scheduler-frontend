@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import SchedulerLogo from '@/app/ui/scheduler-logo';
-import { PowerIcon } from '@heroicons/react/24/outline';
 import NavLinks from '@/app/ui/dashboard/nav-links';
 import SignOutButton from './sign-out-button';
 

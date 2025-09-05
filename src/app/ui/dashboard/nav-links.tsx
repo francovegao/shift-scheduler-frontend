@@ -13,10 +13,7 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '@/app/lib/firebaseConfig';
-import { useEffect, useState } from 'react';
-import { fetchUserRole } from '@/app/lib/data';
+import { useAuth } from '../context/auth-context';
 
 // Map of links to display in the side navigation.
 // Depending on the size of the application, this would be stored in a database.
@@ -43,34 +40,11 @@ const links = [
 
 export default function NavLinks() {
   const pathname = usePathname();
-  const [user, loading] = useAuthState(auth);
-  const [role, setRole] = useState<string | null>(null);
-  const [checkingRole, setCheckingRole] = useState(true);
+  const { firebaseUser, appUser, loading } = useAuth();
 
-  // Fetch role from backend once we have a user
-  useEffect(() => {
-      const fetchRole = async () => {
-        if (user) {
-          try {
-            const token = await user.getIdToken();
-            const res = await fetchUserRole(user.uid, token);
-            setRole(res.role); 
-          } catch (err) {
-            console.error("Error fetching role:", err);
-          } finally {
-            setCheckingRole(false);
-          }
-        }
-      };
+  if (loading) return <div>Loading...</div>;
 
-    fetchRole();
-  }, [user]);
-
-  if (loading || checkingRole) {
-    return <div>Loading...</div>;
-  }
-
-  if (!user) {
+  if (!firebaseUser || !appUser) {
     return null; // Prevent flicker before redirect
   }
 
@@ -78,7 +52,7 @@ export default function NavLinks() {
     <>
       {links.map((link) => {
         const LinkIcon = link.icon;
-        if(role && link.visible.includes(role)){ 
+        if(appUser.role && link.visible.includes(appUser.role)){ 
           return (
           <Link
             key={link.name}

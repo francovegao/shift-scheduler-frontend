@@ -1,29 +1,20 @@
 "use client";
 
-import { useAuthState } from "react-firebase-hooks/auth";
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
-import { auth } from "@/app/lib/firebaseConfig";
 import SignOutButton from "../dashboard/sign-out-button";
-import { fetchUserRole } from "@/app/lib/data";
+import { useAuth } from "../context/auth-context";
 
 type Props = {
   children: ReactNode;
-  allowedRoles?: string[]; // e.g. ["admin", "company_manager"]
+  allowedRoles?: string[]; // e.g. ["admin", "pharmacy_manager"]
 };
 
+//Wrapper to protect routes according to user roles
 export function AuthWrapper({ children , allowedRoles }: Props) {
-  const [user, loading] = useAuthState(auth);
-  const [role, setRole] = useState<string | null>(null);
-  const [checkingRole, setCheckingRole] = useState(true);
+  const { appUser, loading } = useAuth();
   const [baseURL, setBaseURL] = useState<string | URL | undefined>();
   const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push("/");         // redirect to login
-    }
-  }, [loading, user, router]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -31,36 +22,15 @@ export function AuthWrapper({ children , allowedRoles }: Props) {
     }
   }, []);
 
-  // Fetch role from backend once we have a user
-  useEffect(() => {
-      const fetchRole = async () => {
-        if (user) {
-          try {
-            const token = await user.getIdToken();
-            const res = await fetchUserRole(user.uid, token);
-            setRole(res.role); 
-          } catch (err) {
-            console.error("Error fetching role:", err);
-          } finally {
-            setCheckingRole(false);
-          }
-        }
-      };
+  if (loading) return <div>Loading...</div>;
 
-    fetchRole();
-  }, [user]);
-
-  if (loading || checkingRole) {
-    return <div>Loading...</div>;
-  }
-
-  if (!user) {
+  if (!appUser) {
     return null; // Prevent flicker before redirect
   }
 
-  if (allowedRoles && !allowedRoles.includes(role ?? "")) {
+  if (allowedRoles && !allowedRoles.includes(appUser.role ?? "")) {
 
-    router.push(`${baseURL}/${role}`); 
+    router.push(`${baseURL}/${appUser.role}`); 
 
     return (
       <div>

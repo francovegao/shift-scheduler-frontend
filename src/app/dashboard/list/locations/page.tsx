@@ -1,14 +1,16 @@
-import { companiesData, fetchCompanies, fetchLocations, role } from "@/app/lib/data";
+"use client";
+
+import { fetchLocations } from "@/app/lib/data";
 import { lusitana } from "@/app/ui/fonts";
-import { AddPharmacist, DeletePharmacist, UpdatePharmacist } from "@/app/ui/list/buttons";
 import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
-import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/table-search";
 import Link from "next/link";
 import { EyeIcon } from "@heroicons/react/24/outline";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
+import { useAuth } from "@/app/ui/context/auth-context";
+import { useEffect, useState } from "react";
 
 type LocationsList = Location & { company: Company };
 
@@ -79,7 +81,48 @@ const columns = [
   },
 ];
 
-const renderRow = (item: LocationsList) => (
+export default function LocationsList({
+  searchParams,
+  }:{
+    searchParams: { [key: string]: string | undefined} ;
+  }){
+    const { firebaseUser, appUser, loading } = useAuth();
+
+    const [locations, setLocations] = useState<any[]>([]);
+    const [totalPages, setTotalPages] = useState<number>(1);
+    const [isFetching, setIsFetching] = useState(true);
+
+    const { page, query, ...queryParams } = searchParams;
+    const currentPage = page ? parseInt(page) : 1;
+    const search = query ? query : '';
+
+    // Fetch locations client-side
+    useEffect(() => {
+    const getLocations = async () => {
+      setIsFetching(true);
+      try {
+        const locationsResponse = await fetchLocations(search, currentPage, queryParams);
+        setLocations(locationsResponse?.data ?? []);
+        setTotalPages(locationsResponse?.meta?.totalPages ?? 1);
+      } catch (err) {
+        console.error("Failed to fetch locations", err);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+
+    getLocations();
+  }, [search, currentPage, JSON.stringify(queryParams)]);
+
+    if (loading || isFetching) return <div>Loading...</div>;
+    
+    if (!firebaseUser || !appUser) {
+        return null;  
+    }
+
+    const role = appUser.role;
+
+    const renderRow = (item: LocationsList) => (
     <tr
       key={item.id}
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-purple-50"
@@ -104,11 +147,14 @@ const renderRow = (item: LocationsList) => (
           >
             <EyeIcon className="w-5"  />
           </Link>
-          {role === "admin" && (
-            <>
-              {/* <UpdatePharmacist id={item.id} /> */}
+          { role === "pharmacy_manager" && (
+            <> 
               <FormModal table="location" type="update" id={item.id}/>
-              {/* <DeletePharmacist id={item.id} /> */}
+            </>
+          )}
+          {role === "admin" && (
+            <> 
+              <FormModal table="location" type="update" id={item.id}/>
               <FormModal table="location" type="delete" id={item.id}/>
             </>
           )}
@@ -116,23 +162,6 @@ const renderRow = (item: LocationsList) => (
       </td>
     </tr>
   );
-
-export default async function LocationsList({
-  searchParams,
-  }:{
-    searchParams: Promise< { [key: string]: string | undefined} >;
-  }){
-
-    const searchParameters = await searchParams;
-    //const query = searchParameters?.query || '';
-    //const currentPage = Number(searchParameters?.page) || 1;
-    const { page, query, ...queryParams } = searchParameters;
-    const currentPage = page ? parseInt(page) : 1;
-    const search = query ? query : '';
-
-    const locationsResponse = await fetchLocations(search, currentPage, queryParams);
-    const locations = locationsResponse?.data;
-    const totalPages =locationsResponse.meta?.totalPages;
 
   return (
     <AuthWrapper allowedRoles={["admin", "pharmacy_manager"]}>
@@ -144,19 +173,27 @@ export default async function LocationsList({
               {/* TOP */}
               <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
                   <TableSearch placeholder="Search locations..." />
-                  {role === "admin" && (
-                  //<AddPharmacist />
+                { (role === "admin" || role === "pharmacy_manager") && (
                   <FormModal table="location" type="create" />
                   )}
               </div>
-              {/* LIST */}
-              <div style={{overflowX: 'scroll'}}>
-                  <Table columns={columns} renderRow={renderRow} data={locations}/>
-              </div>
-              {/* PAGINATION */}
-              <div className="mt-5 flex w-full justify-center">
-                  <Pagination totalPages={totalPages} />
-              </div>
+
+              {locations.length === 0 ? (
+                <div className="mt-5 flex w-full justify-center text-sm">
+                  No locations found
+                </div>
+              ) : (   
+                <>   
+                  {/* LIST */}
+                  <div style={{overflowX: 'scroll'}}>
+                      <Table columns={columns} renderRow={renderRow} data={locations}/>
+                  </div>
+                  {/* PAGINATION */}
+                  <div className="mt-5 flex w-full justify-center">
+                      <Pagination totalPages={totalPages} />
+                  </div>
+                </>
+              )}
           </div>
       </div>
     </AuthWrapper>

@@ -156,13 +156,17 @@ export async function fetchPharmacists(query: string, currentPage: number) {
   }
 }
 
-export async function fetchUser(uid: string) {
+export async function fetchUser(uid: string, token: string) {
   try {
     console.log('Validating user...');
 
     const url = new URL(`http://localhost:5001/users/fb/${uid}`);
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), {
+                    headers: { 
+                      Authorization: `Bearer ${token}`, 
+                    },
+                  });
     
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)

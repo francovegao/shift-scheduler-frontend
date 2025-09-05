@@ -1,7 +1,6 @@
 "use client";
 
 import { auth, login, loginGoogle } from "../lib/firebaseConfig";
-import { BuildingStorefrontIcon } from "@heroicons/react/16/solid";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -15,7 +14,7 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
-  const [user, loading] = useAuthState(auth);
+  const [firebaseUser, loading] = useAuthState(auth);
 
   const logIn = async (e: { preventDefault: () => void; }) => {
       e.preventDefault();
@@ -35,8 +34,9 @@ export default function Home() {
       }
   };
 
-  const redirectUser = async (user: any) => {
-    const  userInfo = await fetchUser(user.uid);
+  const redirectUser = async (firebaseUser: any) => {
+    const token = await firebaseUser.getIdToken();
+    const  userInfo = await fetchUser(firebaseUser.uid, token);
     
     const role = userInfo.role; 
 
@@ -48,8 +48,8 @@ export default function Home() {
     return <div>Loading...</div>
   }
 
-  if(user) {
-    redirectUser(user);
+  if(firebaseUser) {
+    redirectUser(firebaseUser);
     return <div>Loading...</div>  //TODO add a signout button, this is reached when a user is registered but is not found in the DB
   }
 
