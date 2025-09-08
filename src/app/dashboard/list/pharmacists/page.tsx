@@ -1,15 +1,17 @@
-import { fetchPharmacists, pharmacistsData, role } from "@/app/lib/data";
+"use client";
+
+import { fetchPharmacists } from "@/app/lib/data";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
+import { useAuth } from "@/app/ui/context/auth-context";
 import { lusitana } from "@/app/ui/fonts";
-import { AddPharmacist, DeletePharmacist, UpdatePharmacist } from "@/app/ui/list/buttons";
 import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/table-search";
 import { EyeIcon } from "@heroicons/react/16/solid";
-import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 type PharmacistList = User & { roles: Roles[] } & {pharmacistProfile?: PharmacistProfile} ;
 
@@ -85,7 +87,48 @@ const columns = [
   },
 ];
 
-const renderRow = (item: PharmacistList) => (
+export default function PharmacistsList({
+  searchParams,
+  }:{
+    searchParams: { [key: string]: string | undefined} ;
+  }){
+    const { firebaseUser, appUser, loading } = useAuth();
+
+    const [pharmacists, setPharmacists] = useState<any[]>([]);
+    const [totalPages, setTotalPages] = useState<number>(1);
+    const [isFetching, setIsFetching] = useState(true);
+
+    const { page, query, ...queryParams } = searchParams;
+    const currentPage = page ? parseInt(page) : 1;
+    const search = query ? query : ''; 
+
+    // Fetch pharmacists client-side
+    useEffect(() => {
+    const getPharmacists = async () => {
+      setIsFetching(true);
+      try {
+        const pharmacistsResponse = await fetchPharmacists(search, currentPage);
+        setPharmacists(pharmacistsResponse?.data ?? []);
+        setTotalPages(pharmacistsResponse?.meta?.totalPages ?? 1);
+      } catch (err) {
+        console.error("Failed to fetch pharmacists", err);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+    
+    getPharmacists();
+   }, [search, currentPage, JSON.stringify(queryParams)]);
+    
+    if (loading || isFetching) return <div>Loading...</div>;
+        
+    if (!firebaseUser || !appUser) {
+        return null;  
+    }
+    
+    const role = appUser.role;
+
+ const renderRow = (item: PharmacistList) => (
     <tr
       key={item.id}
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-purple-50"
@@ -131,9 +174,7 @@ const renderRow = (item: PharmacistList) => (
           </Link>
           {role === "admin" && (
             <>
-              {/*<UpdatePharmacist id={item.id} />*/}
               <FormModal table="pharmacist" type="update" id={item.id} />
-              {/*<DeletePharmacist id={item.id} />*/}
               <FormModal table="pharmacist" type="delete" id={item.id} />
              </>
           )}
@@ -141,20 +182,6 @@ const renderRow = (item: PharmacistList) => (
       </td>
     </tr>
   );
-
-export default async function PharmacistsList({
-  searchParams,
-  }:{
-    searchParams: Promise< { [key: string]: string | undefined} >;
-  }){
-
-    const searchParameters = await searchParams;
-    const query = searchParameters?.query || '';
-    const currentPage = Number(searchParameters?.page) || 1;
-
-    const pharmacistsResponse = await fetchPharmacists(query, currentPage);
-    const pharmacists = pharmacistsResponse?.data;
-    const totalPages=pharmacistsResponse.meta?.totalPages;
 
   return (
     <AuthWrapper allowedRoles={["admin"]}>

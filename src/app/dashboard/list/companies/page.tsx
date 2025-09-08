@@ -1,6 +1,7 @@
-import { companiesData, fetchCompanies, fetchLocations, role } from "@/app/lib/data";
+"use client";
+
+import {  fetchCompanies, } from "@/app/lib/data";
 import { lusitana } from "@/app/ui/fonts";
-import { AddPharmacist, DeletePharmacist, UpdatePharmacist } from "@/app/ui/list/buttons";
 import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
@@ -9,6 +10,8 @@ import TableSearch from "@/app/ui/table-search";
 import Link from "next/link";
 import { EyeIcon } from "@heroicons/react/24/outline";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
+import { useAuth } from "@/app/ui/context/auth-context";
+import { useEffect, useState } from "react";
 
 type Company = {
     id: number,
@@ -70,6 +73,49 @@ const columns = [
   },
 ];
 
+
+
+export default function CompaniesList({
+  searchParams,
+  }:{
+    searchParams: { [key: string]: string | undefined} ;
+  }){
+    const { firebaseUser, appUser, loading } = useAuth();
+
+    const [companies, setCompanies] = useState<any[]>([]);
+    const [totalPages, setTotalPages] = useState<number>(1);
+    const [isFetching, setIsFetching] = useState(true);
+
+    const { page, query, ...queryParams } = searchParams;
+    const currentPage = page ? parseInt(page) : 1;
+    const search = query ? query : '';   
+
+    // Fetch locations client-side
+    useEffect(() => {
+    const getCompanies = async () => {
+      setIsFetching(true);
+      try {
+        const companiesResponse = await fetchCompanies(search, currentPage);
+        setCompanies(companiesResponse?.data ?? []);
+        setTotalPages(companiesResponse?.meta?.totalPages ?? 1);
+      } catch (err) {
+        console.error("Failed to fetch companies", err);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+    
+    getCompanies();
+   }, [search, currentPage, JSON.stringify(queryParams)]);
+    
+    if (loading || isFetching) return <div>Loading...</div>;
+        
+    if (!firebaseUser || !appUser) {
+        return null;  
+    }
+    
+    const role = appUser.role;
+
 const renderRow = (item: Company) => (
     <tr
       key={item.id}
@@ -99,9 +145,7 @@ const renderRow = (item: Company) => (
           </Link>
           {role === "admin" && (
             <>
-              {/* <UpdatePharmacist id={item.id} /> */}
               <FormModal table="company" type="update" id={item.id}/>
-              {/* <DeletePharmacist id={item.id} /> */}
               <FormModal table="company" type="delete" id={item.id}/>
             </>
           )}
@@ -109,20 +153,6 @@ const renderRow = (item: Company) => (
       </td>
     </tr>
   );
-
-export default async function CompaniesList({
-  searchParams,
-  }:{
-    searchParams: Promise< { [key: string]: string | undefined} >;
-  }){
-
-    const searchParameters = await searchParams;
-    const query = searchParameters?.query || '';
-    const currentPage = Number(searchParameters?.page) || 1;
-
-    const companiesResponse = await fetchCompanies(query, currentPage);
-    const companies = companiesResponse?.data;
-    const totalPages=companiesResponse.meta?.totalPages;
 
   return (
     <AuthWrapper allowedRoles={["admin"]}>

@@ -207,7 +207,7 @@ export async function fetchUserRole(uid: string, token: string) {
 
 // TEMPORARY DATA
 
-export let role = "admin";  //["admin", "relief_pharmacist", "pharmacy_manager", "location_manager"]
+//export let role = "admin";  //["admin", "relief_pharmacist", "pharmacy_manager", "location_manager"]
 
 // YOU SHOULD CHANGE THE DATES OF THE EVENTS TO THE CURRENT DATE TO SEE THE EVENTS ON THE CALENDAR
 export const scheduledShifts = [

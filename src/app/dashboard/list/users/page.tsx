@@ -1,17 +1,18 @@
-import { fetchUsers, pharmacistsData, role } from "@/app/lib/data";
+"use client";
+
+import { fetchUsers } from "@/app/lib/data";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
+import { useAuth } from "@/app/ui/context/auth-context";
 import { lusitana } from "@/app/ui/fonts";
-import { AddPharmacist, DeletePharmacist, UpdatePharmacist } from "@/app/ui/list/buttons";
 import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
-import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/table-search";
 import { EyeIcon } from "@heroicons/react/16/solid";
-import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
-type UserList = User & { roles: Roles[] };
+type UserList = User & { company: Company } & { location: Location };
 
 type User = {
     id: number,
@@ -19,13 +20,33 @@ type User = {
     firstName?: string,
     lastName?: string,
     phone?: string,
+    role: string,
+    companyId?: string,
+    locationId?: String
 } 
 
-type Roles = {
-  id: string,
-  userId: string,
-  role: string,
-  companyId: string,
+type Company = {
+    id: number,
+    approved: boolean,
+    name: string,
+    email?: string,
+    phone?: string,
+    address?: string,
+    city?: string,
+    province?: string,
+    postalCode?: string,
+}
+
+type Location = {
+    id: number,
+    name: string,
+    email?: string,
+    phone?: string,
+    address?: string,
+    city?: string,
+    province?: string,
+    postalCode?: string,
+    companyId: string,
 }
 
 const columns = [
@@ -45,9 +66,14 @@ const columns = [
     className: "hidden lg:table-cell px-3 py-5 font-medium",
   },
   {
-    header: "Roles",
-    accessor: "roles",
+    header: "Role",
+    accessor: "role",
     className: "hidden sm:table-cell px-3 py-5 font-medium",
+  },
+      {
+    header: "Company",
+    accessor: "company",
+    className: "hidden md:table-cell px-3 py-5 font-medium",
   },
   {
     header: "",
@@ -55,6 +81,49 @@ const columns = [
     className:"relative py-3 pl-6 pr-3"
   },
 ];
+
+
+
+export default function UsersList({
+  searchParams,
+  }:{
+    searchParams: { [key: string]: string | undefined} ;
+  }){
+    const { firebaseUser, appUser, loading } = useAuth();
+
+    const [users, setUsers] = useState<any[]>([]);
+    const [totalPages, setTotalPages] = useState<number>(1);
+    const [isFetching, setIsFetching] = useState(true);
+
+    const { page, query, ...queryParams } =  searchParams;
+    const currentPage = page ? parseInt(page) : 1;
+    const search = query ? query : ''; 
+
+    // Fetch users client-side
+    useEffect(() => {
+    const getUsers = async () => {
+      setIsFetching(true);
+      try {
+        const usersResponse = await fetchUsers(search, currentPage, queryParams);
+        setUsers(usersResponse?.data ?? []);
+        setTotalPages(usersResponse?.meta?.totalPages ?? 1);
+      } catch (err) {
+        console.error("Failed to fetch users", err);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+    
+    getUsers();
+   }, [search, currentPage, JSON.stringify(queryParams)]);
+    
+    if (loading || isFetching) return <div>Loading...</div>;
+        
+    if (!firebaseUser || !appUser) {
+        return null;  
+    }
+    
+    const role = appUser.role;
 
 const renderRow = (item: UserList) => (
     <tr
@@ -77,7 +146,13 @@ const renderRow = (item: UserList) => (
       <td className="hidden md:table-cell whitespace-nowrap px-3 py-3">{item.email}</td>
       <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">{item.phone}</td>
       <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">
-        {item.roles.map((role) => role.role).join(",")}
+        {item.role}
+      </td>
+      <td className="hidden md:table-cell flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
+        <div className="flex flex-col">
+          <h3 className="font-semibold">{item?.company?.name}</h3>
+          <p className="text-xs text-gray-500">{item?.location?.name}</p>
+        </div>
       </td>
       
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
@@ -90,9 +165,7 @@ const renderRow = (item: UserList) => (
           </Link>
           {role === "admin" && (
             <>
-              {/*<UpdatePharmacist id={item.id} />*/}
               <FormModal table="user" type="update" id={item.id} />
-              {/*<DeletePharmacist id={item.id} />*/}
               <FormModal table="user" type="delete" id={item.id} />
              </>
           )}
@@ -101,23 +174,6 @@ const renderRow = (item: UserList) => (
     </tr>
   );
 
-export default async function UsersList({
-  searchParams,
-  }:{
-    searchParams: Promise< { [key: string]: string | undefined} >;
-  }){
-
-    const searchParameters = await searchParams;
-    //const query = searchParameters?.query || '';
-    //const currentPage = Number(searchParameters?.page) || 1;
-    const { page, query, ...queryParams } = searchParameters;
-    const currentPage = page ? parseInt(page) : 1;
-    const search = query ? query : '';
-
-    const usersResponse = await fetchUsers(search, currentPage, queryParams);
-    const users = usersResponse?.data;
-    const totalPages=usersResponse.meta?.totalPages;
-    //const totalPages=4;
 
   return (
     <AuthWrapper allowedRoles={["admin"]}>

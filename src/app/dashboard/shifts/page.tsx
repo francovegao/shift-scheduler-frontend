@@ -1,8 +1,8 @@
 "use client";
 
-import { fetchShifts, role } from "@/app/lib/data";
-import { auth } from "@/app/lib/firebaseConfig";
+import { fetchShifts } from "@/app/lib/data";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
+import { useAuth } from "@/app/ui/context/auth-context";
 import BigCalendar from "@/app/ui/dashboard/big-calendar";
 import { lusitana } from "@/app/ui/fonts";
 import FormModal from "@/app/ui/list/form-modal";
@@ -11,8 +11,7 @@ import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/table-search";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { SetStateAction, useEffect, useState } from "react";
 
 type ShiftList = Shift & { company: Company }
                  & { location: Location } 
@@ -105,7 +104,64 @@ const columns = [
   },
 ];
 
-const renderRow = (item: ShiftList) => (
+
+
+export default function ShiftsList({
+  searchParams,
+  }:{
+    searchParams: { [key: string]: string | undefined};
+  }){
+
+    const router = useRouter();
+    const { firebaseUser, appUser, loading } = useAuth();
+    const [isFetching, setIsFetching] = useState(true);
+    const [token, setToken] = useState("");
+    const [shifts, setShifts] = useState<any[]>([]);
+    const [totalPages, setTotalPages] = useState<number>(1);
+
+    const { page, query, ...queryParams } = searchParams;
+    const currentPage = page ? parseInt(page) : 1;
+    const search = query ?? '';  //query?query:"";
+
+    // Redirect if not logged in
+    useEffect(() => {
+      if (!loading && !firebaseUser) {
+        router.push("/");
+      }
+    }, [loading, firebaseUser, router]);
+
+    // Get token when user logs in
+    useEffect(() => {
+      if (firebaseUser) {
+        firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
+          setToken(idToken);
+        });
+      }
+    }, [firebaseUser]);
+
+        // Fetch shifts when token is ready
+      useEffect(() => {
+        const getShifts = async () => {
+          setIsFetching(true);
+          try {
+            const shiftsResponse = await fetchShifts(search, currentPage, queryParams, token);
+            setShifts(shiftsResponse?.data ?? []);
+            setTotalPages(shiftsResponse?.meta?.totalPages ?? 1);
+          } catch (err) {
+            console.error("Failed to fetch shifts", err);
+          } finally {
+            setIsFetching(false);
+          }
+        };
+        if (token){ getShifts() };
+  }, [token, search, currentPage, JSON.stringify(queryParams)]);
+
+    if (loading || isFetching) return <div>Loading...</div>;
+    if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
+
+    const role = appUser.role;
+
+    const renderRow = (item: ShiftList) => (
     <tr
       key={item.id}
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-purple-50"
@@ -133,11 +189,11 @@ const renderRow = (item: ShiftList) => (
       </td>
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex justify-end gap-3">
-          {role === "admin" && (
+          {(role === "admin" ||
+            role === "pharmacy_manager" ||
+            role === "location_manager") && (
             <>
-              {/*<UpdatePharmacist id={item.id} /> */}
               <FormModal table="shift" type="update" id={item.id}/>
-              {/*<DeletePharmacist id={item.id} /> */}
               <FormModal table="shift" type="delete" id={item.id}/>
             </>
           )}
@@ -145,51 +201,6 @@ const renderRow = (item: ShiftList) => (
       </td>
     </tr>
   );
-
-export default function ShiftsList({
-  searchParams,
-  }:{
-    searchParams: { [key: string]: string | undefined};
-  }){
-
-    const router = useRouter();
-    const [user, loading] = useAuthState(auth);
-    const [token, setToken] = useState("");
-    const [shifts, setShifts] = useState<any[]>([]);
-    const [totalPages, setTotalPages] = useState(1);
-
-    const { page, query, ...queryParams } = searchParams;
-    const currentPage = page ? parseInt(page) : 1;
-    const search = query ?? '';  //query?query:"";
-
-    // Redirect if not logged in
-    useEffect(() => {
-      if (!loading && !user) {
-        router.push("/");
-      }
-    }, [loading, user, router]);
-
-    // Get token when user logs in
-    useEffect(() => {
-      if (user) {
-        user.getIdToken().then((idToken) => {
-          setToken(idToken);
-        });
-      }
-    }, [user]);
-
-    // Fetch shifts when token is ready
-    useEffect(() => {
-      if (token) {
-        fetchShifts(search, currentPage, queryParams, token).then((res) => {
-          setShifts(res?.data || []);
-          setTotalPages(res?.meta?.totalPages || 1);
-        });
-      }
-    }, [token, search, currentPage, queryParams]);
-
-    if (loading) return <div>Loading...</div>;
-    if (!user) return <div>Please sign in to continue</div>;
 
   return (
     <AuthWrapper allowedRoles={["admin", "pharmacy_manager", "location_manager", "relief_pharmacist"]}>
@@ -201,7 +212,9 @@ export default function ShiftsList({
           {/* TOP */}
           <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
             <TableSearch placeholder="Search shifts..." />
-            {role === "admin" && (
+             { (role === "admin" ||
+                role === "pharmacy_manager" ||
+                role === "location_manager") && (
               //<AddPharmacist />
               <FormModal table="shift" type="create" />
             )}
