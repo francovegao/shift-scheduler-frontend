@@ -130,7 +130,7 @@ export default function ShiftsList({
       }
     }, [loading, firebaseUser, router]);
 
-    // Get token when user logs in
+    // Get token
     useEffect(() => {
       if (firebaseUser) {
         firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {

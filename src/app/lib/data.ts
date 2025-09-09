@@ -1,7 +1,7 @@
 
 const ITEMS_PER_PAGE = 2; //TODO adjust this number to 10
 
-export async function fetchLocations(query: string, currentPage: number, queryParams: Object) {
+export async function fetchLocations(query: string, currentPage: number, queryParams: Object, token: string) {
   try {
     console.log('Fetching locations data...');
 
@@ -18,7 +18,11 @@ export async function fetchLocations(query: string, currentPage: number, queryPa
       }
     }
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)

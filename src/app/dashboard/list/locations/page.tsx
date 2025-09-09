@@ -10,7 +10,7 @@ import Link from "next/link";
 import { EyeIcon } from "@heroicons/react/24/outline";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 
 type LocationsList = Location & { company: Company };
 
@@ -87,6 +87,7 @@ export default function LocationsList({
     searchParams: { [key: string]: string | undefined} ;
   }){
     const { firebaseUser, appUser, loading } = useAuth();
+    const [token, setToken] = useState("");
 
     const [locations, setLocations] = useState<any[]>([]);
     const [totalPages, setTotalPages] = useState<number>(1);
@@ -96,12 +97,21 @@ export default function LocationsList({
     const currentPage = page ? parseInt(page) : 1;
     const search = query ? query : '';
 
+    // Get token
+    useEffect(() => {
+      if (firebaseUser) {
+        firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
+          setToken(idToken);
+        });
+      }
+    }, [firebaseUser]);
+
     // Fetch locations client-side
     useEffect(() => {
     const getLocations = async () => {
       setIsFetching(true);
       try {
-        const locationsResponse = await fetchLocations(search, currentPage, queryParams);
+        const locationsResponse = await fetchLocations(search, currentPage, queryParams, token);
         setLocations(locationsResponse?.data ?? []);
         setTotalPages(locationsResponse?.meta?.totalPages ?? 1);
       } catch (err) {
@@ -111,8 +121,8 @@ export default function LocationsList({
       }
     };
 
-    getLocations();
-  }, [search, currentPage, JSON.stringify(queryParams)]);
+    if (token){ getLocations() };
+  }, [token, search, currentPage, JSON.stringify(queryParams)]);
 
     if (loading || isFetching) return <div>Loading...</div>;
     
