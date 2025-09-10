@@ -102,6 +102,43 @@ export async function fetchShifts(query: string, currentPage: number, queryParam
   }
 }
 
+export async function fetchMyShifts(query: string, currentPage: number, queryParams: Object, token: string) {
+  try {
+    console.log('Fetching pharmacist shifts data...');
+
+    const url = new URL('http://localhost:5001/shifts/myshifts');
+    url.searchParams.append('search', query);
+    url.searchParams.append('page', currentPage.toString());
+    url.searchParams.append('limit', ITEMS_PER_PAGE.toString());
+    
+    if(queryParams){
+      for (const [key, value] of Object.entries(queryParams)) {
+        if (value !== undefined) {
+          url.searchParams.append(key, value.toString());
+        }
+      }
+    }
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    //throw new Error('Failed to fetch locations');
+    return null;
+  }
+}
+
 export async function fetchUsers(query: string, currentPage: number, queryParams: Object) {
   try {
     console.log('Fetching users data...');
