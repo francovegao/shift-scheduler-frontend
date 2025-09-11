@@ -105,7 +105,7 @@ export async function fetchShifts(query: string, currentPage: number, queryParam
 export async function fetchMyShifts(query: string, currentPage: number, queryParams: Object, token: string) {
   try {
     console.log('Fetching pharmacist shifts data...');
-
+ 
     const url = new URL('http://localhost:5001/shifts/myshifts');
     url.searchParams.append('search', query);
     url.searchParams.append('page', currentPage.toString());
@@ -118,6 +118,34 @@ export async function fetchMyShifts(query: string, currentPage: number, queryPar
         }
       }
     }
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    //throw new Error('Failed to fetch locations');
+    return null;
+  }
+}
+
+export async function fetchShiftsByDate(date: string, token: string) {
+  try {
+    console.log('Fetching shifts by date data...');
+
+    const url = new URL('http://localhost:5001/shifts/date');
+    url.searchParams.append('date', date);
+    
 
     const response = await fetch(url.toString(), {
       headers: {
@@ -226,6 +254,66 @@ export async function fetchUserRole(uid: string, token: string) {
   try {
 
     const url = new URL(`http://localhost:5001/users/me/${uid}`);
+
+    const response = await fetch(url.toString(), {
+                    headers: {
+                    Authorization: `Bearer ${token}`,
+                    },
+                });
+    
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return null;
+  }
+}
+
+export async function fetchCardData(token: string) {
+  try {
+    const shiftsCountPromise = fetchShifts("",1,{}, token);
+    const companiesCountPromise = fetchCompanies("",1);
+    const locationsCountPromise = fetchLocations("",1,{}, token);
+    const pharmacistsCountPromise = fetchPharmacists("",1);
+  
+    const data = await Promise.all([
+      shiftsCountPromise,
+      companiesCountPromise,
+      locationsCountPromise,
+      pharmacistsCountPromise,
+    ]);
+
+    const numberOfShifts = Number(data[0].meta?.totalItems ?? '0');
+    const numberOfCompanies = Number(data[1].meta?.totalItems ?? '0');
+    const numberOfLocations = Number(data[2].meta?.totalItems ?? '0');
+    const numberOfPharmacists = Number(data[3].meta?.totalItems ?? '0');
+    
+    //const numberOfCustomers = Number(data[1][0].count ?? '0');
+    //const totalPaidInvoices = formatCurrency(data[2][0].paid ?? '0');
+    //const totalPendingInvoices = formatCurrency(data[2][0].pending ?? '0');
+
+    return {
+      numberOfPharmacists,
+      numberOfCompanies,
+      numberOfLocations,
+      numberOfShifts,
+    };
+  } catch (error) {
+    console.error('API Error:', error);
+    throw new Error('Failed to fetch card data.');
+  }
+}
+
+export async function fetchNotifications(uid: string, token: string) {
+  try {
+    console.log('Fetching notifications...');
+
+    const url = new URL(`http://localhost:5001/users/notifications/${uid}`);
 
     const response = await fetch(url.toString(), {
                     headers: {

@@ -1,5 +1,5 @@
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
-import Announcements from "@/app/ui/dashboard/announcements";
+import Announcements from "@/app/ui/dashboard/notifications";
 import BigCalendar from "@/app/ui/dashboard/big-calendar";
 import CardWrapper from "@/app/ui/dashboard/cards";
 import LatestShifts from "@/app/ui/dashboard/latest-shifts";
