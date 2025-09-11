@@ -17,15 +17,13 @@ export default async function AdminPage({
         <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
           Admin Dashboard
         </h1>
+        {/* USER CARDS */}
+        <div className="p-8 grid gap-6 grid-cols-2 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-4">
+          <CardWrapper />
+        </div>
         <div className="flex gap-4 flex-col md:flex-row">
         {/* LEFT */}
         <div className="w-full lg:w-2/3 flex flex-col gap-8">
-          {/* USER CARDS */}
-          <div className="flex gap-2 justify-between flex-wrap">
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-4">
-              <CardWrapper />
-            </div>
-          </div>
           {/* MIDDLE CHARTS */}
           <div className="flex gap-4 flex-col lg:flex-row">
             {/* COUNT CHART */}

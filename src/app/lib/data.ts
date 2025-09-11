@@ -139,6 +139,33 @@ export async function fetchMyShifts(query: string, currentPage: number, queryPar
   }
 }
 
+export async function fetchAllMyShifts(token: string) {
+  try {
+    console.log('Fetching all my shifts data...');
+ 
+    const url = new URL('http://localhost:5001/shifts/allmyshifts');
+    url.searchParams.append('limit', '1000');   //Limit to 1000 shifts
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    //throw new Error('Failed to fetch locations');
+    return null;
+  }
+}
+
 export async function fetchShiftsByDate(date: string, token: string) {
   try {
     console.log('Fetching shifts by date data...');
@@ -396,156 +423,156 @@ export const scheduledShifts = [
   {
     title: "Test Shift",
     allDay: false,
-    start: new Date(2025, 7, 8, 8, 30),
-    end: new Date(2025, 7, 8, 16, 30),
+    start: new Date(2025, 8, 8, 8, 30),
+    end: new Date(2025, 8, 8, 16, 30),
   },
   {
     title: "Overnight Shift",
     allDay: false,
-    start: new Date(2025, 7, 10, 22, 30),
-    end: new Date(2025, 7, 11, 6, 30),
+    start: new Date(2025, 8, 10, 22, 30),
+    end: new Date(2025, 8, 11, 6, 30),
   },
   {
     title: "Math",
     allDay: false,
-    start: new Date(2025, 7, 12, 8, 0),
-    end: new Date(2025, 7, 12, 8, 45),
+    start: new Date(2025, 8, 12, 8, 0),
+    end: new Date(2025, 8, 12, 8, 45),
   },
   {
     title: "English",
     allDay: false,
-    start: new Date(2025, 7, 12, 9, 0),
-    end: new Date(2025, 7, 12, 9, 45),
+    start: new Date(2025, 8, 12, 9, 0),
+    end: new Date(2025, 8, 12, 9, 45),
   },
   {
     title: "Biology",
     allDay: false,
-    start: new Date(2025, 7, 12, 10, 0),
-    end: new Date(2025, 7, 12, 10, 45),
+    start: new Date(2025, 8, 12, 10, 0),
+    end: new Date(2025, 8, 12, 10, 45),
   },
   {
     title: "Physics",
     allDay: false,
-    start: new Date(2025, 7, 12, 11, 0),
-    end: new Date(2025, 7, 12, 11, 45),
+    start: new Date(2025, 8, 12, 11, 0),
+    end: new Date(2025, 8, 12, 11, 45),
   },
   {
     title: "Chemistry",
     allDay: false,
-    start: new Date(2025, 7, 12, 13, 0),
-    end: new Date(2025, 7, 12, 13, 45),
+    start: new Date(2025, 8, 12, 13, 0),
+    end: new Date(2025, 8, 12, 13, 45),
   },
   {
     title: "History",
     allDay: false,
-    start: new Date(2025, 7, 12, 14, 0),
-    end: new Date(2025, 7, 12, 14, 45),
+    start: new Date(2025, 8, 12, 14, 0),
+    end: new Date(2025, 8, 12, 14, 45),
   },
   {
     title: "English",
     allDay: false,
-    start: new Date(2025, 7, 13, 9, 0),
-    end: new Date(2025, 7, 13, 9, 45),
+    start: new Date(2025, 8, 13, 9, 0),
+    end: new Date(2025, 8, 13, 9, 45),
   },
   {
     title: "Biology",
     allDay: false,
-    start: new Date(2025, 7, 13, 10, 0),
-    end: new Date(2025, 7, 13, 10, 45),
+    start: new Date(2025, 8, 13, 10, 0),
+    end: new Date(2025, 8, 13, 10, 45),
   },
   {
     title: "Physics",
     allDay: false,
-    start: new Date(2025, 7, 13, 11, 0),
-    end: new Date(2025, 7, 13, 11, 45),
+    start: new Date(2025, 8, 13, 11, 0),
+    end: new Date(2025, 8, 13, 11, 45),
   },
 
   {
     title: "History",
     allDay: false,
-    start: new Date(2025, 7, 13, 14, 0),
-    end: new Date(2025, 7, 13, 14, 45),
+    start: new Date(2025, 8, 13, 14, 0),
+    end: new Date(2025, 8, 13, 14, 45),
   },
   {
     title: "Math",
     allDay: false,
-    start: new Date(2025, 7, 14, 8, 0),
-    end: new Date(2025, 7, 14, 8, 45),
+    start: new Date(2025, 8, 14, 8, 0),
+    end: new Date(2025, 8, 14, 8, 45),
   },
   {
     title: "Biology",
     allDay: false,
-    start: new Date(2025, 7, 14, 10, 0),
-    end: new Date(2025, 7, 14, 10, 45),
+    start: new Date(2025, 8, 14, 10, 0),
+    end: new Date(2025, 8, 14, 10, 45),
   },
 
   {
     title: "Chemistry",
     allDay: false,
-    start: new Date(2025, 7, 14, 13, 0),
-    end: new Date(2025, 7, 14, 13, 45),
+    start: new Date(2025, 8, 14, 13, 0),
+    end: new Date(2025, 8, 14, 13, 45),
   },
   {
     title: "History",
     allDay: false,
-    start: new Date(2025, 7, 14, 14, 0),
-    end: new Date(2025, 7, 14, 14, 45),
+    start: new Date(2025, 8, 14, 14, 0),
+    end: new Date(2025, 8, 14, 14, 45),
   },
   {
     title: "English",
     allDay: false,
-    start: new Date(2025, 7, 15, 9, 0),
-    end: new Date(2025, 7, 15, 9, 45),
+    start: new Date(2025, 8, 15, 9, 0),
+    end: new Date(2025, 8, 15, 9, 45),
   },
   {
     title: "Biology",
     allDay: false,
-    start: new Date(2025, 7, 15, 10, 0),
-    end: new Date(2025, 7, 15, 10, 45),
+    start: new Date(2025, 8, 15, 10, 0),
+    end: new Date(2025, 8, 15, 10, 45),
   },
   {
     title: "Physics",
     allDay: false,
-    start: new Date(2025, 7, 15, 11, 0),
-    end: new Date(2025, 7, 15, 11, 45),
+    start: new Date(2025, 8, 15, 11, 0),
+    end: new Date(2025, 8, 15, 11, 45),
   },
 
   {
     title: "History",
     allDay: false,
-    start: new Date(2025, 7, 15, 14, 0),
-    end: new Date(2025, 7, 15, 14, 45),
+    start: new Date(2025, 8, 15, 14, 0),
+    end: new Date(2025, 8, 15, 14, 45),
   },
   {
     title: "Math",
     allDay: false,
-    start: new Date(2025, 7, 16, 8, 0),
-    end: new Date(2025, 7, 16, 8, 45),
+    start: new Date(2025, 8, 16, 8, 0),
+    end: new Date(2025, 8, 16, 8, 45),
   },
   {
     title: "English",
     allDay: false,
-    start: new Date(2025, 7, 16, 9, 0),
-    end: new Date(2025, 7, 16, 9, 45),
+    start: new Date(2025, 8, 16, 9, 0),
+    end: new Date(2025, 8, 16, 9, 45),
   },
 
   {
     title: "Physics",
     allDay: false,
-    start: new Date(2025, 7, 16, 11, 0),
-    end: new Date(2025, 7, 16, 11, 45),
+    start: new Date(2025, 8, 16, 11, 0),
+    end: new Date(2025, 8, 16, 11, 45),
   },
   {
     title: "Chemistry",
     allDay: false,
-    start: new Date(2025, 7, 16, 13, 0),
-    end: new Date(2025, 7, 16, 13, 45),
+    start: new Date(2025, 8, 16, 13, 0),
+    end: new Date(2025, 8, 16, 13, 45),
   },
   {
     title: "History",
     allDay: false,
-    start: new Date(2025, 7, 16, 14, 0),
-    end: new Date(2025, 7, 16, 14, 45),
+    start: new Date(2025, 8, 16, 14, 0),
+    end: new Date(2025, 8, 16, 14, 45),
   },
 ];
 
