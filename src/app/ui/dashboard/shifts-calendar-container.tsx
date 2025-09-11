@@ -10,7 +10,7 @@ export default async function ShiftsCalendarContainer({
   const {date} = await searchParams;
 
   return (
-    <div className="w-full md:col-span-4 bg-white p-4 rounded-md">
+    <div className="w-full md:col-span-4 bg-white p-4 rounded-md shadow-sm">
         <ShiftsCalendar />
         <div className="flex items-center justify-between">
             <h1 className="text-xl font-semibold my-4">Shifts</h1>

@@ -2,7 +2,7 @@
 
 import { SetStateAction, useEffect, useState } from "react";
 import { useAuth } from "../context/auth-context";
-import { fetchNotifications } from "@/app/lib/data";
+import { fetchUnseenNotifications, markAsReadNotification } from "@/app/lib/data";
 
 export default function Notifications() {
   const { firebaseUser, appUser, loading } = useAuth();
@@ -25,10 +25,8 @@ export default function Notifications() {
         const getNotifications = async () => {
           setIsFetching(true);
           try {
-            if(appUser){
-               const notificationsResponse = await fetchNotifications(appUser.id, token);
-               setNotifications(notificationsResponse?.data ?? []);
-            }
+            const notificationsResponse = await fetchUnseenNotifications(token);
+            setNotifications(notificationsResponse?.data ?? []);
           } catch (err) {
             console.error("Failed to fetch notifications", err);
           } finally {
@@ -36,29 +34,27 @@ export default function Notifications() {
           }
         };
         if (token){ getNotifications() };
-  }, [token, appUser]);
+    }, [token]);
 
   // Handle mark as read
   const markAsRead = async (id: string) => {
+    const dataToSend = { seen: true };
+
+    // Remove from local state
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+
     try {
       // Call API to mark as read
-      await fetch(`/api/notifications/${id}/mark-as-read`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      await markAsReadNotification(id, dataToSend, token);
 
-      // Remove from local state
-      setNotifications((prev) => prev.filter((n) => n.id !== id));
-
-      // Keep showing 5 items (if more exist)
-      if (visibleCount < notifications.length) {
-        setVisibleCount((prev) => prev); // No change needed, as the next one will appear automatically
-      }
     } catch (error) {
       console.error("Error marking as read", error);
+
+      // Rollback if request fails
+      setNotifications((prev) => [
+        ...prev,
+        notifications.find((n) => n.id === id)!,
+      ]);
     }
   };
 
@@ -71,8 +67,8 @@ export default function Notifications() {
         <h1 className="text-xl font-semibold">Notifications</h1>
         <span className="text-xs text-gray-400">View All</span>
       </div>
-      <div className="flex flex-col gap-4 mt-4 bg-white p-4 rounded-md">
-        {notifications.map((item) => (
+      <div className="flex flex-col gap-4 mt-4 bg-white p-4 rounded-md shadow-sm">
+        {notifications.slice(0, visibleCount).map((item) => (
           <div className=" odd:bg-blue-100 even:bg-purple-100 rounded-md p-4">
             <div className="flex items-center justify-between">
               <h2 className="font-medium">{item.title}</h2>

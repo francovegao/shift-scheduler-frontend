@@ -309,11 +309,64 @@ export async function fetchCardData(token: string) {
   }
 }
 
-export async function fetchNotifications(uid: string, token: string) {
+export async function fetchUnseenNotifications( token: string) {
   try {
-    console.log('Fetching notifications...');
+    console.log('Fetching unseen notifications...');
 
-    const url = new URL(`http://localhost:5001/users/notifications/${uid}`);
+    const url = new URL(`http://localhost:5001/notifications/unseen`);
+
+    const response = await fetch(url.toString(), {
+                    headers: {
+                    Authorization: `Bearer ${token}`,
+                    },
+                });
+    
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return null;
+  }
+}
+
+export async function markAsReadNotification(id: string, dataToSend: object, token: string) {
+  try {
+    console.log('Marking notification as read...');
+
+    const url = new URL(`http://localhost:5001/notifications/${id}`);
+
+    const response =await fetch(url.toString(), {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataToSend),
+      });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return null;
+  }
+}
+
+export async function fetchLatestShifts( token: string) {
+  try {
+    console.log('Fetching latst shifts...');
+
+    const url = new URL(`http://localhost:5001/shifts/latest`);
 
     const response = await fetch(url.toString(), {
                     headers: {
