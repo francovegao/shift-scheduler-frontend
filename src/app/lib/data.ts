@@ -301,7 +301,7 @@ export async function fetchUserRole(uid: string, token: string) {
   }
 }
 
-export async function fetchCardData(token: string) {
+export async function fetchAdminCardsData(token: string) {
   try {
     const shiftsCountPromise = fetchShifts("",1,{}, token);
     const companiesCountPromise = fetchCompanies("",1);

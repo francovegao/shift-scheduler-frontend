@@ -2,31 +2,30 @@
 
 import {
   ClockIcon,
-  BuildingOffice2Icon,
-  BuildingOfficeIcon,
-  UserIcon,
+  BookOpenIcon,
+  CheckCircleIcon,
+  XCircleIcon,
 } from '@heroicons/react/24/outline';
 import { lusitana } from '@/app/ui/fonts';
-import { fetchCardData } from '@/app/lib/data';
+import { fetchAllMyShifts } from '@/app/lib/data';
 import { useAuth } from '../context/auth-context';
 import { SetStateAction, useEffect, useState } from 'react';
-//import { fetchCardData } from '@/app/lib/data';
 
 const iconMap = {
-  pharmacists: UserIcon,
-  companies: BuildingOfficeIcon,
-  locations: BuildingOffice2Icon,
-  shifts: ClockIcon,
+  openShifts: BookOpenIcon,
+  myTakenShifts: ClockIcon,
+  myCompletedShifts: CheckCircleIcon,
+  myCancelledShifts: XCircleIcon,
 };
 
-export default function CardWrapper() {
+export default function CardWrapperPharmacist() {
   const { firebaseUser, appUser, loading } = useAuth();
   const [isFetching, setIsFetching] = useState(true);
   const [token, setToken] = useState("");
-  const [pharmacists, setPharmacists] = useState<number>(0);
-  const [companies, setCompanies] = useState<number>(0);
-  const [locations, setLocations] = useState<number>(0);
-  const [shifts, setShifts] = useState<number>(0);
+  const [openShifts, setOpenShifts] = useState<number>(0);
+  const [myTakenShifts, setTakenShifts] = useState<number>(0);
+  const [myCompletedShifts, setCompletedShifts] = useState<number>(0);
+  const [myCancelledShifts, setCancelledShifts] = useState<number>(0);
 
   // Get token
     useEffect(() => {
@@ -42,13 +41,13 @@ export default function CardWrapper() {
           const getData = async () => {
             setIsFetching(true);
             try {
-              const cardResponse = await fetchCardData( token);
-              setShifts(cardResponse.numberOfShifts);
-              setCompanies(cardResponse.numberOfCompanies);
-              setLocations(cardResponse.numberOfLocations);
-              setPharmacists(cardResponse.numberOfPharmacists);
+              const cardResponse = await fetchAllMyShifts( token);
+              setOpenShifts(cardResponse.meta.totalOpen);
+              setTakenShifts(cardResponse.meta.totalTaken);
+              setCompletedShifts(cardResponse.meta.totalCompleted);
+              setCancelledShifts(cardResponse.meta.totalCancelled);
             } catch (err) {
-              console.error("Failed to fetch card data", err);
+              console.error("Failed to fetch cards data", err);
             } finally {
               setIsFetching(false);
             }
@@ -61,14 +60,10 @@ export default function CardWrapper() {
   
   return (
     <>
-      <Card title="Pharmacists" value={pharmacists} type="pharmacists" />
-      <Card title="Companies" value={companies} type="companies" />
-      <Card title="Locations" value={locations} type="locations" />
-      <Card
-        title="Shifts"
-        value={shifts}
-        type="shifts"
-      />
+      <Card title="Open Shifts" value={openShifts} type="openShifts" />
+      <Card title="Taken Shifts" value={myTakenShifts} type="myTakenShifts" />
+      <Card title="Completed Shifs" value={myCompletedShifts} type="myCompletedShifts" />
+      <Card title="Cancelled Shifts" value={myCancelledShifts} type="myCancelledShifts"/>
     </>
   );
 }
@@ -80,7 +75,7 @@ export function Card({
 }: {
   title: string;
   value: number | string;
-  type: 'pharmacists' | 'companies' | 'locations' | 'shifts';
+  type: 'openShifts' | 'myTakenShifts' | 'myCompletedShifts' | 'myCancelledShifts';
 }) {
   const Icon = iconMap[type];
 

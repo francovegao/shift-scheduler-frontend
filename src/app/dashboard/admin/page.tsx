@@ -1,5 +1,5 @@
 import { lusitana } from '@/app/ui/fonts';
-import CardWrapper from '@/app/ui/dashboard/cards';
+import CardWrapperAdmin from '@/app/ui/dashboard/cards-admin';
 import LatestShifts from '@/app/ui/dashboard/latest-shifts';
 import { AuthWrapper } from '@/app/ui/authentication/auth-wrapper';
 import ShiftsCalendarContainer from '@/app/ui/dashboard/shifts-calendar-container';
@@ -19,7 +19,7 @@ export default async function AdminPage({
         </h1>
         {/* USER CARDS */}
         <div className="p-8 grid gap-6 grid-cols-2 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-4">
-          <CardWrapper />
+          <CardWrapperAdmin />
         </div>
         <div className="flex gap-4 flex-col md:flex-row">
         {/* LEFT */}

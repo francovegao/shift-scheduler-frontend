@@ -1,12 +1,15 @@
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import Announcements from "@/app/ui/dashboard/notifications";
-import BigCalendar from "@/app/ui/dashboard/big-calendar";
-import CardWrapper from "@/app/ui/dashboard/cards";
-import ShiftsCalendar from "@/app/ui/dashboard/shifts-calendar";
+import CardWrapperPharmacist from "@/app/ui/dashboard/cards-pharmacist";
+import ShiftsCalendarContainer from '@/app/ui/dashboard/shifts-calendar-container';
 import { lusitana } from "@/app/ui/fonts";
 import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
 
-export default async function PharmacistPage() {
+export default async function PharmacistPage({
+  searchParams,
+}:{
+  searchParams: { [keys: string]: string | undefined};
+}) {
 
   return (
     <AuthWrapper allowedRoles={["admin", "relief_pharmacist"]}>
@@ -16,7 +19,7 @@ export default async function PharmacistPage() {
             </h1>
             {/* USER CARDS */}
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <CardWrapper />
+                <CardWrapperPharmacist />
             </div>
             <div className="p-4 flex gap-4 flex-col xl:flex-row">
               {/* LEFT */}
@@ -30,7 +33,7 @@ export default async function PharmacistPage() {
               </div>
               {/* RIGHT */}
               <div className="w-full xl:w-1/3 flex flex-col gap-8">
-                <ShiftsCalendar />
+                <ShiftsCalendarContainer searchParams={searchParams} />
                 <Announcements />
               </div>
             </div>
