@@ -1,9 +1,9 @@
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import Announcements from "@/app/ui/dashboard/notifications";
-import BigCalendar from "@/app/ui/dashboard/big-calendar";
-import CardWrapper from "@/app/ui/dashboard/cards-admin";
 import LatestShifts from "@/app/ui/dashboard/latest-shifts";
 import { lusitana } from "@/app/ui/fonts";
+import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
+import CardWrapperManager from "@/app/ui/dashboard/cards-manager";
 
 export default async function CompanyManagerPage() {
 
@@ -14,7 +14,7 @@ export default async function CompanyManagerPage() {
               Company Page Dashboard
             </h1>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <CardWrapper />
+                <CardWrapperManager />
             </div>
 
             <div className="p-4 flex gap-4 flex-col xl:flex-row">
@@ -24,7 +24,7 @@ export default async function CompanyManagerPage() {
                   Company's Shifts
                 </h2>
                 <div className="h-full bg-white p-4 rounded-md">
-                    <BigCalendar/>
+                    <BigCalendarContainer />
                 </div>
               </div>
               {/* RIGHT */}
