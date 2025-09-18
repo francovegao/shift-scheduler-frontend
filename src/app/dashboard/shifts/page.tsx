@@ -4,6 +4,7 @@ import { fetchShifts } from "@/app/lib/data";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import BigCalendar from "@/app/ui/dashboard/big-calendar";
+import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
 import { lusitana } from "@/app/ui/fonts";
 import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
@@ -161,6 +162,20 @@ export default function ShiftsList({
 
     const role = appUser.role;
 
+    const data = shifts.map((shift) => {
+        const title =
+            shift.location?.name
+            ? `${shift.company.name} - ${shift.location.name}`
+            : shift.company.name;
+
+        return {
+            title,
+            allDay: false,
+            start: new Date(shift.startTime),
+            end: new Date(shift.endTime),
+        };
+    });
+
     const renderRow = (item: ShiftList) => (
     <tr
       key={item.id}
@@ -215,7 +230,6 @@ export default function ShiftsList({
              { (role === "admin" ||
                 role === "pharmacy_manager" ||
                 role === "location_manager") && (
-              //<AddPharmacist />
               <FormModal table="shift" type="create" />
             )}
           </div>
@@ -229,10 +243,17 @@ export default function ShiftsList({
           </div>
         </div>
         <div className="h-full bg-white p-4 rounded-md">
-          <BigCalendar />
+          { (role === "admin" ||
+                role === "pharmacy_manager" ||
+                role === "location_manager") && (
+              <BigCalendarContainer />
+            )}
+            { (role === "relief_pharmacist") && (
+              <BigCalendar data={data}/>
+            )}
+            
         </div>
       </div>
     </AuthWrapper>
-  );
-    
+  );   
 }

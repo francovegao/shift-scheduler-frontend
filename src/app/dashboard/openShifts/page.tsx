@@ -1,8 +1,9 @@
 "use client";
 
-import { fetchMyShifts } from "@/app/lib/data";
+import { fetchShifts } from "@/app/lib/data";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
+import BigCalendar from "@/app/ui/dashboard/big-calendar";
 import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
 import { lusitana } from "@/app/ui/fonts";
 import FormModal from "@/app/ui/list/form-modal";
@@ -106,7 +107,7 @@ const columns = [
 
 
 
-export default function PharmacistShiftsList({
+export default function OpenShiftsList({
   searchParams,
   }:{
     searchParams: { [key: string]: string | undefined};
@@ -144,7 +145,7 @@ export default function PharmacistShiftsList({
         const getShifts = async () => {
           setIsFetching(true);
           try {
-            const shiftsResponse = await fetchMyShifts(search, currentPage, queryParams, token);
+            const shiftsResponse = await fetchShifts(search, currentPage, queryParams, token);
             setShifts(shiftsResponse?.data ?? []);
             setTotalPages(shiftsResponse?.meta?.totalPages ?? 1);
           } catch (err) {
@@ -160,6 +161,20 @@ export default function PharmacistShiftsList({
     if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
 
     const role = appUser.role;
+
+     const data = shifts.map((shift) => {
+        const title =
+            shift.location?.name
+            ? `${shift.company.name} - ${shift.location.name}`
+            : shift.company.name;
+
+        return {
+            title,
+            allDay: false,
+            start: new Date(shift.startTime),
+            end: new Date(shift.endTime),
+        };
+    });
 
     const renderRow = (item: ShiftList) => (
     <tr
@@ -194,6 +209,7 @@ export default function PharmacistShiftsList({
             role === "location_manager") && (
             <>
               <FormModal table="shift" type="update" id={item.id}/>
+              <FormModal table="shift" type="delete" id={item.id}/>
             </>
           )}
         </div>
@@ -205,12 +221,18 @@ export default function PharmacistShiftsList({
     <AuthWrapper allowedRoles={["admin", "pharmacy_manager", "location_manager", "relief_pharmacist"]}>
       <div className="p-4 lg:p-8">
         <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
-          My Shifts
+          Open Shifts List
         </h1>
         <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
           {/* TOP */}
           <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
             <TableSearch placeholder="Search shifts..." />
+             { (role === "admin" ||
+                role === "pharmacy_manager" ||
+                role === "location_manager") && (
+              //<AddPharmacist />
+              <FormModal table="shift" type="create" />
+            )}
           </div>
           {/* LIST */}
           <div style={{ overflowX: 'scroll' }}>
@@ -222,10 +244,9 @@ export default function PharmacistShiftsList({
           </div>
         </div>
         <div className="h-full bg-white p-4 rounded-md">
-          <BigCalendarContainer />
+            <BigCalendar data={data}/>
         </div>
       </div>
     </AuthWrapper>
-  );
-    
+  );   
 }
