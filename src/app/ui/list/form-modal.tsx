@@ -2,11 +2,21 @@
 
 import { PencilIcon, PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
-import Link from 'next/link';
-import { JSX, useState } from 'react';
-//import PharmacistForm from '../forms/pharmacists/pharmacist-form';
-//import LocationForm from '../forms/locations/location-form';
+import { Dispatch, JSX, SetStateAction, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useFormState } from "react-dom";
+import { useRouter } from "next/navigation";
+import { toast } from 'react-toastify';
+import { deleteUser } from "@/app/lib/actions";
+
+const deleteActionMap = {
+  user: deleteUser,
+  //TODO: update delete actions
+  pharmacist: deleteUser,
+  company: deleteUser,
+  location: deleteUser,
+  shift: deleteUser,
+}
 
 const UserForm = dynamic(() => import("../forms/users/user-form"), {
   loading: () => <h1>Loading...</h1>,
@@ -25,38 +35,61 @@ const ShiftForm = dynamic(() => import("../forms/shifts/shift-form"), {
 });
 
 const forms: {
-  [key: string]: (type: "create" | "update", data?: any) => JSX.Element;
+  [key: string]: (
+    setOpen: Dispatch<SetStateAction<boolean>>, 
+    type: "create" | "update", 
+    data?: any
+  ) => JSX.Element;
 } = {
-  user: (type, data) => <UserForm type={type} data={data} />,
-  pharmacist: (type, data) => <PharmacistForm type={type} data={data} />,
-  company: (type, data) => <CompanyForm type={type} data={data} />,
-  location: (type, data) => <LocationForm type={type} data={data} />,
-  shift: (type, data) => <ShiftForm type={type} data={data} />,
+  user: (setOpen, type, data) => <UserForm type={type} data={data} setOpen={setOpen}/>,
+  pharmacist: (setOpen, type, data) => <PharmacistForm type={type} data={data} setOpen={setOpen}/>,
+  company: (setOpen, type, data) => <CompanyForm type={type} data={data} setOpen={setOpen} />,
+  location: (setOpen, type, data) => <LocationForm type={type} data={data} setOpen={setOpen}/>,
+  shift: (setOpen, type, data) => <ShiftForm type={type} data={data}setOpen={setOpen} />,
 }
 
 export default function FormModal({ table, type, data, id }:{ 
     table: "shift" | "user" | "pharmacist" | "company" | "location";
     type: "create" | "update" | "delete";
     data?: any;
-    id?: number;
+    id?: string;
   }) 
 {
   const [open, setOpen] = useState(false);
 
   const Form = () => {
+    const [state, formAction] = useFormState(deleteActionMap[table],{
+        success: false,
+        error: false,
+      });
+
+    const router = useRouter();
+
+    useEffect(() => {
+      if (state.success) {
+        toast(`${table} has been deleted!`, {toastId: 'unique-toast'});
+        setOpen(false);
+        router.refresh();
+      }
+    }, [state, router])
+
     return type === "delete" && id ? (
-      <form className='p-4 flex flex-col gap-4' > {/*action={deleteInvoiceWithId}>*/}
+      <form className='p-4 flex flex-col gap-4' action={formAction} >
+        <input type="text" name="id" value={id}  hidden />
         <span className="text-center font-medium">Are you sure you want to delete this {table}?</span>
+        <span className="text-center font-medium">This action cannot be undone!</span>
         <button type="submit" className="bg-red-500 text-white py-2 px-4 rounded-md border-none w-max self-center">
           Delete
         </button>
+        {state.error && <span className="text-red-500 text-center">Something went wrong!</span>}
       </form>
     ) : type === "create" || type === "update" ? (
-      forms[table](type, data)
+      forms[table](setOpen, type, data)
     ) : (
       "Form not found!"
     );
   };
+
   return (
      <>
         <button onClick={()=>setOpen(true)}

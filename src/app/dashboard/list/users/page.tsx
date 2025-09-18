@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 type UserList = User & { company: Company } & { location: Location };
 
 type User = {
-    id: number,
+    id: string,
     email: string,
     firstName?: string,
     lastName?: string,
@@ -26,7 +26,7 @@ type User = {
 } 
 
 type Company = {
-    id: number,
+    id: string,
     approved: boolean,
     name: string,
     email?: string,
@@ -38,7 +38,7 @@ type Company = {
 }
 
 type Location = {
-    id: number,
+    id: string,
     name: string,
     email?: string,
     phone?: string,
@@ -165,7 +165,7 @@ const renderRow = (item: UserList) => (
           </Link>
           {role === "admin" && (
             <>
-              <FormModal table="user" type="update" id={item.id} />
+              <FormModal table="user" type="update" data={item} />
               <FormModal table="user" type="delete" id={item.id} />
              </>
           )}

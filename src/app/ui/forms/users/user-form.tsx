@@ -2,49 +2,78 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import z from "zod";
 import InputField from "../input-field";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
+import { userSchema, UserSchema } from "@/app/lib/formValidationSchemas";
+import { createUser, updateUser } from "@/app/lib/actions";
+import { useFormState } from "react-dom";
+import { Dispatch, SetStateAction, useEffect } from "react";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
-const schema = z.object({
-  email: z.email({message: "Invalid email address."}),
-  firstName: z.string().min(1,{message: "First name is required."}),
-  lastName: z.string().min(1,{message: "Last name is required."}),
-  phone: z.string().min(1,{message: "Phone is required."}),
-  roles: z.string().optional(),
-  files: z.instanceof(File),
-});
 
-type Inputs = z.infer<typeof schema>;
 
 export default function UserForm({ 
     type,
     data, 
+    setOpen,
     }:{
     type: "create" | "update";
     data?: any; 
+    setOpen: Dispatch<SetStateAction<boolean>>;
     }){
 
       const {
         register,
         handleSubmit,
         formState: { errors },
-      } = useForm<Inputs>({
-        resolver: zodResolver(schema),
+      } = useForm<UserSchema>({
+        resolver: zodResolver(userSchema),
       });
+
+      const [state, formAction] = useFormState(
+          type === "create" ? createUser : updateUser,
+        {
+          success: false,
+          error: false,
+        }
+      );
 
       const onSubmit = handleSubmit((data) => {
         console.log(data)
-      })
+        formAction(data)
+      });
+
+      const router = useRouter();
+
+      useEffect(() => {
+        if (state.success) {
+          toast(`User has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
+          setOpen(false);
+          router.refresh();
+        }
+      }, [state, router, type, setOpen])
+
+
 
 
     return(
         <form className="flex flex-col gap-8" onSubmit={onSubmit}>
-          <h1 className="text-xl font-semibold">{type === "create" ? "Create a new pharmacist" : "Update pharmacist"}</h1>
+          <h1 className="text-xl font-semibold">{type === "create" ? "Create a new user" : "Update user"}</h1>
           <span className="text-xs text-gray-400 font-medium">
             User Information
           </span>
           <div className="flex justify-between flex-wrap gap-4">
+            {data && (
+            <InputField
+                label="Id"
+                name="id"
+                defaultValue={data?.id}
+                register={register}
+                error={errors?.id}
+                hidden
+              />
+            )}
             <InputField
               label="First Name"
               name="firstName"
@@ -84,21 +113,22 @@ export default function UserForm({
                 <label className="text-xs text-gray-500">Role</label>
                 <select
                   className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                  {...register("roles")}
+                  {...register("role")}
                   defaultValue={data?.role}
                 >
                   <option value=""></option>
                   <option value="relief_pharmacist">Relief Pharmacist</option>
                   <option value="pharmacy_manager">Pharmacy Manager</option>
+                  <option value="location_manager">Location Manager</option>
                   <option value="admin">Administrator</option>
                 </select>
-                {errors.roles?.message && ( 
+                {errors.role?.message && ( 
                   <p className="text-xs text-red-400">
-                    {errors.roles?.message.toString()}
+                    {errors.role?.message.toString()}
                   </p>
                 )}
             </div>
-            <div className="flex flex-col gap-2 w-full md:w-1/4 justify-center">
+            {/*<div className="flex flex-col gap-2 w-full md:w-1/4 justify-center">
               <label
                 className="text-xs text-gray-500 flex items-center gap-2 cursor-pointer"
                 htmlFor="resume"
@@ -112,8 +142,9 @@ export default function UserForm({
                   {errors.files.message.toString()}
                 </p>
               )}
-            </div>
+            </div>*/}
            </div>
+           {state.error && <span className="text-red-500">Something went wrong!</span>}
           <button className="bg-blue-400 text-white p-2 rounded-md">
             {type === "create" ? "Create" : "Update"}
           </button>
