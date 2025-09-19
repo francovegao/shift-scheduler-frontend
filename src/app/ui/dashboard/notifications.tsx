@@ -2,7 +2,8 @@
 
 import { SetStateAction, useEffect, useState } from "react";
 import { useAuth } from "../context/auth-context";
-import { fetchUnseenNotifications, markAsReadNotification } from "@/app/lib/data";
+import { markAsReadNotification } from "@/app/lib/actions";
+import { fetchUnseenNotifications } from "@/app/lib/data";
 
 export default function Notifications() {
   const { firebaseUser, appUser, loading } = useAuth();

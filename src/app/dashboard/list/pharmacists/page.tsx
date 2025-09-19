@@ -11,7 +11,7 @@ import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/table-search";
 import { EyeIcon } from "@heroicons/react/16/solid";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 
 type PharmacistList = User & { roles: Roles[] } & {pharmacistProfile?: PharmacistProfile} ;
 
@@ -93,21 +93,31 @@ export default function PharmacistsList({
     searchParams: { [key: string]: string | undefined} ;
   }){
     const { firebaseUser, appUser, loading } = useAuth();
-
+    const [isFetching, setIsFetching] = useState(true);
+    const [token, setToken] = useState("");
     const [pharmacists, setPharmacists] = useState<any[]>([]);
     const [totalPages, setTotalPages] = useState<number>(1);
-    const [isFetching, setIsFetching] = useState(true);
+    
 
     const { page, query, ...queryParams } = searchParams;
     const currentPage = page ? parseInt(page) : 1;
     const search = query ? query : ''; 
 
-    // Fetch pharmacists client-side
+    // Get token
+    useEffect(() => {
+      if (firebaseUser) {
+        firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
+          setToken(idToken);
+        });
+      }
+    }, [firebaseUser]);
+
+    // Fetch pharmacists when token is ready
     useEffect(() => {
     const getPharmacists = async () => {
       setIsFetching(true);
       try {
-        const pharmacistsResponse = await fetchPharmacists(search, currentPage);
+        const pharmacistsResponse = await fetchPharmacists(search, currentPage, token);
         setPharmacists(pharmacistsResponse?.data ?? []);
         setTotalPages(pharmacistsResponse?.meta?.totalPages ?? 1);
       } catch (err) {
@@ -116,15 +126,11 @@ export default function PharmacistsList({
         setIsFetching(false);
       }
     };
-    
-    getPharmacists();
-   }, [search, currentPage, JSON.stringify(queryParams)]);
-    
+    if (token){ getPharmacists() };
+   }, [token, search, currentPage, JSON.stringify(queryParams)]);
+
     if (loading || isFetching) return <div>Loading...</div>;
-        
-    if (!firebaseUser || !appUser) {
-        return null;  
-    }
+    if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
     
     const role = appUser.role;
 

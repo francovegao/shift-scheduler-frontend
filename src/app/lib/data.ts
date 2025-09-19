@@ -194,7 +194,7 @@ export async function fetchShiftsByDate(date: string, token: string) {
   }
 }
 
-export async function fetchUsers(query: string, currentPage: number, queryParams: Object) {
+export async function fetchUsers(query: string, currentPage: number, queryParams: Object, token: string) {
   try {
     console.log('Fetching users data...');
 
@@ -211,7 +211,11 @@ export async function fetchUsers(query: string, currentPage: number, queryParams
       }
     }
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
@@ -227,7 +231,7 @@ export async function fetchUsers(query: string, currentPage: number, queryParams
   }
 }
 
-export async function fetchPharmacists(query: string, currentPage: number) {
+export async function fetchPharmacists(query: string, currentPage: number, token: string) {
   try {
     console.log('Fetching pharmacists data...');
 
@@ -236,7 +240,11 @@ export async function fetchPharmacists(query: string, currentPage: number) {
     url.searchParams.append('page', currentPage.toString());
     url.searchParams.append('limit', ITEMS_PER_PAGE.toString());
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
@@ -306,7 +314,7 @@ export async function fetchAdminCardsData(token: string) {
     const shiftsCountPromise = fetchShifts("",1,{}, token);
     const companiesCountPromise = fetchCompanies("",1);
     const locationsCountPromise = fetchLocations("",1,{}, token);
-    const pharmacistsCountPromise = fetchPharmacists("",1);
+    const pharmacistsCountPromise = fetchPharmacists("",1, token);
   
     const data = await Promise.all([
       shiftsCountPromise,
@@ -348,34 +356,6 @@ export async function fetchUnseenNotifications( token: string) {
                     },
                 });
     
-    if (!response.ok) {
-      // Handle HTTP errors (e.g., 404, 500)
-      const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
-    }
-
-    return response.json();
-  } catch (error) {
-    console.error('API Error:', error);
-    return null;
-  }
-}
-
-export async function markAsReadNotification(id: string, dataToSend: object, token: string) {
-  try {
-    console.log('Marking notification as read...');
-
-    const url = new URL(`http://localhost:5001/notifications/${id}`);
-
-    const response =await fetch(url.toString(), {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataToSend),
-      });
-
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details

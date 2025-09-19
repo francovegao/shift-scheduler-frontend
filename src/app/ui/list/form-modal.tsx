@@ -38,19 +38,21 @@ const forms: {
   [key: string]: (
     setOpen: Dispatch<SetStateAction<boolean>>, 
     type: "create" | "update", 
+    token: string,
     data?: any
   ) => JSX.Element;
 } = {
-  user: (setOpen, type, data) => <UserForm type={type} data={data} setOpen={setOpen}/>,
-  pharmacist: (setOpen, type, data) => <PharmacistForm type={type} data={data} setOpen={setOpen}/>,
-  company: (setOpen, type, data) => <CompanyForm type={type} data={data} setOpen={setOpen} />,
-  location: (setOpen, type, data) => <LocationForm type={type} data={data} setOpen={setOpen}/>,
-  shift: (setOpen, type, data) => <ShiftForm type={type} data={data}setOpen={setOpen} />,
+  user: (setOpen, type, token, data) => <UserForm type={type} data={data} setOpen={setOpen} token={token}/>,
+  pharmacist: (setOpen, type, token, data) => <PharmacistForm type={type} data={data} setOpen={setOpen} token={token}/>,
+  company: (setOpen, type, token, data) => <CompanyForm type={type} data={data} setOpen={setOpen} token={token}/>,
+  location: (setOpen, type, token, data) => <LocationForm type={type} data={data} setOpen={setOpen} token={token}/>,
+  shift: (setOpen, type, token, data) => <ShiftForm type={type} data={data}setOpen={setOpen} token={token}/>,
 }
 
-export default function FormModal({ table, type, data, id }:{ 
+export default function FormModal({ table, type, token, data, id }:{ 
     table: "shift" | "user" | "pharmacist" | "company" | "location";
     type: "create" | "update" | "delete";
+    token: string,
     data?: any;
     id?: string;
   }) 
@@ -58,7 +60,9 @@ export default function FormModal({ table, type, data, id }:{
   const [open, setOpen] = useState(false);
 
   const Form = () => {
-    const [state, formAction] = useFormState(deleteActionMap[table],{
+    const [state, formAction] = useFormState(
+      deleteActionMap[table].bind(null, token),
+      {
         success: false,
         error: false,
       });
@@ -84,7 +88,7 @@ export default function FormModal({ table, type, data, id }:{
         {state.error && <span className="text-red-500 text-center">Something went wrong!</span>}
       </form>
     ) : type === "create" || type === "update" ? (
-      forms[table](setOpen, type, data)
+      forms[table](setOpen, type, token, data)
     ) : (
       "Form not found!"
     );

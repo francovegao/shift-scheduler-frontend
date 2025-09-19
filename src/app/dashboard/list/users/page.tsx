@@ -10,7 +10,7 @@ import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/table-search";
 import { EyeIcon } from "@heroicons/react/16/solid";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 
 type UserList = User & { company: Company } & { location: Location };
 
@@ -90,21 +90,31 @@ export default function UsersList({
     searchParams: { [key: string]: string | undefined} ;
   }){
     const { firebaseUser, appUser, loading } = useAuth();
-
+    const [isFetching, setIsFetching] = useState(true);
+    const [token, setToken] = useState("");
     const [users, setUsers] = useState<any[]>([]);
     const [totalPages, setTotalPages] = useState<number>(1);
-    const [isFetching, setIsFetching] = useState(true);
+    
 
     const { page, query, ...queryParams } =  searchParams;
     const currentPage = page ? parseInt(page) : 1;
     const search = query ? query : ''; 
 
-    // Fetch users client-side
+    // Get token
+    useEffect(() => {
+      if (firebaseUser) {
+        firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
+          setToken(idToken);
+        });
+      }
+    }, [firebaseUser]);
+
+    // Fetch users when token is ready
     useEffect(() => {
     const getUsers = async () => {
       setIsFetching(true);
       try {
-        const usersResponse = await fetchUsers(search, currentPage, queryParams);
+        const usersResponse = await fetchUsers(search, currentPage, queryParams, token);
         setUsers(usersResponse?.data ?? []);
         setTotalPages(usersResponse?.meta?.totalPages ?? 1);
       } catch (err) {
@@ -113,15 +123,11 @@ export default function UsersList({
         setIsFetching(false);
       }
     };
-    
-    getUsers();
-   }, [search, currentPage, JSON.stringify(queryParams)]);
+    if (token){ getUsers() };
+   }, [token, search, currentPage, JSON.stringify(queryParams)]);
     
     if (loading || isFetching) return <div>Loading...</div>;
-        
-    if (!firebaseUser || !appUser) {
-        return null;  
-    }
+    if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
     
     const role = appUser.role;
 
@@ -165,8 +171,8 @@ const renderRow = (item: UserList) => (
           </Link>
           {role === "admin" && (
             <>
-              <FormModal table="user" type="update" data={item} />
-              <FormModal table="user" type="delete" id={item.id} />
+              <FormModal table="user" type="update" token={token} data={item} />
+              <FormModal table="user" type="delete" token={token} id={item.id} />
              </>
           )}
         </div>
@@ -186,7 +192,7 @@ const renderRow = (item: UserList) => (
               <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
                   <TableSearch placeholder="Search users..." />
                   {role === "admin" && (
-                  <FormModal table="user" type="create" />
+                  <FormModal table="user" type="create" token={token} />
                   )}
               </div>
               {/* LIST */}

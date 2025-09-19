@@ -17,10 +17,12 @@ export default function UserForm({
     type,
     data, 
     setOpen,
+    token,
     }:{
     type: "create" | "update";
     data?: any; 
     setOpen: Dispatch<SetStateAction<boolean>>;
+    token: string;
     }){
 
       const {
@@ -32,7 +34,7 @@ export default function UserForm({
       });
 
       const [state, formAction] = useFormState(
-          type === "create" ? createUser : updateUser,
+          type === "create" ? createUser.bind(null, token) : updateUser.bind(null, token),
         {
           success: false,
           error: false,

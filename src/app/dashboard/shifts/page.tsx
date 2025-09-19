@@ -162,6 +162,8 @@ export default function ShiftsList({
 
     const role = appUser.role;
 
+
+    //Prepare data to send to BigCalendar component
     const data = shifts.map((shift) => {
         const title =
             shift.location?.name
