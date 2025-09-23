@@ -10,6 +10,11 @@ import { createCompany, updateCompany } from "@/app/lib/actions";
 import { useFormState } from "react-dom";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import z from "zod";
+
+// Infer the input and output types from the schema
+type FormInput = z.input<typeof companySchema>;
+type FormOutput = z.output<typeof companySchema>;
 
 export default function CompanyForm({ 
     type,
@@ -29,7 +34,7 @@ export default function CompanyForm({
         register,
         handleSubmit,
         formState: { errors },
-      } = useForm<CompanySchema>({
+      } = useForm<FormInput, any, FormOutput>({
         resolver: zodResolver(companySchema),
       });
 
@@ -125,7 +130,7 @@ export default function CompanyForm({
               register={register}
               error={errors?.address}
             />
-              <InputField
+            <InputField
               label="City"
               name="city"
               defaultValue={data?.city}

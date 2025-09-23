@@ -1,4 +1,4 @@
-import { CompanySchema, LocationSchema, UserSchema } from "./formValidationSchemas"
+import { CompanySchema, LocationSchema, PharmacistSchema, UserSchema } from "./formValidationSchemas"
 
 type CurrentState = {success: boolean; error: boolean }
 
@@ -318,6 +318,115 @@ export const deleteLocation = async (token: string, currentState: CurrentState, 
         console.log('Deleting location...');
 
         const response = await fetch(`http://localhost:5001/locations/${id}`, {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            }
+        });
+
+        if (!response.ok) {
+        // Handle HTTP errors (e.g., 404, 500)
+        const errorData = await response.json(); // If the API returns error details
+        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+        }
+    
+        return {success: true, error: false};
+        //return response.json();
+    } catch (error) {
+        console.error('API Error:', error);
+        return {success: false, error: true};
+    }
+}
+
+export const createPharmacist = async (token: string, currentState: CurrentState,  data: PharmacistSchema)=>{
+   try {
+    console.log('Creating new pharmacist...');
+
+    const body = {
+      userId: data.userId,
+      licenseNumber: data.licenseNumber,
+      address: data.address,
+      city: data.city,
+      province: data.province,
+      postalCode: data.postalCode,
+      email: data.email,
+      bio: data.bio,
+      experienceYears: data.experienceYears,
+      approved: data.approved,
+    }
+
+    const response = await fetch('http://localhost:5001/pharmacist-profiles', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    //revalidatePath("/list/users");   
+    return {success: true, error: false};
+    //return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return {success: false, error: true};
+  }
+}
+
+export const updatePharmacist = async (token: string, currentState: CurrentState, data: PharmacistSchema)=>{
+   try {
+    console.log('Updating pharmacist...');
+
+    const body = {
+      userId: data.userId,
+      licenseNumber: data.licenseNumber,
+      address: data.address,
+      city: data.city,
+      province: data.province,
+      postalCode: data.postalCode,
+      email: data.email,
+      bio: data.bio,
+      experienceYears: data.experienceYears,
+      approved: data.approved,
+    }
+
+    const response = await fetch(`http://localhost:5001/pharmacist-profiles/${data.id}`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+  
+    return {success: true, error: false};
+    //return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return {success: false, error: true};
+  }
+}
+
+export const deletePharmacist = async (token: string, currentState: CurrentState, data: FormData) => {
+        const id = data.get("id") as string;
+    
+    try {
+        console.log('Deleting pharmacist...');
+
+        const response = await fetch(`http://localhost:5001/pharmacist-profiles/${id}`, {
             method: 'DELETE',
             headers: {
               Authorization: `Bearer ${token}`,

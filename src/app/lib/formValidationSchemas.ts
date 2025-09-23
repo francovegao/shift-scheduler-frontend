@@ -39,3 +39,19 @@ export const locationSchema = z.object({
 });
 
 export type LocationSchema = z.infer<typeof locationSchema>;
+
+export const pharmacistSchema = z.object({
+    id: z.string().optional(),
+    userId: z.string(),
+    licenseNumber: z.string().optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    province: z.string().min(2,{message: "Province is required."}),
+    postalCode: z.string().optional(),
+    email: z.email({ message: "Invalid email address!" }).optional().or(z.literal("")),
+    bio: z.string().optional(),
+    experienceYears: z.coerce.number().optional(),
+    approved: z.coerce.boolean({message: "Status is required."}),
+});
+
+export type PharmacistSchema = z.infer<typeof pharmacistSchema>;

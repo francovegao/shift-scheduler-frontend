@@ -4,6 +4,7 @@ import { fetchPharmacists } from "@/app/lib/data";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import { lusitana } from "@/app/ui/fonts";
+import FormContainer from "@/app/ui/list/form-container";
 import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
@@ -16,7 +17,7 @@ import { SetStateAction, useEffect, useState } from "react";
 type PharmacistList = User & { roles: Roles[] } & {pharmacistProfile?: PharmacistProfile} ;
 
 type User = {
-    id: number,
+    id: string,
     email: string,
     firstName?: string,
     lastName?: string,
@@ -173,15 +174,15 @@ export default function PharmacistsList({
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex justify-end gap-3">
           <Link 
-            href={`pharmacists/${item.id}`}
+            href={`pharmacists/${item.pharmacistProfile?.id}`}
             className="rounded-md border p-2 hover:bg-gray-100"
           >
             <EyeIcon className="w-5"  />
           </Link>
           {role === "admin" && (
             <>
-              <FormModal table="pharmacist" type="update" id={item.id} />
-              <FormModal table="pharmacist" type="delete" id={item.id} />
+              <FormContainer table="pharmacist" type="update" token={token} data={item.pharmacistProfile} />
+              <FormContainer table="pharmacist" type="delete" token={token} id={item.pharmacistProfile?.id} />
              </>
           )}
         </div>
@@ -200,7 +201,7 @@ export default function PharmacistsList({
               <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
                   <TableSearch placeholder="Search pharmacists..." />
                   {role === "admin" && (
-                  <FormModal table="pharmacist" type="create" />
+                  <FormContainer table="pharmacist" type="create" token={token} />
                   )}
               </div>
               {/* LIST */}
