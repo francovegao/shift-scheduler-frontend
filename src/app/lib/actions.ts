@@ -1,4 +1,4 @@
-import { CompanySchema, UserSchema } from "./formValidationSchemas"
+import { CompanySchema, LocationSchema, UserSchema } from "./formValidationSchemas"
 
 type CurrentState = {success: boolean; error: boolean }
 
@@ -213,6 +213,111 @@ export const deleteCompany = async (token: string, currentState: CurrentState, d
         console.log('Deleting company...');
 
         const response = await fetch(`http://localhost:5001/companies/${id}`, {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            }
+        });
+
+        if (!response.ok) {
+        // Handle HTTP errors (e.g., 404, 500)
+        const errorData = await response.json(); // If the API returns error details
+        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+        }
+    
+        return {success: true, error: false};
+        //return response.json();
+    } catch (error) {
+        console.error('API Error:', error);
+        return {success: false, error: true};
+    }
+}
+
+export const createLocation = async (token: string, currentState: CurrentState,  data: LocationSchema)=>{
+   try {
+    console.log('Creating new location...');
+
+    const body = {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        city: data.city,
+        province: data.province,
+        postalCode: data.postalCode,
+        companyId: data.companyId,
+    }
+
+    const response = await fetch('http://localhost:5001/locations', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    //revalidatePath("/list/users");   
+    return {success: true, error: false};
+    //return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return {success: false, error: true};
+  }
+}
+
+export const updateLocation = async (token: string, currentState: CurrentState, data: LocationSchema)=>{
+   try {
+    console.log('Updating location...');
+
+    const body = {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        city: data.city,
+        province: data.province,
+        postalCode: data.postalCode,
+        companyId: data.companyId,
+    }
+
+    const response = await fetch(`http://localhost:5001/locations/${data.id}`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+  
+    return {success: true, error: false};
+    //return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return {success: false, error: true};
+  }
+}
+
+export const deleteLocation = async (token: string, currentState: CurrentState, data: FormData) => {
+        const id = data.get("id") as string;
+    
+    try {
+        console.log('Deleting location...');
+
+        const response = await fetch(`http://localhost:5001/locations/${id}`, {
             method: 'DELETE',
             headers: {
               Authorization: `Bearer ${token}`,

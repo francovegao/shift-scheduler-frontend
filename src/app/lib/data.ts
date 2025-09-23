@@ -314,7 +314,7 @@ export async function fetchUserRole(uid: string, token: string) {
 export async function fetchAdminCardsData(token: string) {
   try {
     const shiftsCountPromise = fetchShifts("",1,{}, token);
-    const companiesCountPromise = fetchCompanies("",1);
+    const companiesCountPromise = fetchCompanies("",1, token);
     const locationsCountPromise = fetchLocations("",1,{}, token);
     const pharmacistsCountPromise = fetchPharmacists("",1, token);
   

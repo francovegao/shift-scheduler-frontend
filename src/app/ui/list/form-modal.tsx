@@ -7,15 +7,15 @@ import dynamic from 'next/dynamic';
 import { useFormState } from "react-dom";
 import { useRouter } from "next/navigation";
 import { toast } from 'react-toastify';
-import { deleteCompany, deleteUser } from "@/app/lib/actions";
+import { deleteCompany, deleteLocation, deleteUser } from "@/app/lib/actions";
 import { FormContainerProps } from './form-container';
 
 const deleteActionMap = {
   user: deleteUser,
   company: deleteCompany,
+  location: deleteLocation,
   //TODO: update delete actions
   pharmacist: deleteUser,
-  location: deleteUser,
   shift: deleteUser,
 }
 

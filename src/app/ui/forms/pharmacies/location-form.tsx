@@ -2,43 +2,61 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import z from "zod";
 import InputField from "../input-field";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
-
-const schema = z.object({
-  name: z.string().min(3,{message: "Last name is required."}),
-  email: z.email({message: "Invalid email address."}),
-  phone: z.string().min(1,{message: "Phone is required."}),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  province: z.string().min(2,{message: "Province is required."}),
-  postalCode: z.string().optional(),
-  companyId: z.string(),
-});
-
-type Inputs = z.infer<typeof schema>;
+import { Dispatch, SetStateAction, useEffect } from "react";
+import { LocationSchema, locationSchema } from "@/app/lib/formValidationSchemas";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import { useFormState } from "react-dom";
+import { createLocation, updateLocation } from "@/app/lib/actions";
 
 export default function LocationForm({ 
     type,
     data, 
+    setOpen,
+    token,
+    relatedData,
     }:{
     type: "create" | "update";
     data?: any; 
+    setOpen: Dispatch<SetStateAction<boolean>>;
+    token: string;
+    relatedData?: any;
     }){
 
       const {
         register,
         handleSubmit,
         formState: { errors },
-      } = useForm<Inputs>({
-        resolver: zodResolver(schema),
+      } = useForm<LocationSchema>({
+        resolver: zodResolver(locationSchema),
       });
+
+      const [state, formAction] = useFormState(
+          type === "create" ? createLocation.bind(null, token) : updateLocation.bind(null, token),
+        {
+          success: false,
+          error: false,
+        }
+      );
 
       const onSubmit = handleSubmit((data) => {
         console.log(data)
-      })
+        formAction(data)
+      });
 
+      const router = useRouter();
+
+      useEffect(() => {
+        if (state.success) {
+          toast(`Location has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
+          setOpen(false);
+          router.refresh();
+        }
+      }, [state, router, type, setOpen])
+
+      const {companies} = relatedData;
 
     return(
         <form className="flex flex-col gap-8" onSubmit={onSubmit}>
@@ -47,8 +65,18 @@ export default function LocationForm({
             Account Information
           </span>
           <div className="flex justify-between flex-wrap gap-4">
+            {data && (
+              <InputField
+                  label="Id"
+                  name="id"
+                  defaultValue={data?.id}
+                  register={register}
+                  error={errors?.id}
+                  hidden
+                />
+              )}
             <InputField
-              label="Name"
+              label="Location Name"
               name="name"
               defaultValue={data?.name}
               register={register}
@@ -70,6 +98,31 @@ export default function LocationForm({
                 register={register}
                 error={errors?.phone}
             />
+            <div className="flex flex-col gap-2 w-full md:w-1/4">
+              <label className="text-xs text-gray-500">Parent Pharmacy</label>
+              <select
+                className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                {...register("companyId")}
+                defaultValue={data?.companies}
+              >
+                {companies.map(
+                  (company: { id: string; name: string}) => (
+                    <option
+                      value={company.id}
+                      key={company.id}
+                      selected={data && company.id === data.companyId}
+                    >
+                      {company.name}
+                    </option>
+                  )
+                )}
+              </select>
+              {errors.companyId?.message && (
+                <p className="text-xs text-red-400">
+                  {errors.companyId.message.toString()}
+                </p>
+              )}
+            </div>
            </div>
           <span className="text-xs text-gray-400 font-medium">
             Location Information
@@ -89,7 +142,7 @@ export default function LocationForm({
               register={register}
               error={errors?.city}
             />
-            <div className="flex flex-col gap-2 w-full md:w-1/4">
+                        <div className="flex flex-col gap-2 w-full md:w-1/4">
                 <label className="text-xs text-gray-500">Province</label>
                 <select
                   className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
@@ -120,32 +173,8 @@ export default function LocationForm({
               register={register}
               error={errors?.postalCode}
             />
-            <div className="flex flex-col gap-2 w-full md:w-1/4">
-                    <label className="text-xs text-gray-500">Company</label>
-                    <select
-                    className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                    {...register("companyId")}
-                    defaultValue={data?.companyId}
-                    >
-                    <option value=""></option>
-                    <option value="company1">Test Company</option>
-                    <option value="company2">Some Company</option>
-                    <option value="company3">Other Company</option>
-                    <option value="company4">Another Company</option>
-                    <option value="company5">Service Company</option>
-                    <option value="company6">My Company</option>
-                    <option value="company7">Some Inc.</option>
-                    <option value="company8">One Inc.</option>
-                    <option value="company9">Not Real Pharmacy</option>
-                    <option value="company10">My Pharmacy</option>
-                    </select>
-                    {errors.companyId?.message && ( 
-                    <p className="text-xs text-red-400">
-                        {errors.companyId?.message.toString()}
-                    </p>
-                    )}
-                </div>
             </div>
+            {state.error && <span className="text-red-500">Something went wrong!</span>}
           <button className="bg-blue-400 text-white p-2 rounded-md">
             {type === "create" ? "Create" : "Update"}
           </button>

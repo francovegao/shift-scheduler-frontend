@@ -2,7 +2,6 @@
 
 import { fetchLocations } from "@/app/lib/data";
 import { lusitana } from "@/app/ui/fonts";
-import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
 import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/table-search";
@@ -11,11 +10,12 @@ import { EyeIcon } from "@heroicons/react/24/outline";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import { SetStateAction, useEffect, useState } from "react";
+import FormContainer from "@/app/ui/list/form-container";
 
 type LocationsList = Location & { company: Company };
 
 type Location = {
-    id: number,
+    id: string,
     name: string,
     email?: string,
     phone?: string,
@@ -159,13 +159,13 @@ export default function LocationsList({
           </Link>
           { role === "pharmacy_manager" && (
             <> 
-              <FormModal table="location" type="update" id={item.id}/>
+              <FormContainer table="location" type="update" token={token} data={item}/>
             </>
           )}
           {role === "admin" && (
             <> 
-              <FormModal table="location" type="update" id={item.id}/>
-              <FormModal table="location" type="delete" id={item.id}/>
+              <FormContainer table="location" type="update" token={token} data={item}/>
+              <FormContainer table="location" type="delete" token={token} id={item.id}/>
             </>
           )}
         </div>
@@ -184,7 +184,7 @@ export default function LocationsList({
               <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
                   <TableSearch placeholder="Search locations..." />
                 { (role === "admin" || role === "pharmacy_manager") && (
-                  <FormModal table="location" type="create" />
+                  <FormContainer table="location" type="create" token={token} />
                   )}
               </div>
 

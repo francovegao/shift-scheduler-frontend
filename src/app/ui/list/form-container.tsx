@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import FormModal from "./form-modal";
+import { fetchCompanies } from "@/app/lib/data";
 
 export type FormContainerProps = {
   table: "shift" | "user" | "pharmacist" | "company" | "location";
@@ -9,17 +11,32 @@ export type FormContainerProps = {
 };
 
 
-export default function FormContainer({ table, type, token, data, id }: FormContainerProps) {
+export default function FormContainer({ 
+    table, 
+    type, 
+    token, 
+    data, 
+    id, 
+}: FormContainerProps) {
+    const [isFetching, setIsFetching] = useState(false);
+    const [relatedData, setRelatedData] = useState<any>({});
 
-    let relatedData = {};
+    useEffect(() => {
+        if (type === "delete") return;
 
-    if( type !== "delete"){
-        switch(table){
+        const fetchData = async () => {
+        setIsFetching(true);
+        try {
+            switch (table) {
+            case "location": {
+                //Fetch users that have role = location_manager and locationId is empty
+                //Fetch companies to link the location to the company
+                const companiesResponse = await fetchCompanies("", 1, token);  //TODO: Update this fetch to get all the companies, not just the limited by page
+                setRelatedData({ companies: companiesResponse?.data ?? [] });
+                break;
+            }
             case "shift":
                 //Fetch the companies?, Locations? and pharmacists? to create a new shift
-                break;
-            case "user":
-                //Do not fetch companies or locations because we dont know the user type to be created
                 break;
             case "pharmacist":
                 //Fetch users that have role = relief_pharmacist and pharmacistProfile is empty
@@ -27,17 +44,30 @@ export default function FormContainer({ table, type, token, data, id }: FormCont
             case "company":
                 //Fetch the users that have role = pharmacy_manager and companyId is empty
                 break;
-            case "location":
-                //Fetch users that have role = location_manager and locationId is empty
+            case "user":
+                //Do not fetch companies or locations because we dont know the user type to be created
                 break;
-            default:
-                break;
+            }
+        } catch (err) {
+            console.error("Failed to fetch related data", err);
+        } finally {
+            setIsFetching(false);
         }
-    }
+    };
+
+    if (token) fetchData();
+  }, [table, type, token]);
 
     return(
         <div >
-            <FormModal table={table} type={type} token={token} data={data} id={id} relatedData={relatedData} />
+            <FormModal 
+                table={table} 
+                type={type} 
+                token={token} 
+                data={data} 
+                id={id} 
+                relatedData={relatedData} 
+            />
         </div>
     )
 }
