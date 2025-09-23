@@ -4,6 +4,7 @@ import { fetchUsers } from "@/app/lib/data";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import { lusitana } from "@/app/ui/fonts";
+import FormContainer from "@/app/ui/list/form-container";
 import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
 import Table from "@/app/ui/list/table";
@@ -171,8 +172,8 @@ const renderRow = (item: UserList) => (
           </Link>
           {role === "admin" && (
             <>
-              <FormModal table="user" type="update" token={token} data={item} />
-              <FormModal table="user" type="delete" token={token} id={item.id} />
+              <FormContainer table="user" type="update" token={token} data={item} />
+              <FormContainer table="user" type="delete" token={token} id={item.id} />
              </>
           )}
         </div>
@@ -192,7 +193,7 @@ const renderRow = (item: UserList) => (
               <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
                   <TableSearch placeholder="Search users..." />
                   {role === "admin" && (
-                  <FormModal table="user" type="create" token={token} />
+                  <FormContainer table="user" type="create" token={token} />
                   )}
               </div>
               {/* LIST */}

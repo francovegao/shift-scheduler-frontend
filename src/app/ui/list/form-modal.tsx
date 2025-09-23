@@ -8,6 +8,7 @@ import { useFormState } from "react-dom";
 import { useRouter } from "next/navigation";
 import { toast } from 'react-toastify';
 import { deleteUser } from "@/app/lib/actions";
+import { FormContainerProps } from './form-container';
 
 const deleteActionMap = {
   user: deleteUser,
@@ -24,10 +25,10 @@ const UserForm = dynamic(() => import("../forms/users/user-form"), {
 const PharmacistForm = dynamic(() => import("../forms/pharmacists/pharmacist-form"), {
   loading: () => <h1>Loading...</h1>,
 });
-const CompanyForm = dynamic(() => import("../forms/locations/company-form"), {
+const CompanyForm = dynamic(() => import("../forms/pharmacies/company-form"), {
   loading: () => <h1>Loading...</h1>,
 });
-const LocationForm = dynamic(() => import("../forms/locations/location-form"), {
+const LocationForm = dynamic(() => import("../forms/pharmacies/location-form"), {
   loading: () => <h1>Loading...</h1>,
 });
 const ShiftForm = dynamic(() => import("../forms/shifts/shift-form"), {
@@ -39,23 +40,20 @@ const forms: {
     setOpen: Dispatch<SetStateAction<boolean>>, 
     type: "create" | "update", 
     token: string,
-    data?: any
+    data?: any,
+    relatedData?: any,
   ) => JSX.Element;
 } = {
-  user: (setOpen, type, token, data) => <UserForm type={type} data={data} setOpen={setOpen} token={token}/>,
-  pharmacist: (setOpen, type, token, data) => <PharmacistForm type={type} data={data} setOpen={setOpen} token={token}/>,
-  company: (setOpen, type, token, data) => <CompanyForm type={type} data={data} setOpen={setOpen} token={token}/>,
-  location: (setOpen, type, token, data) => <LocationForm type={type} data={data} setOpen={setOpen} token={token}/>,
-  shift: (setOpen, type, token, data) => <ShiftForm type={type} data={data}setOpen={setOpen} token={token}/>,
+  user: (setOpen, type, token, data, relatedData) => <UserForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData} />,
+  pharmacist: (setOpen, type, token, data, relatedData) => <PharmacistForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData}/>,
+  company: (setOpen, type, token, data, relatedData) => <CompanyForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData}/>,
+  location: (setOpen, type, token, data, relatedData) => <LocationForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData}/>,
+  shift: (setOpen, type, token, data, relatedData) => <ShiftForm type={type} data={data}setOpen={setOpen} token={token} relatedData={relatedData}/>,
 }
 
-export default function FormModal({ table, type, token, data, id }:{ 
-    table: "shift" | "user" | "pharmacist" | "company" | "location";
-    type: "create" | "update" | "delete";
-    token: string,
-    data?: any;
-    id?: string;
-  }) 
+export default function FormModal({ 
+  table, type, token, data, id, relatedData, }: 
+  FormContainerProps & { relatedData?: any } ) 
 {
   const [open, setOpen] = useState(false);
 
@@ -88,7 +86,7 @@ export default function FormModal({ table, type, token, data, id }:{
         {state.error && <span className="text-red-500 text-center">Something went wrong!</span>}
       </form>
     ) : type === "create" || type === "update" ? (
-      forms[table](setOpen, type, token, data)
+      forms[table](setOpen, type, token, data, relatedData)
     ) : (
       "Form not found!"
     );

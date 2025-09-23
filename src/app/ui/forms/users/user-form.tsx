@@ -18,11 +18,13 @@ export default function UserForm({
     data, 
     setOpen,
     token,
+    relatedData,
     }:{
     type: "create" | "update";
     data?: any; 
     setOpen: Dispatch<SetStateAction<boolean>>;
     token: string;
+    relatedData?: any;
     }){
 
       const {

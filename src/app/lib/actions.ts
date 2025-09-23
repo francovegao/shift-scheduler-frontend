@@ -1,4 +1,4 @@
-import { UserSchema } from "./formValidationSchemas"
+import { CompanySchema, UserSchema } from "./formValidationSchemas"
 
 type CurrentState = {success: boolean; error: boolean }
 
@@ -35,7 +35,7 @@ export const createUser = async (token: string, currentState: CurrentState,  dat
     console.log('Creating new user...');
 
     const body = {
-        firebaseUid: data.firstName,
+        firebaseUid: data.firstName,  //TODO: Change this for the real firebaseUid
         email: data.email,
         firstName: data.firstName,
         lastName: data.lastName,
@@ -59,11 +59,10 @@ export const createUser = async (token: string, currentState: CurrentState,  dat
 
     //revalidatePath("/list/users");   
     return {success: true, error: false};
-    return response.json();
+    //return response.json();
   } catch (error) {
     console.error('API Error:', error);
     return {success: false, error: true};
-    throw new Error('Failed to create user');
   }
 }
 
@@ -95,11 +94,10 @@ export const updateUser = async (token: string, currentState: CurrentState, data
     }
   
     return {success: true, error: false};
-    return response.json();
+    //return response.json();
   } catch (error) {
     console.error('API Error:', error);
     return {success: false, error: true};
-    throw new Error('Failed to create user');
   }
 }
 
@@ -124,10 +122,116 @@ export const deleteUser = async (token: string, currentState: CurrentState, data
         }
     
         return {success: true, error: false};
-        return response.json();
+        //return response.json();
     } catch (error) {
         console.error('API Error:', error);
         return {success: false, error: true};
-        throw new Error('Failed to create user');
+    }
+}
+
+export const createCompany = async (token: string, currentState: CurrentState,  data: CompanySchema)=>{
+   try {
+    console.log('Creating new company...');
+
+    const body = {
+        approved: data.approved,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        city: data.city,
+        province: data.province,
+        postalCode: data.postalCode,
+        createdBy: data.createdBy,
+    }
+
+    const response = await fetch('http://localhost:5001/companies', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    //revalidatePath("/list/users");   
+    return {success: true, error: false};
+    //return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return {success: false, error: true};
+  }
+}
+
+export const updateCompany = async (token: string, currentState: CurrentState, data: CompanySchema)=>{
+   try {
+    console.log('Updating company...');
+
+    const body = {
+        approved: data.approved,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        city: data.city,
+        province: data.province,
+        postalCode: data.postalCode,
+        createdBy: data.createdBy,
+    }
+
+    const response = await fetch(`http://localhost:5001/companies/${data.id}`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+  
+    return {success: true, error: false};
+    //return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return {success: false, error: true};
+  }
+}
+
+export const deleteCompany = async (token: string, currentState: CurrentState, data: FormData) => {
+        const id = data.get("id") as string;
+    
+    try {
+        console.log('Deleting company...');
+
+        const response = await fetch(`http://localhost:5001/companies/${id}`, {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            }
+        });
+
+        if (!response.ok) {
+        // Handle HTTP errors (e.g., 404, 500)
+        const errorData = await response.json(); // If the API returns error details
+        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+        }
+    
+        return {success: true, error: false};
+        //return response.json();
+    } catch (error) {
+        console.error('API Error:', error);
+        return {success: false, error: true};
     }
 }
