@@ -2,42 +2,59 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import z from "zod";
 import InputField from "../input-field";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
-
-const schema = z.object({
-  approved: z.boolean({message: "Status is required."}),
-  name: z.string().min(3,{message: "Name is required."}),
-  email: z.email({message: "Invalid email address."}),
-  phone: z.string().min(1,{message: "Phone is required."}),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  province: z.string().min(2,{message: "Province is required."}),
-  postalCode: z.string().optional(),
-});
-
-type Inputs = z.infer<typeof schema>;
+import { Dispatch, SetStateAction, useEffect } from "react";
+import { companySchema, CompanySchema } from "@/app/lib/formValidationSchemas";
+import { createCompany, updateCompany } from "@/app/lib/actions";
+import { useFormState } from "react-dom";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 export default function CompanyForm({ 
     type,
     data, 
+    setOpen,
+    token,
+    relatedData,
     }:{
     type: "create" | "update";
     data?: any; 
+    setOpen: Dispatch<SetStateAction<boolean>>;
+    token: string;
+    relatedData?: any;
     }){
 
       const {
         register,
         handleSubmit,
         formState: { errors },
-      } = useForm<Inputs>({
-        resolver: zodResolver(schema),
+      } = useForm<CompanySchema>({
+        resolver: zodResolver(companySchema),
       });
+
+      const [state, formAction] = useFormState(
+          type === "create" ? createCompany.bind(null, token) : updateCompany.bind(null, token),
+        {
+          success: false,
+          error: false,
+        }
+      );
 
       const onSubmit = handleSubmit((data) => {
         console.log(data)
-      })
+        formAction(data)
+      });
+
+      const router = useRouter();
+
+      useEffect(() => {
+        if (state.success) {
+          toast(`Company has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
+          setOpen(false);
+          router.refresh();
+        }
+      }, [state, router, type, setOpen])
 
 
     return(
@@ -47,8 +64,18 @@ export default function CompanyForm({
             Account Information
           </span>
           <div className="flex justify-between flex-wrap gap-4">
+             {data && (
+              <InputField
+                  label="Id"
+                  name="id"
+                  defaultValue={data?.id}
+                  register={register}
+                  error={errors?.id}
+                  hidden
+                />
+              )}
             <InputField
-              label="Name"
+              label="Pharmacy Name"
               name="name"
               defaultValue={data?.name}
               register={register}
@@ -70,17 +97,25 @@ export default function CompanyForm({
                 register={register}
                 error={errors?.phone}
             />
-            <InputField
-                label="Approved"
-                name="approved"
-                type="checkbox"
-                defaultValue={data?.approved}
-                register={register}
-                error={errors?.approved}
-            />
+            <div className="flex flex-col gap-2 w-full md:w-1/4">
+                <label className="text-xs text-gray-500">Approved</label>
+                <select
+                  className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                  {...register("approved")}
+                  defaultValue={data?.approved}
+                >
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+                {errors.approved?.message && ( 
+                  <p className="text-xs text-red-400">
+                    {errors.approved?.message.toString()}
+                  </p>
+                )}
+            </div>
            </div>
           <span className="text-xs text-gray-400 font-medium">
-            Location Information
+            Pharmacy Information
           </span>
           <div className="flex justify-between flex-wrap gap-4">
             <InputField
@@ -129,6 +164,7 @@ export default function CompanyForm({
               error={errors?.postalCode}
             />
             </div>
+            {state.error && <span className="text-red-500">Something went wrong!</span>}
           <button className="bg-blue-400 text-white p-2 rounded-md">
             {type === "create" ? "Create" : "Update"}
           </button>

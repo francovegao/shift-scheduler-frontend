@@ -38,7 +38,7 @@ export async function fetchLocations(query: string, currentPage: number, queryPa
   }
 }
 
-export async function fetchCompanies(query: string, currentPage: number) {
+export async function fetchCompanies(query: string, currentPage: number, token: string) {
   try {
     console.log('Fetching companies data...');
 
@@ -47,10 +47,12 @@ export async function fetchCompanies(query: string, currentPage: number) {
     url.searchParams.append('page', currentPage.toString());
     url.searchParams.append('limit', ITEMS_PER_PAGE.toString());
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
     
-    
-
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details

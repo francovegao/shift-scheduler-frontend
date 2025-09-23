@@ -142,7 +142,6 @@ export const createCompany = async (token: string, currentState: CurrentState,  
         city: data.city,
         province: data.province,
         postalCode: data.postalCode,
-        createdBy: data.createdBy,
     }
 
     const response = await fetch('http://localhost:5001/companies', {
@@ -182,7 +181,6 @@ export const updateCompany = async (token: string, currentState: CurrentState, d
         city: data.city,
         province: data.province,
         postalCode: data.postalCode,
-        createdBy: data.createdBy,
     }
 
     const response = await fetch(`http://localhost:5001/companies/${data.id}`, {

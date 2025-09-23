@@ -14,7 +14,7 @@ export type UserSchema = z.infer<typeof userSchema>;
 
 export const companySchema = z.object({
     id: z.string().optional(),
-    approved: z.boolean({message: "Status is required."}),
+    approved: z.coerce.boolean({message: "Status is required."}),
     name: z.string().min(3,{message: "Name is required."}),
     email: z.email({message: "Invalid email address."}),
     phone: z.string().min(1,{message: "Phone is required."}),
@@ -22,7 +22,6 @@ export const companySchema = z.object({
     city: z.string().optional(),
     province: z.string().min(2,{message: "Province is required."}),
     postalCode: z.string().optional(),
-    createdBy: z.string(),
 });
 
 export type CompanySchema = z.infer<typeof companySchema>;

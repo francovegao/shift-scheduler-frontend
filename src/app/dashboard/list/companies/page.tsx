@@ -2,7 +2,6 @@
 
 import {  fetchCompanies, } from "@/app/lib/data";
 import { lusitana } from "@/app/ui/fonts";
-import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
@@ -11,10 +10,11 @@ import Link from "next/link";
 import { EyeIcon } from "@heroicons/react/24/outline";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
+import FormContainer from "@/app/ui/list/form-container";
 
 type Company = {
-    id: number,
+    id: string,
     approved: boolean,
     name: string,
     email?: string,
@@ -81,21 +81,30 @@ export default function CompaniesList({
     searchParams: { [key: string]: string | undefined} ;
   }){
     const { firebaseUser, appUser, loading } = useAuth();
-
+    const [isFetching, setIsFetching] = useState(true);
+    const [token, setToken] = useState("");
     const [companies, setCompanies] = useState<any[]>([]);
     const [totalPages, setTotalPages] = useState<number>(1);
-    const [isFetching, setIsFetching] = useState(true);
 
     const { page, query, ...queryParams } = searchParams;
     const currentPage = page ? parseInt(page) : 1;
     const search = query ? query : '';   
 
-    // Fetch locations client-side
+    // Get token
+    useEffect(() => {
+      if (firebaseUser) {
+        firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
+          setToken(idToken);
+        });
+      }
+    }, [firebaseUser]);
+
+    // Fetch companies client-side
     useEffect(() => {
     const getCompanies = async () => {
       setIsFetching(true);
       try {
-        const companiesResponse = await fetchCompanies(search, currentPage);
+        const companiesResponse = await fetchCompanies(search, currentPage, token);
         setCompanies(companiesResponse?.data ?? []);
         setTotalPages(companiesResponse?.meta?.totalPages ?? 1);
       } catch (err) {
@@ -104,15 +113,11 @@ export default function CompaniesList({
         setIsFetching(false);
       }
     };
-    
-    getCompanies();
-   }, [search, currentPage, JSON.stringify(queryParams)]);
+    if (token){ getCompanies() };
+   }, [token, search, currentPage, JSON.stringify(queryParams)]);
     
     if (loading || isFetching) return <div>Loading...</div>;
-        
-    if (!firebaseUser || !appUser) {
-        return null;  
-    }
+    if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
     
     const role = appUser.role;
 
@@ -145,8 +150,8 @@ const renderRow = (item: Company) => (
           </Link>
           {role === "admin" && (
             <>
-              <FormModal table="company" type="update" id={item.id}/>
-              <FormModal table="company" type="delete" id={item.id}/>
+              <FormContainer table="company" type="update" token={token} data={item}/>
+              <FormContainer table="company" type="delete" token={token} id={item.id}/>
             </>
           )}
         </div>
@@ -166,7 +171,7 @@ const renderRow = (item: Company) => (
                   <TableSearch placeholder="Search companies..." />
                   {role === "admin" && (
                   //<AddPharmacist />
-                  <FormModal table="company" type="create" />
+                  <FormContainer table="company" type="create"  token={token}/>
                   )}
               </div>
               {/* LIST */}
