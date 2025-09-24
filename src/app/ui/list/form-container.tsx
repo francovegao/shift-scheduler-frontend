@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import FormModal from "./form-modal";
-import { fetchCompanies, fetchPharmacists } from "@/app/lib/data";
+import { fetchCompanies, fetchLocations, fetchPharmacists } from "@/app/lib/data";
 
 export type FormContainerProps = {
   table: "shift" | "user" | "pharmacist" | "company" | "location";
@@ -37,6 +37,10 @@ export default function FormContainer({
             }
             case "shift":
                 //Fetch the companies?, Locations? and pharmacists? to create a new shift
+                const companiesRes = await fetchCompanies("", 1, token);  //TODO: Update this fetch to get all the companies, not just the limited by page
+                const locationsRes = await fetchLocations("", 1,{}, token);  //TODO: Update this fetch to get only the locations linked to that company
+                const pharmacistsRes = await fetchPharmacists("", 1, token);  //TODO: Update this fetch to get all the pharmacists without a pharmacist profile and not just the limited by page
+                setRelatedData({ pharmacists: pharmacistsRes?.data ?? [], companies: companiesRes?.data ?? [], locations: locationsRes?.data ?? [] });
                 break;
             case "pharmacist":
                 //Fetch users that have role = relief_pharmacist and pharmacistProfile is empty

@@ -55,3 +55,18 @@ export const pharmacistSchema = z.object({
 });
 
 export type PharmacistSchema = z.infer<typeof pharmacistSchema>;
+
+export const shiftSchema = z.object({
+  id: z.string().optional(),
+  companyId: z.string().min(1,{message: "Company is required."}),
+  locationId: z.string().optional(),  
+  title: z.string().min(4,{message: "Title is required."}),
+  description: z.string().optional(),
+  startTime: z.coerce.date({message: "Start date is required"}),
+  endTime: z.coerce.date({message: "End date is required"}),
+  payRate: z.string().min(2,{message: "Pay rate is required."}),
+  status: z.enum(["open", "taken", "cancelled", "completed"]),
+  pharmacistId: z.string().optional(),
+});
+
+export type ShiftSchema = z.infer<typeof shiftSchema>;

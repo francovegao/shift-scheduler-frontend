@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 import { useFormState } from "react-dom";
 import { useRouter } from "next/navigation";
 import { toast } from 'react-toastify';
-import { deleteCompany, deleteLocation, deletePharmacist, deleteUser } from "@/app/lib/actions";
+import { deleteCompany, deleteLocation, deletePharmacist, deleteShift, deleteUser } from "@/app/lib/actions";
 import { FormContainerProps } from './form-container';
 
 const deleteActionMap = {
@@ -15,8 +15,7 @@ const deleteActionMap = {
   company: deleteCompany,
   location: deleteLocation,
   pharmacist: deletePharmacist,
-  //TODO: update delete actions
-  shift: deleteUser,
+  shift: deleteShift,
 }
 
 const UserForm = dynamic(() => import("../forms/users/user-form"), {
@@ -48,7 +47,7 @@ const forms: {
   pharmacist: (setOpen, type, token, data, relatedData) => <PharmacistForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData}/>,
   company: (setOpen, type, token, data, relatedData) => <CompanyForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData}/>,
   location: (setOpen, type, token, data, relatedData) => <LocationForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData}/>,
-  shift: (setOpen, type, token, data, relatedData) => <ShiftForm type={type} data={data}setOpen={setOpen} token={token} relatedData={relatedData}/>,
+  shift: (setOpen, type, token, data, relatedData) => <ShiftForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData}/>,
 }
 
 export default function FormModal({ 

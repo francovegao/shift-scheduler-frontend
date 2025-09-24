@@ -1,4 +1,4 @@
-import { CompanySchema, LocationSchema, PharmacistSchema, UserSchema } from "./formValidationSchemas"
+import { CompanySchema, LocationSchema, PharmacistSchema, ShiftSchema, UserSchema } from "./formValidationSchemas"
 
 type CurrentState = {success: boolean; error: boolean }
 
@@ -425,6 +425,113 @@ export const deletePharmacist = async (token: string, currentState: CurrentState
     
     try {
         console.log('Deleting pharmacist...');
+
+        const response = await fetch(`http://localhost:5001/pharmacist-profiles/${id}`, {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            }
+        });
+
+        if (!response.ok) {
+        // Handle HTTP errors (e.g., 404, 500)
+        const errorData = await response.json(); // If the API returns error details
+        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+        }
+    
+        return {success: true, error: false};
+        //return response.json();
+    } catch (error) {
+        console.error('API Error:', error);
+        return {success: false, error: true};
+    }
+}
+
+export const createShift = async (token: string, currentState: CurrentState,  data: ShiftSchema)=>{
+   try {
+    console.log('Creating new shift...');
+
+    const body = {
+      companyId: data.companyId,
+      locationId: data.locationId ? data.locationId : null,
+      title: data.title,
+      description: data.description,
+      startTime: data.startTime,
+      endTime: data.endTime,
+      payRate: parseFloat(data.payRate),
+      status: data.status,
+      pharmacistId: data.pharmacistId ? data.pharmacistId : null,
+    }
+
+    const response = await fetch('http://localhost:5001/shifts', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    //revalidatePath("/list/users");   
+    return {success: true, error: false};
+    //return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return {success: false, error: true};
+  }
+}
+
+export const updateShift = async (token: string, currentState: CurrentState, data: ShiftSchema)=>{
+   try {
+    console.log('Updating shift...');
+
+    const body = {
+      companyId: data.companyId,
+      locationId: data.locationId ? data.locationId : null,
+      title: data.title,
+      description: data.description,
+      startTime: data.startTime,
+      endTime: data.endTime,
+      payRate: parseFloat(data.payRate),
+      status: data.status,
+      pharmacistId: data.pharmacistId ? data.pharmacistId : null,
+    }
+
+    const response = await fetch(`http://localhost:5001/shifts/${data.id}`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+  
+    return {success: true, error: false};
+    //return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return {success: false, error: true};
+  }
+}
+
+export const deleteShift = async (token: string, currentState: CurrentState, data: FormData) => {
+        const id = data.get("id") as string;
+    
+    try {
+        console.log('Deleting shift...');
 
         const response = await fetch(`http://localhost:5001/pharmacist-profiles/${id}`, {
             method: 'DELETE',

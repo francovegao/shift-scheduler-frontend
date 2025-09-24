@@ -2,45 +2,67 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import z from "zod";
 import InputField from "../input-field";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { ShiftSchema, shiftSchema } from "@/app/lib/formValidationSchemas";
+import z from "zod";
+import { useFormState } from "react-dom";
+import { createShift, updateShift } from "@/app/lib/actions";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
-const schema = z.object({
-  companyId: z.string().min(1,{message: "Company is required."}),
-  locationId: z.string(),  //TODO Join location and company in a single select
-  title: z.string().min(4,{message: "Title is required."}),
-  description: z.string().optional(),
-  startTime: z.date({message: "Start date is required"}),
-  endTime: z.date({message: "End date is required"}),
-  payRate: z.float32({message: "Pay rate is required."}),
-  status: z.enum(["open", "taken", "cancelled", "completed"]),
-  assignedTo: z.string().optional(),
-});
-
-type Inputs = z.infer<typeof schema>;
+// Infer the input and output types from the schema
+type FormInput = z.input<typeof shiftSchema>;
+type FormOutput = z.output<typeof shiftSchema>;
 
 export default function ShiftForm({ 
     type,
     data, 
+    setOpen,
+    token,
+    relatedData,
     }:{
     type: "create" | "update";
     data?: any; 
+    setOpen: Dispatch<SetStateAction<boolean>>;
+    token: string;
+    relatedData?: any;
     }){
 
       const {
         register,
         handleSubmit,
         formState: { errors },
-      } = useForm<Inputs>({
-        resolver: zodResolver(schema),
+      } = useForm<FormInput, any, FormOutput>({
+        resolver: zodResolver(shiftSchema),
       });
+
+      const [state, formAction] = useFormState(
+          type === "create" ? createShift.bind(null, token) : updateShift.bind(null, token),
+        {
+          success: false,
+          error: false,
+        }
+      );
 
       const onSubmit = handleSubmit((data) => {
         console.log(data)
-      })
+        formAction(data)
+      });
 
+      const router = useRouter();
 
+      useEffect(() => {
+        if (state.success) {
+          toast(`Shift has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
+          setOpen(false);
+          router.refresh();
+        }
+      }, [state, router, type, setOpen])
+
+      const {pharmacists, companies, locations } = relatedData;
+      
     return(
         <form className="flex flex-col gap-8" onSubmit={onSubmit}>
           <h1 className="text-xl font-semibold">{type === "create" ? "Create a new shift" : "Update shift"}</h1>
@@ -48,30 +70,66 @@ export default function ShiftForm({
             Shift Information
           </span>
           <div className="flex justify-between flex-wrap gap-4">
+            {data && (
+              <InputField
+                  label="Id"
+                  name="id"
+                  defaultValue={data?.id}
+                  register={register}
+                  error={errors?.id}
+                  hidden
+                />
+              )}
             <div className="flex flex-col gap-2 w-full md:w-1/4">
-                    <label className="text-xs text-gray-500">Company</label>
-                    <select
-                    className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                    {...register("companyId")}
-                    defaultValue={data?.locationId}
+              <label className="text-xs text-gray-500">Pharmacy</label>
+              <select
+                className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                {...register("companyId")}
+                defaultValue={data?.companies}
+              >
+                {companies.map(
+                  (company: { id: string; name: string}) => (
+                    <option
+                      value={company.id}
+                      key={company.id}
+                      selected={data && company.id === data.companyId}
                     >
-                    <option value=""></option>
-                    <option value="company1">Test Company</option>
-                    <option value="company2">Some Company</option>
-                    <option value="company3">Other Company</option>
-                    <option value="company4">Another Company</option>
-                    <option value="company5">Service Company</option>
-                    <option value="company6">My Company</option>
-                    <option value="company7">Some Inc.</option>
-                    <option value="company8">One Inc.</option>
-                    <option value="company9">Not Real Pharmacy</option>
-                    <option value="company10">My Pharmacy</option>
-                    </select>
-                    {errors.locationId?.message && ( 
-                    <p className="text-xs text-red-400">
-                        {errors.locationId?.message.toString()}
-                    </p>
-                    )}
+                      {company.name}
+                    </option>
+                  )
+                )}
+              </select>
+              {errors.companyId?.message && (
+                <p className="text-xs text-red-400">
+                  {errors.companyId.message.toString()}
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col gap-2 w-full md:w-1/4">
+              <label className="text-xs text-gray-500">Location</label>
+              <select
+                className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                {...register("locationId")}
+                defaultValue={data?.locations}
+              >
+                <option value=""></option>
+                {locations.map(
+                  (location: { id: string; name: string}) => (
+                    <option
+                      value={location.id}
+                      key={location.id}
+                      selected={data && location.id === data.locationId}
+                    >
+                      {location.name}
+                    </option>
+                  )
+                )}
+              </select>
+              {errors.locationId?.message && (
+                <p className="text-xs text-red-400">
+                  {errors.locationId.message.toString()}
+                </p>
+              )}
             </div>
             <InputField
               label="Title"
@@ -92,7 +150,7 @@ export default function ShiftForm({
               name="startTime"
               defaultValue={data?.startTime}
               register={register}
-              error={errors?.startTime}
+              error={errors?.endTime}
             />
               <InputField
               label="End Time"
@@ -104,33 +162,56 @@ export default function ShiftForm({
             <InputField
               label="Pay Rate"
               name="payRate"
-              type="number"
               defaultValue={data?.payRate}
               register={register}
               error={errors?.payRate}
             />
             <div className="flex flex-col gap-2 w-full md:w-1/4">
-                    <label className="text-xs text-gray-500">Pharmacist</label>
-                    <select
-                    className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                    {...register("companyId")}
-                    defaultValue={data?.assignedTo}
+              <label className="text-xs text-gray-500">Relief Pharmacist</label>
+              <select
+                className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                {...register("pharmacistId")}
+                defaultValue={data?.pharmacists}
+              >
+                <option value=""></option>
+                {pharmacists.map(
+                  (pharmacist: { id: string; firstName: string; lastName: string; pharmacistProfile:{id:string} }) => (
+                    <option
+                      value={pharmacist.pharmacistProfile.id}
+                      key={pharmacist.pharmacistProfile.id}
+                      selected={data && pharmacist.pharmacistProfile.id === data.pharmacistId}
                     >
-                    <option value=""></option>
-                    <option value="pharmacist1">Jhin Doe</option>
-                    <option value="pharmacist2">Leonard Snyder</option>
-                    <option value="pharmacist3">Raj Patel</option>
-                    <option value="pharmacist4">Sheldon Cooper</option>
-                    <option value="pharmacist5">Laun Lehm</option>
-                    <option value="pharmacist6">Nicole Nale</option>
-                    </select>
-                    {errors.assignedTo?.message && ( 
-                    <p className="text-xs text-red-400">
-                        {errors.assignedTo?.message.toString()}
-                    </p>
-                    )}
+                      {pharmacist.firstName + " " + pharmacist.lastName}
+                    </option>
+                  )
+                )}
+              </select>
+              {errors.pharmacistId?.message && (
+                <p className="text-xs text-red-400">
+                  {errors.pharmacistId.message.toString()}
+                </p>
+              )}
             </div>
-           </div>      
+            <div className="flex flex-col gap-2 w-full md:w-1/4">
+                <label className="text-xs text-gray-500">Status</label>
+                <select
+                  className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                  {...register("status")}
+                  defaultValue={data?.status}
+                >
+                  <option value="open">open</option>
+                  <option value="taken">taken</option>
+                  <option value="completed">completed</option>
+                  <option value="cancelled">cancelled</option>
+                </select>
+                {errors.status?.message && ( 
+                  <p className="text-xs text-red-400">
+                    {errors.status?.message.toString()}
+                  </p>
+                )}
+            </div>
+           </div> 
+           {state.error && <span className="text-red-500">Something went wrong!</span>}     
           <button className="bg-blue-400 text-white p-2 rounded-md">
             {type === "create" ? "Create" : "Update"}
           </button>

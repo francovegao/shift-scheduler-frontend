@@ -6,6 +6,7 @@ import { useAuth } from "@/app/ui/context/auth-context";
 import BigCalendar from "@/app/ui/dashboard/big-calendar";
 import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
 import { lusitana } from "@/app/ui/fonts";
+import FormContainer from "@/app/ui/list/form-container";
 import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
@@ -19,7 +20,7 @@ type ShiftList = Shift & { company: Company }
                  & { pharmacist: Pharmacist & { user: User } };
 
 type Shift = {
-    id: number,
+    id: string,
     companyId: string,
     locationId?: string,
     title: string,
@@ -210,8 +211,8 @@ export default function ShiftsList({
             role === "pharmacy_manager" ||
             role === "location_manager") && (
             <>
-              <FormModal table="shift" type="update" id={item.id}/>
-              <FormModal table="shift" type="delete" id={item.id}/>
+              <FormContainer table="shift" type="update" token={token} data={item} />
+              <FormContainer table="shift" type="delete" token={token} id={item.id}/>
             </>
           )}
         </div>
@@ -232,7 +233,7 @@ export default function ShiftsList({
              { (role === "admin" ||
                 role === "pharmacy_manager" ||
                 role === "location_manager") && (
-              <FormModal table="shift" type="create" />
+              <FormContainer table="shift" type="create" token={token}/>
             )}
           </div>
           {/* LIST */}
