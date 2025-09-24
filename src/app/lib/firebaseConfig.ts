@@ -6,7 +6,6 @@ import {
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   signInWithPopup,
-  updateProfile,
 } from "firebase/auth";
 
 
@@ -26,7 +25,7 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-export const register = (email: string, password: string) => {
+export const registerFirebaseUser = (email: string, password: string) => {
   return createUserWithEmailAndPassword(auth, email, password)
 };
 

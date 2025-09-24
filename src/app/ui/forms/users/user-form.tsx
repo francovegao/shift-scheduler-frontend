@@ -11,8 +11,6 @@ import { Dispatch, SetStateAction, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
-
-
 export default function UserForm({ 
     type,
     data, 
@@ -54,7 +52,7 @@ export default function UserForm({
         if (state.success) {
           toast(`User has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
           setOpen(false);
-          router.refresh();
+          router.replace("/dashboard/list/users");
         }
       }, [state, router, type, setOpen])
 
@@ -90,14 +88,6 @@ export default function UserForm({
               error={errors?.lastName}
             />
               <InputField
-              label="Email"
-              name="email"
-              type="email"
-              defaultValue={data?.email}
-              register={register}
-              error={errors?.email}
-            />
-              <InputField
               label="Phone"
               name="phone"
               type="phone"
@@ -105,6 +95,25 @@ export default function UserForm({
               register={register}
               error={errors?.phone}
             />
+            <InputField
+              label="Email"
+              name="email"
+              type="email"
+              defaultValue={data?.email}
+              register={register}
+              error={errors?.email}
+              inputProps={ data ? { disabled: true, className: 'bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full'  } : undefined }
+            />
+            <InputField
+                label="Password"
+                name="password"
+                //type="password"
+                defaultValue={data ? "xxxxxx" : ""}
+                register={register}
+                error={errors?.password}
+                inputProps={ data ? { disabled: true, className: 'bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full'  } : undefined }
+                hidden={data}
+              /> 
            </div>
           <span className="text-xs text-gray-400 font-medium">
             Roles Information

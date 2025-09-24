@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { register } from "../lib/firebaseConfig";
+import { registerFirebaseUser } from "../lib/firebaseConfig";
 import SchedulerLogo from "../ui/scheduler-logo";
 
 export default function Register(){
@@ -14,7 +14,7 @@ export default function Register(){
   const registerUser = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     try {
-      await register(email, password);
+      await registerFirebaseUser(email, password);
       router.push("/");
     } catch (err: any) {
       setErrorMessage(err.code);

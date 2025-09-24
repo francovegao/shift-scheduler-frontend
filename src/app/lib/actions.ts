@@ -1,4 +1,5 @@
 import { CompanySchema, LocationSchema, PharmacistSchema, ShiftSchema, UserSchema } from "./formValidationSchemas"
+import { registerFirebaseUser } from "../lib/firebaseConfig";
 
 type CurrentState = {success: boolean; error: boolean }
 
@@ -34,12 +35,19 @@ export const createUser = async (token: string, currentState: CurrentState,  dat
    try {
     console.log('Creating new user...');
 
+    //Register user in firebase
+    const firebaseResponse = await registerFirebaseUser(data.email, data.password);
+    const firebaseUid = firebaseResponse.user.uid;
+    console.log("User registered with UID:", firebaseUid);
+    
+    //Prepare payload for API request
     const body = {
-        firebaseUid: data.firstName,  //TODO: Change this for the real firebaseUid
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        role: data.role,
+      firebaseUid: firebaseUid, 
+      email: data.email,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      phone: data.phone,
+      role: data.role,
     }
 
     const response = await fetch('http://localhost:5001/users', {
@@ -61,7 +69,7 @@ export const createUser = async (token: string, currentState: CurrentState,  dat
     return {success: true, error: false};
     //return response.json();
   } catch (error) {
-    console.error('API Error:', error);
+    console.error('An error occurred during user creation:', error);
     return {success: false, error: true};
   }
 }
@@ -71,10 +79,9 @@ export const updateUser = async (token: string, currentState: CurrentState, data
     console.log('Updating user...');
 
     const body = {
-        //firebaseUid: data.firstName,
-        email: data.email,
         firstName: data.firstName,
         lastName: data.lastName,
+        phone: data.phone,
         role: data.role,
     }
 
