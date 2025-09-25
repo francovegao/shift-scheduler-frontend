@@ -108,7 +108,7 @@ export default function SinglePharmacistPage({
                     <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <CheckCircleIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">{counts.totalCompleted}</h1>
+                            <h1 className="text-xl font-semibold">{counts?.totalCompleted}</h1>
                             <span className="text-sm text-gray-400">Completed Shifts</span>
                         </div>
                     </div>
@@ -116,7 +116,7 @@ export default function SinglePharmacistPage({
                     <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <XCircleIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">{counts.totalCancelled}</h1>
+                            <h1 className="text-xl font-semibold">{counts?.totalCancelled}</h1>
                             <span className="text-sm text-gray-400">Cancelled Shifts</span>
                         </div>
                     </div>
@@ -124,7 +124,7 @@ export default function SinglePharmacistPage({
                     <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <ClockIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">{counts.totalTaken}</h1>
+                            <h1 className="text-xl font-semibold">{counts?.totalTaken}</h1>
                             <span className="text-sm text-gray-400">Scheduled Shifts</span>
                         </div>
                     </div>
@@ -132,7 +132,7 @@ export default function SinglePharmacistPage({
                     <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <BuildingStorefrontIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">{counts.totalPharmacies}</h1>
+                            <h1 className="text-xl font-semibold">{counts?.totalPharmacies}</h1>
                             <span className="text-sm text-gray-400">Locations Worked</span>
                         </div>
                     </div>
@@ -141,7 +141,7 @@ export default function SinglePharmacistPage({
             {/* BOTTOM */}
             <div className="mt-4 rounded-md p-4 h-[800px]">
                <h1 className="text-xl font-semibold">Pharmacist&apos;s Schedule</h1>
-               <BigCalendarContainer  />
+               <BigCalendarContainer type="single_pharmacist" id={id} />
             </div>
         </div>
         {/* RIGHT */}
@@ -156,8 +156,7 @@ export default function SinglePharmacistPage({
                     <Link className="p-3 rounded-md bg-blue-50" href="/">Pharmacist&apos;s Contact</Link>
                 </div>
             </div>
-            <ShiftsGraph />
-            <Announcements />
+            <ShiftsGraph data={counts?.monthlyCounts} />
         </div>
     </div>
     

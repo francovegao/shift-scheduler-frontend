@@ -1,12 +1,18 @@
 'use client';
 
-import { fetchAllMyShifts } from "@/app/lib/data";
+import { fetchAllMyShifts, fetchPharmacistShifts } from "@/app/lib/data";
 import BigCalendar from "./big-calendar";
 import { useAuth } from "../context/auth-context";
 import { SetStateAction, useEffect, useState } from "react";
 
 
-export default function BigCalendarContainer() {
+export default function BigCalendarContainer({  
+  type, 
+  id,
+}: {
+  type: "dashboard" | "single_pharmacist" ;
+  id?: string;
+}) {
     const { firebaseUser, appUser, loading } = useAuth();
     const [isFetching, setIsFetching] = useState(true);
     const [token, setToken] = useState("");
@@ -21,21 +27,34 @@ export default function BigCalendarContainer() {
       }
     }, [firebaseUser]);
 
-    // Fetch shifts when token is ready
-      useEffect(() => {
-        const getMyShifts = async () => {
-          setIsFetching(true);
-          try {
-            const shiftsResponse = await fetchAllMyShifts(token);
-            setShifts(shiftsResponse?.data ?? []);
-          } catch (err) {
-            console.error("Failed to fetch shifts", err);
-          } finally {
-            setIsFetching(false);
+    useEffect(() => {
+      const fetchData = async () => {
+      setIsFetching(true);
+      try {
+          switch (type) {
+            case "dashboard": {
+              const shiftsResponse = await fetchAllMyShifts(token);
+              setShifts(shiftsResponse?.data ?? []);
+              break;
+            }
+            case "single_pharmacist":
+              if(id) {
+                const shiftsResponse = await fetchPharmacistShifts(id, token);
+                setShifts(shiftsResponse?.data ?? []);
+              }
+              break;
+            default:
+              break;
           }
-        };
-        if (token){ getMyShifts() };
-    },  [token ]);
+      } catch (err) {
+          console.error("Failed to fetch big calendar shifts", err);
+      } finally {
+          setIsFetching(false);
+      }
+  };
+
+  if (token) fetchData();
+  }, [type, token]);
 
     if (loading || isFetching) return <div>Loading...</div>;
     if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

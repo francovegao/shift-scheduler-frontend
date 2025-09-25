@@ -222,7 +222,7 @@ export default function PharmacistShiftsList({
           </div>
         </div>
         <div className="h-full bg-white p-4 rounded-md">
-          <BigCalendarContainer />
+          <BigCalendarContainer type="dashboard" />
         </div>
       </div>
     </AuthWrapper>

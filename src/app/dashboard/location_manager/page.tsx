@@ -24,7 +24,7 @@ export default async function LocationManagerPage() {
                   Location's Shifts
                 </h2>
                 <div className="h-full bg-white p-4 rounded-md">
-                    <BigCalendarContainer />
+                    <BigCalendarContainer type="dashboard" />
                 </div>
               </div>
               {/* RIGHT */}

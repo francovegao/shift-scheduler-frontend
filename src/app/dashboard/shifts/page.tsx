@@ -249,7 +249,7 @@ export default function ShiftsList({
           { (role === "admin" ||
                 role === "pharmacy_manager" ||
                 role === "location_manager") && (
-              <BigCalendarContainer />
+              <BigCalendarContainer type="dashboard" />
             )}
             { (role === "relief_pharmacist") && (
               <BigCalendar data={data}/>
