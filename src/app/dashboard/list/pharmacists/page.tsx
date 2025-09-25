@@ -1,6 +1,7 @@
 "use client";
 
 import { fetchPharmacists } from "@/app/lib/data";
+import { getFullAddress } from "@/app/lib/utils";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import { lusitana } from "@/app/ui/fonts";
@@ -162,15 +163,22 @@ export default function PharmacistsList({
       </td>
       <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">{item.pharmacistProfile?.email}</td>
       <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">
-        {[
-          item.pharmacistProfile?.address,
-          item.pharmacistProfile?.city,
-          item.pharmacistProfile?.province,
-          item.pharmacistProfile?.postalCode,
-          ].filter(Boolean).map((val, i) => (
-            <div key={i}>{val}</div>
-            ))
-          }
+        <div 
+          className="text-sm truncate max-w-[10rem]" 
+          title={getFullAddress(
+            item.pharmacistProfile?.address,
+            item.pharmacistProfile?.city,
+            item.pharmacistProfile?.province,
+            item.pharmacistProfile?.postalCode,
+          )}
+        >
+          {getFullAddress(
+            item.pharmacistProfile?.address,
+            item.pharmacistProfile?.city,
+            item.pharmacistProfile?.province,
+            item.pharmacistProfile?.postalCode,
+          )}
+          </div>
         </td>
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex justify-end gap-3">

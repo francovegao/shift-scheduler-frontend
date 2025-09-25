@@ -13,6 +13,7 @@ import { useAuth } from "@/app/ui/context/auth-context";
 import { fetchOnePharmacist } from "@/app/lib/data";
 import FormContainer from "@/app/ui/list/form-container";
 import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
+import { getFullAddress } from "@/app/lib/utils";
 
 export default function SinglePharmacistPage({
     params: { id },
@@ -89,7 +90,7 @@ export default function SinglePharmacistPage({
                             </div>
                             <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                 <MapPinIcon className="w-5"/>
-                                <span>{pharmacist.pharmacistProfile.city || "Add an address"}</span>
+                                <span>{getFullAddress(pharmacist.pharmacistProfile.address, pharmacist.pharmacistProfile.city, pharmacist.pharmacistProfile.province, pharmacist.pharmacistProfile.postalCode)}</span>
                             </div>
                             <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                 <EnvelopeIcon className="w-5"/>

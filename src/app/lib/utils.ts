@@ -52,3 +52,18 @@ export function formatShiftsData(apiData: { month: string; count: number }[]) {
 
   return result;
 }
+
+export const getFullAddress = (
+  address: string | null | undefined,
+  city: string | null | undefined,
+  province: string | null | undefined,
+  postalCode: string | null | undefined, 
+) => {
+
+  if (!address && !city && !province && !postalCode) {
+    return "Add address info";
+  }
+
+  const parts = [address, city, province, postalCode].filter(Boolean);
+  return parts.length > 0 ? parts.join(', ') : "Add address info";
+};

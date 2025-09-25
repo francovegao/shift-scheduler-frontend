@@ -1,6 +1,6 @@
 'use client';
 
-import { fetchAllMyShifts, fetchCompanyShifts, fetchPharmacistShifts } from "@/app/lib/data";
+import { fetchAllMyShifts, fetchCompanyShifts, fetchLocationShifts, fetchPharmacistShifts } from "@/app/lib/data";
 import BigCalendar from "./big-calendar";
 import { useAuth } from "../context/auth-context";
 import { SetStateAction, useEffect, useState } from "react";
@@ -10,7 +10,7 @@ export default function BigCalendarContainer({
   type, 
   id,
 }: {
-  type: "dashboard" | "single_pharmacist" | "single_company" ;
+  type: "dashboard" | "single_pharmacist" | "single_company" | "single_location" ;
   id?: string;
 }) {
     const { firebaseUser, appUser, loading } = useAuth();
@@ -46,6 +46,12 @@ export default function BigCalendarContainer({
             case "single_company":
               if(id) {
                 const shiftsResponse = await fetchCompanyShifts(id, token);
+                setShifts(shiftsResponse?.data ?? []);
+              }
+              break;
+            case "single_location":
+              if(id) {
+                const shiftsResponse = await fetchLocationShifts(id, token);
                 setShifts(shiftsResponse?.data ?? []);
               }
               break;

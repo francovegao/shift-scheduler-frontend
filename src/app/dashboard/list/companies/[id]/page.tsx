@@ -13,6 +13,7 @@ import { SetStateAction, useEffect, useState } from "react";
 import FormContainer from "@/app/ui/list/form-container";
 import { fetchOneCompany } from "@/app/lib/data";
 import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
+import { getFullAddress } from "@/app/lib/utils";
 
 export default function SingleLocationPage({
     params: { id },
@@ -34,7 +35,7 @@ export default function SingleLocationPage({
         }
     }, [firebaseUser]);
 
-    // Fetch pharmacist when token is ready
+    // Fetch company when token is ready
     useEffect(() => {
     const getCompany = async () => {
         setIsFetching(true);
@@ -85,11 +86,11 @@ export default function SingleLocationPage({
                         <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
                             <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                 <BuildingOfficeIcon className="w-5"/>
-                                <span>{company?.address || "Add an address"}</span>
+                                <span>{company?.name || "Add an address"}</span>
                             </div>
                             <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                 <MapPinIcon className="w-5"/>
-                                <span>{company?.city || "Add a city"}</span>
+                                <span>{getFullAddress(company.address, company.city, company.province, company.postalCode)}</span>
                             </div>
                             <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                 <EnvelopeIcon className="w-5"/>
@@ -108,7 +109,7 @@ export default function SingleLocationPage({
                     <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <CalendarIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">{counts?.totalOpen || "No data"}</h1>
+                            <h1 className="text-xl font-semibold">{counts?.totalOpen || "0"}</h1>
                             <span className="text-sm text-gray-400">Open Shifts</span>
                         </div>
                     </div>
@@ -116,7 +117,7 @@ export default function SingleLocationPage({
                     <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <ClockIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">{counts?.totalTaken || "No data"}</h1>
+                            <h1 className="text-xl font-semibold">{counts?.totalTaken || "0"}</h1>
                             <span className="text-sm text-gray-400">Scheduled Shifts</span>
                         </div>
                     </div>
@@ -124,7 +125,7 @@ export default function SingleLocationPage({
                     <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <XCircleIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">{counts?.totalCompleted || "No data"}</h1>
+                            <h1 className="text-xl font-semibold">{counts?.totalCompleted || "0"}</h1>
                             <span className="text-sm text-gray-400">Completed Shifts</span>
                         </div>
                     </div>
@@ -132,7 +133,7 @@ export default function SingleLocationPage({
                     <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <CheckCircleIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">{counts?.totalCancelled || "No data"}</h1>
+                            <h1 className="text-xl font-semibold">{counts?.totalCancelled || "0"}</h1>
                             <span className="text-sm text-gray-400">Cancelled Shifts</span>
                         </div>
                     </div>
