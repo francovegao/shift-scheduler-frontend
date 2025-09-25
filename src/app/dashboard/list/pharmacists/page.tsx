@@ -24,6 +24,7 @@ type User = {
     phone?: string,
 } 
 
+//TODO: Update this definition (Roles is no longer a table)
 type Roles = {
   id: string,
   userId: string,
@@ -174,7 +175,7 @@ export default function PharmacistsList({
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex justify-end gap-3">
           <Link 
-            href={`pharmacists/${item.pharmacistProfile?.id}`}
+            href={`pharmacists/${item.id}`} //{`pharmacists/${item.pharmacistProfile?.id}`}
             className="rounded-md border p-2 hover:bg-gray-100"
           >
             <EyeIcon className="w-5"  />
