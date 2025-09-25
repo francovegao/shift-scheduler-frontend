@@ -312,11 +312,61 @@ export async function fetchPharmacistShifts(id: string, token: string) {
   }
 }
 
+export async function fetchCompanyShifts(id: string, token: string) {
+  try {
+    console.log('Fetching single company shifts...');
+
+    const url = new URL(`http://localhost:5001/companies/shifts/${id}`);
+
+    const response = await fetch(url.toString(), {
+                    headers: { 
+                      Authorization: `Bearer ${token}`, 
+                    },
+                  });
+    
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return null;
+  }
+}
+
 export async function fetchOnePharmacist(id: string, token: string) {
   try {
     console.log('Fetching pharmacist...' + token);
 
     const url = new URL(`http://localhost:5001/users/pharmacist/${id}`);
+
+    const response = await fetch(url.toString(), {
+                    headers: { 
+                      Authorization: `Bearer ${token}`, 
+                    },
+                  });
+    
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return null;
+  }
+}
+
+export async function fetchOneCompany(id: string, token: string) {
+  try {
+    console.log('Fetching company...' + token);
+
+    const url = new URL(`http://localhost:5001/companies/${id}`);
 
     const response = await fetch(url.toString(), {
                     headers: { 

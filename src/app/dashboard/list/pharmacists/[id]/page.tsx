@@ -108,7 +108,7 @@ export default function SinglePharmacistPage({
                     <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <CheckCircleIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">{counts?.totalCompleted}</h1>
+                            <h1 className="text-xl font-semibold">{counts?.totalCompleted || "No data"}</h1>
                             <span className="text-sm text-gray-400">Completed Shifts</span>
                         </div>
                     </div>
@@ -116,7 +116,7 @@ export default function SinglePharmacistPage({
                     <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <XCircleIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">{counts?.totalCancelled}</h1>
+                            <h1 className="text-xl font-semibold">{counts?.totalCancelled || "No data"}</h1>
                             <span className="text-sm text-gray-400">Cancelled Shifts</span>
                         </div>
                     </div>
@@ -124,7 +124,7 @@ export default function SinglePharmacistPage({
                     <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <ClockIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">{counts?.totalTaken}</h1>
+                            <h1 className="text-xl font-semibold">{counts?.totalTaken || "No data"}</h1>
                             <span className="text-sm text-gray-400">Scheduled Shifts</span>
                         </div>
                     </div>
@@ -132,7 +132,7 @@ export default function SinglePharmacistPage({
                     <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <BuildingStorefrontIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">{counts?.totalPharmacies}</h1>
+                            <h1 className="text-xl font-semibold">{counts?.totalPharmacies || "No data"}</h1>
                             <span className="text-sm text-gray-400">Locations Worked</span>
                         </div>
                     </div>

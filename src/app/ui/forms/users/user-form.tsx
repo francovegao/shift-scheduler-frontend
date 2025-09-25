@@ -52,7 +52,7 @@ export default function UserForm({
         if (state.success) {
           toast(`User has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
           setOpen(false);
-          router.replace("/dashboard/list/users");
+          router.refresh();
         }
       }, [state, router, type, setOpen])
 
