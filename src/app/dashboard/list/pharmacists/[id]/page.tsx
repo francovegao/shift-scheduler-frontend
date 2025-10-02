@@ -12,6 +12,7 @@ import { fetchOnePharmacist } from "@/app/lib/data";
 import FormContainer from "@/app/ui/list/form-container";
 import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
 import { getFullAddress } from "@/app/lib/utils";
+import { notFound } from "next/navigation";
 
 export default function SinglePharmacistPage({
     params: { id },
@@ -52,6 +53,7 @@ export default function SinglePharmacistPage({
 
     if (loading || isFetching) return <div>Loading...</div>;
     if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
+    if(!pharmacist) { notFound(); }
 
     const role = appUser.role;
 

@@ -13,6 +13,7 @@ import FormContainer from "@/app/ui/list/form-container";
 import { fetchOneCompany } from "@/app/lib/data";
 import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
 import { getFullAddress } from "@/app/lib/utils";
+import { notFound } from 'next/navigation';
 
 export default function SingleLocationPage({
     params: { id },
@@ -53,6 +54,7 @@ export default function SingleLocationPage({
 
     if (loading || isFetching) return <div>Loading...</div>;
     if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
+    if(!company) { notFound(); }
 
     const role = appUser.role;
 
