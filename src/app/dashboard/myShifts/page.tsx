@@ -1,6 +1,7 @@
 "use client";
 
 import { fetchMyShifts } from "@/app/lib/data";
+import { getFullAddress } from "@/app/lib/utils";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
@@ -34,11 +35,21 @@ type Shift = {
 type Company = {
   id: string,
   name: string,
+  email: string,
+  phone: string,
+  address: string,
+  city: string,
+  province: string,
 }
 
 type Location = {
   id: string,
   name: string,
+  email: string,
+  phone: string,
+  address: string,
+  city: string,
+  province: string,
 }
 
 type Pharmacist = {
@@ -75,17 +86,17 @@ const columns = [
   {
     header: "Date",
     accessor: "date",
-    className: "hidden table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "Start - End time",
     accessor: "startEndTime",
-    className: "hidden table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "Rate",
     accessor: "payRate",
-    className: "hidden sm:table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "Status",
@@ -96,11 +107,6 @@ const columns = [
     header: "Pharmacist",
     accessor: "pharmacist",
     className: "hidden lg:table-cell px-3 py-5 font-medium",
-  },
-  {
-    header: "",
-    accessor: "edit",
-    className:"relative py-3 pl-6 pr-3"
   },
 ];
 
@@ -167,16 +173,28 @@ export default function PharmacistShiftsList({
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-purple-50"
     >
       <td className="flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
+        {item.location ? (
         <div className="flex flex-col">
-          <h3 className="font-semibold">{item.company.name}</h3>
-          <p className="text-xs text-gray-500">{item.location?.name}</p>
+          <h3 className="font-semibold">{item.location?.name}</h3>
+          <p className="text-xs text-gray-500">{item.company?.name}</p>
+                    <p className="text-xs text-gray-500">{item.location?.email}</p>
+          <p className="text-xs text-gray-500">{item.location?.phone}</p>
+          <p className="text-xs text-gray-500">{getFullAddress(item.location?.address, item.location?.city, item.location?.province, null)}</p>
         </div>
+        ):(
+          <div className="flex flex-col">
+          <h3 className="font-semibold">{item.company?.name}</h3>
+          <p className="text-xs text-gray-500">{item.company?.email}</p>
+          <p className="text-xs text-gray-500">{item.company?.phone}</p>
+          <p className="text-xs text-gray-500">{getFullAddress(item.company?.address, item.company?.city, item.company?.province, null)}</p>
+        </div>
+        )}
       </td>
-      <td className="hidden table-cell whitespace-nowrap px-3 py-3">{new Intl.DateTimeFormat("en-CA", DateFormat).format(new Date(item.startTime))}</td>
-      <td className="hidden table-cell whitespace-nowrap px-3 py-3">
+      <td className="table-cell whitespace-nowrap px-3 py-3">{new Intl.DateTimeFormat("en-CA", DateFormat).format(new Date(item.startTime))}</td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">
         {new Date(item.startTime).toLocaleTimeString("en-US", TimeFormat)}-{new Date(item.endTime).toLocaleTimeString("en-US", TimeFormat)} 
       </td>
-      <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">${parseFloat(item.payRate).toFixed(2)}</td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">${parseFloat(item.payRate).toFixed(2)}</td>
       <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">
         <ApprovedStatus status={item.status} />
       </td>
@@ -185,17 +203,6 @@ export default function PharmacistShiftsList({
           <h3 className="font-semibold">{item.pharmacist?.user.firstName} {item.pharmacist?.user.lastName}</h3>
           <p className="text-xs text-gray-500">{item.pharmacist?.user.email}</p>
           <p className="text-xs text-gray-500">{item.pharmacist?.user.phone}</p>
-        </div>
-      </td>
-      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-        <div className="flex justify-end gap-3">
-          {(role === "admin" ||
-            role === "pharmacy_manager" ||
-            role === "location_manager") && (
-            <>
-              <FormModal table="shift" type="update" id={item.id}/>
-            </>
-          )}
         </div>
       </td>
     </tr>

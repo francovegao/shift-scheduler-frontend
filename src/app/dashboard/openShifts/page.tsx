@@ -5,9 +5,7 @@ import { getFullAddress } from "@/app/lib/utils";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import BigCalendar from "@/app/ui/dashboard/big-calendar";
-import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
 import { lusitana } from "@/app/ui/fonts";
-import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
@@ -181,6 +179,7 @@ export default function OpenShiftsList({
             allDay: false,
             start: new Date(shift.startTime),
             end: new Date(shift.endTime),
+            shift: shift,
         };
     });
 
@@ -248,7 +247,7 @@ export default function OpenShiftsList({
           </div>
         </div>
         <div className="h-full bg-white p-4 rounded-md">
-            <BigCalendar data={data} action="take"/>
+            <BigCalendar token={token} data={data}  pharmacistId={pharmacistId} action="takeShift"/>
         </div>
       </div>
     </AuthWrapper>
