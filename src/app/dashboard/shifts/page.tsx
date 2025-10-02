@@ -168,7 +168,7 @@ export default function ShiftsList({
     const data = shifts.map((shift) => {
         const title =
             shift.location?.name
-            ? `${shift.company.name} - ${shift.location.name}`
+            ? `${shift.location.name} - ${shift.company.name}`
             : shift.company.name;
 
         return {

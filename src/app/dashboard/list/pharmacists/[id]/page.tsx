@@ -1,7 +1,5 @@
 'use client';
 
-import Announcements from "@/app/ui/dashboard/notifications";
-import BigCalendar from "@/app/ui/dashboard/big-calendar";
 import ShiftsGraph from "@/app/ui/list/shifts-graph";
 import { 
     UserCircleIcon, PhoneIcon, EnvelopeIcon, 

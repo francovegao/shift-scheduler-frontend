@@ -46,7 +46,11 @@ export default function BigCalendarContainer({
             case "single_company":
               if(id) {
                 const shiftsResponse = await fetchCompanyShifts(id, token);
-                setShifts(shiftsResponse?.data ?? []);
+                const allShifts = shiftsResponse?.data ?? [];
+                const filteredShifts = allShifts.filter(
+                  (shift: any) => shift.location === null 
+                );
+                setShifts(filteredShifts);
               }
               break;
             case "single_location":
@@ -74,7 +78,7 @@ export default function BigCalendarContainer({
     const data = shifts.map((shift) => {
         const title =
             shift.location?.name
-            ? `${shift.company.name} - ${shift.location.name}`
+            ? `${shift.location.name} - ${shift.company.name}`
             : shift.company.name;
 
         return {
