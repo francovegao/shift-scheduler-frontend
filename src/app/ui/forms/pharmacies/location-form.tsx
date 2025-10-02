@@ -3,13 +3,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../input-field";
-import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import { LocationSchema, locationSchema } from "@/app/lib/formValidationSchemas";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { useFormState } from "react-dom";
 import { createLocation, updateLocation } from "@/app/lib/actions";
+import { useAuth } from "../../context/auth-context";
 
 export default function LocationForm({ 
     type,
@@ -24,6 +24,8 @@ export default function LocationForm({
     token: string;
     relatedData?: any;
     }){
+
+      const { appUser, loading } = useAuth();
 
       const {
         register,
@@ -58,11 +60,17 @@ export default function LocationForm({
 
       const {companies} = relatedData;
 
+    if (loading) return <div>Loading...</div>;
+    if ( !appUser) return <div>Please sign in to continue</div>;
+
+    const role = appUser.role;
+    const companyId = appUser.companyId || undefined;
+
     return(
         <form className="flex flex-col gap-8" onSubmit={onSubmit}>
           <h1 className="text-xl font-semibold">{type === "create" ? "Create a new location" : "Update location"}</h1>
           <span className="text-xs text-gray-400 font-medium">
-            Account Information
+            Contact Information
           </span>
           <div className="flex justify-between flex-wrap gap-4">
             {data && (
@@ -98,31 +106,45 @@ export default function LocationForm({
                 register={register}
                 error={errors?.phone}
             />
-            <div className="flex flex-col gap-2 w-full md:w-1/4">
-              <label className="text-xs text-gray-500">Parent Pharmacy</label>
-              <select
-                className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                {...register("companyId")}
-                defaultValue={data?.companies}
-              >
-                {companies.map(
-                  (company: { id: string; name: string}) => (
-                    <option
-                      value={company.id}
-                      key={company.id}
-                      selected={data && company.id === data.companyId}
-                    >
-                      {company.name}
-                    </option>
-                  )
+
+            {role === "admin" ? (
+              <div className="flex flex-col gap-2 w-full md:w-1/4">
+                <label className="text-xs text-gray-500">Parent Pharmacy</label>
+                <select
+                  className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                  {...register("companyId")}
+                  defaultValue={data?.companies}
+                >
+                  {companies.map(
+                    (company: { id: string; name: string}) => (
+                      <option
+                        value={company.id}
+                        key={company.id}
+                        selected={data && company.id === data.companyId}
+                      >
+                        {company.name}
+                      </option>
+                    )
+                  )}
+                </select>
+                {errors.companyId?.message && (
+                  <p className="text-xs text-red-400">
+                    {errors.companyId.message.toString()}
+                  </p>
                 )}
-              </select>
-              {errors.companyId?.message && (
-                <p className="text-xs text-red-400">
-                  {errors.companyId.message.toString()}
-                </p>
-              )}
-            </div>
+              </div>
+             ) : null}
+            {role === "pharmacy_manager" ? (
+              <InputField
+                label="Pharmacy"
+                name="companyId"
+                defaultValue={companyId}
+                register={register} 
+                error={errors?.companyId}
+                hidden
+              />
+            ) : null}
+
            </div>
           <span className="text-xs text-gray-400 font-medium">
             Location Information

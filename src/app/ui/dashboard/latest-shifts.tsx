@@ -72,10 +72,21 @@ const TimeFormat = {
               className="flex flex-row items-center justify-between p-4 hover:bg-gray-50 transition"
             >
               <div className="flex flex-col">
-                <p className="truncate text-sm font-semibold">
-                  {item.company.name}
-                </p>
-                <p className="text-sm text-gray-500">{item?.location?.name}</p>
+                {item.location ? (
+                  <span>
+                    <p className="truncate text-sm font-semibold">
+                      {item?.location?.name}
+                    </p>
+                    <p className="text-sm text-gray-500">{item?.company?.name}</p>
+                  </span>
+                ) : (
+                  <span>
+                    <p className="truncate text-sm font-semibold">
+                      {item.company.name}
+                    </p>
+                    <p className="text-sm text-gray-500">{item?.location?.name}</p>
+                  </span>
+                )}
                 <div className="mt-1">
                   <ApprovedStatus status={item.status} />
                 </div>

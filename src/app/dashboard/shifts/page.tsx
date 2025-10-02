@@ -1,6 +1,7 @@
 "use client";
 
 import { fetchShifts } from "@/app/lib/data";
+import { getFullAddress } from "@/app/lib/utils";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import BigCalendar from "@/app/ui/dashboard/big-calendar";
@@ -36,11 +37,21 @@ type Shift = {
 type Company = {
   id: string,
   name: string,
+  email: string,
+  phone: string,
+  address: string,
+  city: string,
+  province: string,
 }
 
 type Location = {
   id: string,
   name: string,
+  email: string,
+  phone: string,
+  address: string,
+  city: string,
+  province: string,
 }
 
 type Pharmacist = {
@@ -77,12 +88,12 @@ const columns = [
   {
     header: "Date",
     accessor: "date",
-    className: "hidden table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "Start - End time",
     accessor: "startEndTime",
-    className: "hidden table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "Rate",
@@ -95,14 +106,19 @@ const columns = [
     className: "hidden sm:table-cell px-3 py-5 font-medium",
   },
   {
+    header: "Notes",
+    accessor: "notes",
+    className: "hidden md:table-cell px-3 py-5 font-medium",
+  },
+  {
     header: "Pharmacist",
     accessor: "pharmacist",
-    className: "hidden lg:table-cell px-3 py-5 font-medium",
+    className: "hidden md:table-cell px-3 py-5 font-medium",
   },
   {
     header: "",
     accessor: "edit",
-    className:"relative py-3 pl-6 pr-3"
+    className:"px-4 py-5 font-medium sm:pl-6"
   },
 ];
 
@@ -163,7 +179,6 @@ export default function ShiftsList({
 
     const role = appUser.role;
 
-
     //Prepare data to send to BigCalendar component
     const data = shifts.map((shift) => {
         const title =
@@ -176,6 +191,7 @@ export default function ShiftsList({
             allDay: false,
             start: new Date(shift.startTime),
             end: new Date(shift.endTime),
+            shift: shift,
         };
     });
 
@@ -185,20 +201,38 @@ export default function ShiftsList({
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-purple-50"
     >
       <td className="flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
+        {item.location ? (
         <div className="flex flex-col">
-          <h3 className="font-semibold">{item.company.name}</h3>
-          <p className="text-xs text-gray-500">{item.location?.name}</p>
+          <h3 className="font-semibold">{item.location?.name}</h3>
+          <p className="text-xs text-gray-500">{item.company?.name}</p>
+                    <p className="text-xs text-gray-500">{item.location?.email}</p>
+          <p className="text-xs text-gray-500">{item.location?.phone}</p>
+          <p className="text-xs text-gray-500">{getFullAddress(item.location?.address, item.location?.city, item.location?.province, null)}</p>
         </div>
+        ):(
+          <div className="flex flex-col">
+          <h3 className="font-semibold">{item.company?.name}</h3>
+          <p className="text-xs text-gray-500">{item.company?.email}</p>
+          <p className="text-xs text-gray-500">{item.company?.phone}</p>
+          <p className="text-xs text-gray-500">{getFullAddress(item.company?.address, item.company?.city, item.company?.province, null)}</p>
+        </div>
+        )}
       </td>
-      <td className="hidden table-cell whitespace-nowrap px-3 py-3">{new Intl.DateTimeFormat("en-CA", DateFormat).format(new Date(item.startTime))}</td>
-      <td className="hidden table-cell whitespace-nowrap px-3 py-3">
+      <td className="table-cell whitespace-nowrap px-3 py-3">{new Intl.DateTimeFormat("en-CA", DateFormat).format(new Date(item.startTime))}</td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">
         {new Date(item.startTime).toLocaleTimeString("en-US", TimeFormat)}-{new Date(item.endTime).toLocaleTimeString("en-US", TimeFormat)} 
       </td>
       <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">${parseFloat(item.payRate).toFixed(2)}</td>
       <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">
         <ApprovedStatus status={item.status} />
       </td>
-      <td className="hidden lg:table-cell flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
+      <td className="hidden md:table-cell flex items-center gap-4 py-3 pl-6 pr-3 w-48">
+        <div className="flex flex-col">
+          <h3 className="font-semibold">{item?.title}</h3>
+          <p className="text-xs text-gray-500 break-words">{item?.description}</p>
+        </div>
+      </td>
+      <td className="hidden md:table-cell flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3 w-48">
         <div className="flex flex-col">
           <h3 className="font-semibold">{item.pharmacist?.user.firstName} {item.pharmacist?.user.lastName}</h3>
           <p className="text-xs text-gray-500">{item.pharmacist?.user.email}</p>
@@ -209,7 +243,8 @@ export default function ShiftsList({
         <div className="flex justify-end gap-3">
           {(role === "admin" ||
             role === "pharmacy_manager" ||
-            role === "location_manager") && (
+            role === "location_manager" ) &&
+            ( item.status === 'open' ) &&  (
             <>
               <FormContainer table="shift" type="update" token={token} data={item} />
               <FormContainer table="shift" type="delete" token={token} id={item.id}/>
@@ -252,7 +287,7 @@ export default function ShiftsList({
               <BigCalendarContainer type="dashboard" />
             )}
             { (role === "relief_pharmacist") && (
-              <BigCalendar data={data}/>
+              <BigCalendar token={token} data={data}/>
             )}
             
         </div>

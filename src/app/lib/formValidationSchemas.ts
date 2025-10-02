@@ -36,7 +36,7 @@ export const locationSchema = z.object({
     city: z.string().optional(),
     province: z.string().min(2,{message: "Province is required."}),
     postalCode: z.string().optional(),
-    companyId: z.string(),
+    companyId: z.string().min(3,{message: "Pharmacy is required."}),
 });
 
 export type LocationSchema = z.infer<typeof locationSchema>;

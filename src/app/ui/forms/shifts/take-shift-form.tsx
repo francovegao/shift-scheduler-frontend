@@ -49,7 +49,7 @@ export default function TakeShiftForm({
         });
       
           const [state, formAction] = useFormState(
-               takeShift.bind(null, token),
+              takeShift.bind(null, token),
             {
               success: false,
               error: false,
