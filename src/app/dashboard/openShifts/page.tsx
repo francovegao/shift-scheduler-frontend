@@ -1,6 +1,7 @@
 "use client";
 
 import { fetchShifts } from "@/app/lib/data";
+import { getFullAddress } from "@/app/lib/utils";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import BigCalendar from "@/app/ui/dashboard/big-calendar";
@@ -10,6 +11,7 @@ import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
+import TakeShiftModal from "@/app/ui/list/take-shift-modal";
 import TableSearch from "@/app/ui/table-search";
 import { useRouter } from "next/navigation";
 import { SetStateAction, useEffect, useState } from "react";
@@ -35,11 +37,21 @@ type Shift = {
 type Company = {
   id: string,
   name: string,
+  email: string,
+  phone: string,
+  address: string,
+  city: string,
+  province: string,
 }
 
 type Location = {
   id: string,
   name: string,
+  email: string,
+  phone: string,
+  address: string,
+  city: string,
+  province: string,
 }
 
 type Pharmacist = {
@@ -76,32 +88,27 @@ const columns = [
   {
     header: "Date",
     accessor: "date",
-    className: "hidden table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "Start - End time",
     accessor: "startEndTime",
-    className: "hidden table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "Rate",
     accessor: "payRate",
-    className: "hidden sm:table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "Status",
     accessor: "status",
-    className: "hidden sm:table-cell px-3 py-5 font-medium",
-  },
-  {
-    header: "Pharmacist",
-    accessor: "pharmacist",
     className: "hidden lg:table-cell px-3 py-5 font-medium",
   },
   {
-    header: "",
-    accessor: "edit",
-    className:"relative py-3 pl-6 pr-3"
+    header: "Take Shift",
+    accessor: "take",
+    className:"relative py-3 pl-6 pr-3 font-medium"
   },
 ];
 
@@ -161,6 +168,7 @@ export default function OpenShiftsList({
     if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
 
     const role = appUser.role;
+    const pharmacistId = appUser.pharmacistProfile?.id;
 
      const data = shifts.map((shift) => {
         const title =
@@ -182,34 +190,36 @@ export default function OpenShiftsList({
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-purple-50"
     >
       <td className="flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
+        {item.location ? (
         <div className="flex flex-col">
-          <h3 className="font-semibold">{item.company.name}</h3>
-          <p className="text-xs text-gray-500">{item.location?.name}</p>
+          <h3 className="font-semibold">{item.location?.name}</h3>
+          <p className="text-xs text-gray-500">{item.company?.name}</p>
+                    <p className="text-xs text-gray-500">{item.location?.email}</p>
+          <p className="text-xs text-gray-500">{item.location?.phone}</p>
+          <p className="text-xs text-gray-500">{getFullAddress(item.location?.address, item.location?.city, item.location?.province, null)}</p>
         </div>
+        ):(
+          <div className="flex flex-col">
+          <h3 className="font-semibold">{item.company?.name}</h3>
+          <p className="text-xs text-gray-500">{item.company?.email}</p>
+          <p className="text-xs text-gray-500">{item.company?.phone}</p>
+          <p className="text-xs text-gray-500">{getFullAddress(item.company?.address, item.company?.city, item.company?.province, null)}</p>
+        </div>
+        )}
       </td>
-      <td className="hidden table-cell whitespace-nowrap px-3 py-3">{new Intl.DateTimeFormat("en-CA", DateFormat).format(new Date(item.startTime))}</td>
-      <td className="hidden table-cell whitespace-nowrap px-3 py-3">
+      <td className="table-cell whitespace-nowrap px-3 py-3">{new Intl.DateTimeFormat("en-CA", DateFormat).format(new Date(item.startTime))}</td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">
         {new Date(item.startTime).toLocaleTimeString("en-US", TimeFormat)}-{new Date(item.endTime).toLocaleTimeString("en-US", TimeFormat)} 
       </td>
-      <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">${parseFloat(item.payRate).toFixed(2)}</td>
-      <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">
+      <td className="table-cell whitespace-nowrap px-3 py-3">${parseFloat(item.payRate).toFixed(2)}</td>
+      <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">
         <ApprovedStatus status={item.status} />
-      </td>
-      <td className="hidden lg:table-cell flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
-        <div className="flex flex-col">
-          <h3 className="font-semibold">{item.pharmacist?.user.firstName} {item.pharmacist?.user.lastName}</h3>
-          <p className="text-xs text-gray-500">{item.pharmacist?.user.email}</p>
-          <p className="text-xs text-gray-500">{item.pharmacist?.user.phone}</p>
-        </div>
       </td>
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex justify-end gap-3">
-          {(role === "admin" ||
-            role === "pharmacy_manager" ||
-            role === "location_manager") && (
+          {(role === "relief_pharmacist" ) && (
             <>
-              <FormModal table="shift" type="update" id={item.id}/>
-              <FormModal table="shift" type="delete" id={item.id}/>
+              <TakeShiftModal token={token} data={item} pharmacistId={pharmacistId}/>
             </>
           )}
         </div>
@@ -227,12 +237,6 @@ export default function OpenShiftsList({
           {/* TOP */}
           <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
             <TableSearch placeholder="Search shifts..." />
-             { (role === "admin" ||
-                role === "pharmacy_manager" ||
-                role === "location_manager") && (
-              //<AddPharmacist />
-              <FormModal table="shift" type="create" />
-            )}
           </div>
           {/* LIST */}
           <div style={{ overflowX: 'scroll' }}>
@@ -244,7 +248,7 @@ export default function OpenShiftsList({
           </div>
         </div>
         <div className="h-full bg-white p-4 rounded-md">
-            <BigCalendar data={data}/>
+            <BigCalendar data={data} action="take"/>
         </div>
       </div>
     </AuthWrapper>

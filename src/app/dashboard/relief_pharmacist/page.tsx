@@ -25,7 +25,7 @@ export default async function PharmacistPage({
               {/* LEFT */}
               <div className="w-full xl:w-2/3">
                 <h2 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
-                  Scheduled Shifts
+                  My Shifts
                 </h2>
                 <div className="h-full bg-white p-4 rounded-md">
                     <BigCalendarContainer type="dashboard" />

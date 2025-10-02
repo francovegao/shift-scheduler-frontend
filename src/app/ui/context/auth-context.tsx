@@ -17,6 +17,7 @@ type AppUser = {
   role: "admin" | "pharmacy_manager" | "location_manager" | "relief_pharmacist" | null;
   companyId: string | null;
   locationId: string | null;
+  pharmacistProfile: {id: string; } | null;
 };
 
 type AuthContextType = {

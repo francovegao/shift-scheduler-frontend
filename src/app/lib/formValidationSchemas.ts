@@ -71,3 +71,12 @@ export const shiftSchema = z.object({
 });
 
 export type ShiftSchema = z.infer<typeof shiftSchema>;
+
+export const takeShiftSchema = z.object({
+  id: z.string().min(1,{message: "Shift ID is required"}),
+  status: z.enum(["open", "taken", "cancelled", "completed"]),
+  pharmacistId: z.string().min(1,{message: "Pharmacist ID is required"}),
+});
+
+export type TakeShiftSchema = z.infer<typeof takeShiftSchema>;
+

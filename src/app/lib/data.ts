@@ -1,5 +1,5 @@
 
-const ITEMS_PER_PAGE = 2; //TODO adjust this number to 10
+const ITEMS_PER_PAGE = 10; 
 
 export async function fetchLocations(query: string, currentPage: number, queryParams: Object, token: string) {
   try {
@@ -69,7 +69,8 @@ export async function fetchCompanies(query: string, currentPage: number, token: 
 
 export async function fetchShifts(query: string, currentPage: number, queryParams: Object, token: string) {
   try {
-    console.log('Fetching shifts data...');
+    console.log('Fetching shifts data... '+token);
+
 
     const url = new URL('http://localhost:5001/shifts');
     url.searchParams.append('search', query);

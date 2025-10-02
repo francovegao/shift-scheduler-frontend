@@ -82,6 +82,7 @@ export default function BigCalendarContainer({
             allDay: false,
             start: new Date(shift.startTime),
             end: new Date(shift.endTime),
+            status: shift.status,
         };
     });
 

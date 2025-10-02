@@ -10,7 +10,9 @@ export default async function ShiftsCalendarContainer({
   const {date} = await searchParams;
 
   return (
-    <div className="w-full md:col-span-4 bg-white p-4 rounded-md shadow-sm">
+    <div className="w-full md:col-span-4 bg-white pb-4 px-4 rounded-md shadow-sm">
+      <h1 className="text-xl font-semibold my-4">View Open Shifts</h1>
+      <p>Select a date to view the corresponding open shifts</p>
         <ShiftsCalendar />
         <div className="flex items-center justify-between">
             <h1 className="text-xl font-semibold my-4">Shifts</h1>

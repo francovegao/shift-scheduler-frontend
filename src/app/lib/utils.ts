@@ -61,9 +61,9 @@ export const getFullAddress = (
 ) => {
 
   if (!address && !city && !province && !postalCode) {
-    return "Add address info";
+    return "No address info";
   }
 
   const parts = [address, city, province, postalCode].filter(Boolean);
-  return parts.length > 0 ? parts.join(', ') : "Add address info";
+  return parts.length > 0 ? parts.join(', ') : "No address info";
 };

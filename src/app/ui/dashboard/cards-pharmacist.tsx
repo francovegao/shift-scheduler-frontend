@@ -61,7 +61,7 @@ export default function CardWrapperPharmacist() {
   return (
     <>
       <Card title="Open Shifts" value={openShifts} type="openShifts" />
-      <Card title="Taken Shifts" value={myTakenShifts} type="myTakenShifts" />
+      <Card title="Scheduled Shifts" value={myTakenShifts} type="myTakenShifts" />
       <Card title="Completed Shifs" value={myCompletedShifts} type="myCompletedShifts" />
       <Card title="Cancelled Shifts" value={myCancelledShifts} type="myCancelledShifts"/>
     </>
