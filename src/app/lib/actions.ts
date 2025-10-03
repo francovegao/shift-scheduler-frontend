@@ -1,5 +1,4 @@
 import { CompanySchema, LocationSchema, PharmacistSchema, ShiftSchema, TakeShiftSchema, UserSchema } from "./formValidationSchemas"
-import { registerFirebaseUser } from "../lib/firebaseConfig";
 
 type CurrentState = {success: boolean; error: boolean }
 
@@ -35,9 +34,23 @@ export const createUser = async (token: string, currentState: CurrentState,  dat
    try {
     console.log('Creating new user...');
 
-    //Register user in firebase
-    const firebaseResponse = await registerFirebaseUser(data.email, data.password);
-    const firebaseUid = firebaseResponse.user.uid;
+    //Send data to register user in Firebase
+    const firebaseResponse = await fetch('http://localhost:5001/users/firebase', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({email: data.email, password: data.password}),
+    });
+
+    if (!firebaseResponse.ok) {
+      const errorData = await firebaseResponse.json();
+      throw new Error(`Firebase error! ${errorData.message || 'Unknown error'}`);
+    }
+
+    const firebaseUser = await firebaseResponse.json();
+    const firebaseUid = firebaseUser.uid;
     console.log("User registered with UID:", firebaseUid);
     
     //Prepare payload for API request
