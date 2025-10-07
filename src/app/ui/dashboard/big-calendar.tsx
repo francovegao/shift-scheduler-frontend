@@ -58,7 +58,6 @@ export default function BigCalendar({
         setSelectedShift(event?.shift);
         setOpen(true);
       }
-
     };
 
     return(

@@ -104,6 +104,11 @@ const columns = [
     className: "hidden sm:table-cell px-3 py-5 font-medium",
   },
   {
+    header: "Notes",
+    accessor: "notes",
+    className: "hidden md:table-cell px-3 py-5 font-medium",
+  },
+  {
     header: "Pharmacist",
     accessor: "pharmacist",
     className: "hidden lg:table-cell px-3 py-5 font-medium",
@@ -198,7 +203,13 @@ export default function PharmacistShiftsList({
       <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">
         <ApprovedStatus status={item.status} />
       </td>
-      <td className="hidden lg:table-cell flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
+      <td className="hidden md:table-cell flex items-center gap-4 py-3 pl-3 pr-3 w-48">
+        <div className="flex flex-col">
+          <h3 className="font-semibold">{item?.title}</h3>
+          <p className="text-xs text-gray-500 break-words">{item?.description}</p>
+        </div>
+      </td>
+      <td className="hidden lg:table-cell flex items-center gap-4 whitespace-nowrap py-3 pl-3 pr-3">
         <div className="flex flex-col">
           <h3 className="font-semibold">{item.pharmacist?.user.firstName} {item.pharmacist?.user.lastName}</h3>
           <p className="text-xs text-gray-500">{item.pharmacist?.user.email}</p>
@@ -228,7 +239,7 @@ export default function PharmacistShiftsList({
             <Pagination totalPages={totalPages} />
           </div>
         </div>
-        <div className="h-full bg-white p-4 rounded-md">
+        <div className="bg-white p-4 rounded-md">
           <BigCalendarContainer type="dashboard" />
         </div>
       </div>

@@ -104,6 +104,11 @@ const columns = [
     className: "hidden lg:table-cell px-3 py-5 font-medium",
   },
   {
+    header: "Notes",
+    accessor: "notes",
+    className: "hidden md:table-cell px-3 py-5 font-medium",
+  },
+  {
     header: "Take Shift",
     accessor: "take",
     className:"relative py-3 pl-6 pr-3 font-medium"
@@ -198,7 +203,7 @@ export default function OpenShiftsList({
           <p className="text-xs text-gray-500">{getFullAddress(item.location?.address, item.location?.city, item.location?.province, null)}</p>
         </div>
         ):(
-          <div className="flex flex-col">
+        <div className="flex flex-col">
           <h3 className="font-semibold">{item.company?.name}</h3>
           <p className="text-xs text-gray-500">{item.company?.email}</p>
           <p className="text-xs text-gray-500">{item.company?.phone}</p>
@@ -214,8 +219,14 @@ export default function OpenShiftsList({
       <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">
         <ApprovedStatus status={item.status} />
       </td>
+      <td className="hidden md:table-cell flex items-center gap-4 py-3 pl-3 pr-3 w-48">
+        <div className="flex flex-col">
+          <h3 className="font-semibold">{item?.title}</h3>
+          <p className="text-xs text-gray-500 break-words">{item?.description}</p>
+        </div>
+      </td>
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-start gap-3">
           {(role === "relief_pharmacist" ) && (
             <>
               <TakeShiftModal token={token} data={item} pharmacistId={pharmacistId}/>
@@ -246,9 +257,11 @@ export default function OpenShiftsList({
             <Pagination totalPages={totalPages} />
           </div>
         </div>
-        <div className="h-full bg-white p-4 rounded-md">
+        <div className="bg-white p-4 rounded-md">
             <BigCalendar token={token} data={data}  pharmacistId={pharmacistId} action="takeShift"/>
+            <p className="text-gray-500 text-sm flex justify-end">Click on any open shift to take it.</p>
         </div>
+        
       </div>
     </AuthWrapper>
   );   

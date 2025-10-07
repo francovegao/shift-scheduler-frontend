@@ -38,7 +38,7 @@ export default function ApprovedStatus({ status }: { status: string }) {
       ) : null}
       {status === 'taken' ? (
         <>
-          Taken
+          Scheduled
           <BookOpenIcon className="ml-1 w-4 text-white" />
         </>
       ) : null}
