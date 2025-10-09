@@ -24,7 +24,7 @@ export default async function CompanyManagerPage() {
                   Company's Shifts
                 </h2>
                 <div className="h-full bg-white p-4 rounded-md">
-                    <BigCalendarContainer type="dashboard" />
+                    <BigCalendarContainer type="dashboard_manager" />
                 </div>
               </div>
               {/* RIGHT */}

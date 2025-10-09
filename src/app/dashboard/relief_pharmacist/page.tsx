@@ -28,7 +28,7 @@ export default async function PharmacistPage({
                   My Shifts
                 </h2>
                 <div className="h-full bg-white p-4 rounded-md">
-                    <BigCalendarContainer type="dashboard" />
+                    <BigCalendarContainer type="dashboard_pharmacist" />
                 </div>
               </div>
               {/* RIGHT */}

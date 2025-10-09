@@ -72,6 +72,11 @@ export default function BigCalendar({
             <Calendar
               localizer={localizer}
               events={data}
+              components={{
+                month: {},
+                week: {event: CustomWeekEventComponent},
+                day: {event: CustomDayEventComponent},
+              }}
               startAccessor="start"
               endAccessor="end"
               views={[Views.MONTH, Views.WEEK, Views.DAY]}
@@ -84,6 +89,7 @@ export default function BigCalendar({
               }}
               eventPropGetter={eventStyleGetter}
               onSelectEvent={handleSelectEvent}
+              popup
             />
 
             {open && (
@@ -102,3 +108,41 @@ export default function BigCalendar({
         </div>
     )
 }
+
+const CustomDayEventComponent = ({ event }: any | undefined) => {
+  // Access your custom data from the 'event' object
+  const { title, shift} = event;
+
+  return (
+    <div>
+      <p className='mb-2 font-semibold'>{title}</p>
+      {shift.payRate && <p className='mb-2'>${shift.payRate} /hr</p>}
+      {shift.status === 'open' && (
+        <>
+         <p>Info:</p>
+         <p>{shift.title}</p>
+         <p>{shift.description}</p>
+        </>
+         )}
+      {shift.status !== 'open' && (
+        <>
+         <p>Pharmacy:</p>
+         <p>{shift.location?.name}</p>
+         <p>{shift.company.name}</p>
+        </>
+         )}
+    </div>
+  );
+};
+
+const CustomWeekEventComponent = ({ event }: any | undefined) => {
+  // Access your custom data from the 'event' object
+  const { title, shift} = event;
+
+  return (
+    <div>
+      <p className='mb-2 font-semibold'>{title}</p>
+      {shift.payRate && <p className='mb-2'>${shift.payRate} /hr</p>}
+    </div>
+  );
+};

@@ -10,7 +10,7 @@ export default function BigCalendarContainer({
   type, 
   id,
 }: {
-  type: "dashboard" | "single_pharmacist" | "single_company" | "single_location" ;
+  type: "dashboard_manager" | "dashboard_pharmacist" | "single_pharmacist" | "single_company" | "single_location" ;
   id?: string;
 }) {
     const { firebaseUser, appUser, loading } = useAuth();
@@ -32,11 +32,11 @@ export default function BigCalendarContainer({
       setIsFetching(true);
       try {
           switch (type) {
-            case "dashboard": {
+            case "dashboard_pharmacist":
+            case "dashboard_manager":
               const shiftsResponse = await fetchAllMyShifts(token);
               setShifts(shiftsResponse?.data ?? []);
               break;
-            }
             case "single_pharmacist":
               if(id) {
                 const shiftsResponse = await fetchPharmacistShifts(id, token);
@@ -76,10 +76,17 @@ export default function BigCalendarContainer({
     if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
 
     const data = shifts.map((shift) => {
-        const title =
+      let title: string= "";
+
+      if(shift.pharmacistId && type === 'dashboard_manager' ){
+        title = `${shift.pharmacist?.user?.firstName} ${shift.pharmacist?.user?.lastName}`;
+      }else{
+        title =
             shift.location?.name
             ? `${shift.location.name} - ${shift.company.name}`
             : shift.company.name;
+      }
+        
 
         return {
             title,
