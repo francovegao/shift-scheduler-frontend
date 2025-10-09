@@ -11,8 +11,10 @@ import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
 import TakeShiftModal from "@/app/ui/list/take-shift-modal";
 import TableSearch from "@/app/ui/list/table-search";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { SetStateAction, useEffect, useState } from "react";
+import FilterDate from "@/app/ui/list/filter-date";
+import FilterPayRate from "@/app/ui/list/filter-pay-rate";
 
 type ShiftList = Shift & { company: Company }
                  & { location: Location } 
@@ -117,22 +119,15 @@ const columns = [
 
 
 
-export default function OpenShiftsList({
-  searchParams,
-  }:{
-    searchParams: { [key: string]: string | undefined};
-  }){
+export default function OpenShiftsList(){
 
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { firebaseUser, appUser, loading } = useAuth();
     const [isFetching, setIsFetching] = useState(true);
     const [token, setToken] = useState("");
     const [shifts, setShifts] = useState<any[]>([]);
     const [totalPages, setTotalPages] = useState<number>(1);
-
-    const { page, query, ...queryParams } = searchParams;
-    const currentPage = page ? parseInt(page) : 1;
-    const search = query ?? '';  //query?query:"";
 
     // Redirect if not logged in
     useEffect(() => {
@@ -155,6 +150,31 @@ export default function OpenShiftsList({
         const getShifts = async () => {
           setIsFetching(true);
           try {
+            const page = searchParams.get('page');
+            const query = searchParams.get('query');
+            const queryParams: Record<string, string> = {};
+
+            searchParams.forEach((value, key) => {
+              if (key !== 'page' && key !== 'query') {
+
+                if(key === "from" || key === "to" ){
+                   //Detect if the value is a valid date
+                  const parsedDate = new Date(value);
+                  const isValidDate = !isNaN(parsedDate.getTime());
+
+                  if(isValidDate){
+                    queryParams[key] = parsedDate.toISOString();
+                  }
+
+                }else{
+                  queryParams[key] = value;
+                }
+            }});
+        
+            const currentPage = page ? parseInt(page) : 1;
+            const search = query ?? '';
+
+
             const shiftsResponse = await fetchShifts(search, currentPage, queryParams, token);
             setShifts(shiftsResponse?.data ?? []);
             setTotalPages(shiftsResponse?.meta?.totalPages ?? 1);
@@ -165,7 +185,7 @@ export default function OpenShiftsList({
           }
         };
         if (token){ getShifts() };
-  }, [token, search, currentPage, JSON.stringify(queryParams)]);
+  }, [token, searchParams]);
 
     if (loading || isFetching) return <div>Loading...</div>;
     if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
@@ -247,6 +267,8 @@ export default function OpenShiftsList({
           {/* TOP */}
           <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
             <TableSearch placeholder="Search shifts..." />
+            <FilterDate />
+            <FilterPayRate />
           </div>
           {/* LIST */}
           <div style={{ overflowX: 'scroll' }}>

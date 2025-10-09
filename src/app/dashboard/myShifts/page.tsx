@@ -156,17 +156,20 @@ export default function PharmacistShiftsList(){
 
             searchParams.forEach((value, key) => {
               if (key !== 'page' && key !== 'query') {
-                //Detect if the value is a valid date
-                const parsedDate = new Date(value);
-                const isValidDate = !isNaN(parsedDate.getTime());
 
-                if (isValidDate) {
-                  queryParams[key] = parsedDate.toISOString();
-                } else {
+                if(key === "from" || key === "to" ){
+                   //Detect if the value is a valid date
+                  const parsedDate = new Date(value);
+                  const isValidDate = !isNaN(parsedDate.getTime());
+
+                  if(isValidDate){
+                    queryParams[key] = parsedDate.toISOString();
+                  }
+
+                }else{
                   queryParams[key] = value;
                 }
-              }
-            });
+            }});
         
             const currentPage = page ? parseInt(page) : 1;
             const search = query ?? '';
@@ -246,7 +249,11 @@ export default function PharmacistShiftsList(){
           <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
             <TableSearch placeholder="Search shifts..." />
             <FilterDate />
-            <FilterShiftStatus />
+            <FilterShiftStatus options={[
+              { value: 'taken', label: 'Scheduled' },
+              { value: 'completed', label: 'Completed' },
+              { value: 'cancelled', label: 'Cancelled' },
+            ]} />
           </div>
           {/* LIST */}
           <div style={{ overflowX: 'scroll' }}>

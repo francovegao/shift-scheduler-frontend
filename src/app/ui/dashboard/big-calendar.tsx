@@ -16,7 +16,7 @@ export default function BigCalendar({
   token,
   pharmacistId,
 }: {
-  data: { title: string; allDay: boolean; start: Date; end: Date; shift: any}[];
+  data: { title: string; allDay: boolean; start: Date; end: Date; shift: any;}[];
   action?: "takeShift";
   token: string;
   pharmacistId?: string;
@@ -30,7 +30,7 @@ export default function BigCalendar({
     const eventStyleGetter = (event: any) => {
         let className = "";
 
-        switch(event.status){
+        switch(event.shift.status){
           case 'open':
             className = "open-shift";
             break;

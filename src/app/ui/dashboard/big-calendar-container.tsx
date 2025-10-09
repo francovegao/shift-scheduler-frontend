@@ -86,13 +86,13 @@ export default function BigCalendarContainer({
             allDay: false,
             start: new Date(shift.startTime),
             end: new Date(shift.endTime),
-            status: shift.status,
+            shift: shift,
         };
     });
 
     return(
         <div >
-            <BigCalendar data={data}/>
+            <BigCalendar data={data} token={token} />
         </div>
     )
 }

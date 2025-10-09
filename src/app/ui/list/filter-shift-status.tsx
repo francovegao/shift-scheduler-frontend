@@ -5,7 +5,10 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { SetStateAction} from "react";
 
  
- export default function FilterShiftStatus() {
+ export default function FilterShiftStatus({ 
+  options 
+}: {
+   options: { value: string; label: string; }[]; }) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
@@ -35,10 +38,9 @@ import { SetStateAction} from "react";
       className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-8 text-sm outline-1 text-gray-500"
         >
           <option value="" selected>Status</option>
-          <option value="taken">Scheduled</option>
-          <option value="completed">Completed</option>
-          <option value="open">Open</option>
-          <option value="cancelled">Cancelled</option>
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
         </select>
         <FunnelIcon className="absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
     </div>

@@ -91,6 +91,11 @@ export async function fetchShifts(query: string, currentPage: number, queryParam
       },
     });
 
+        console.log(url.toString())
+
+    console.log('Constructed search params:', url.searchParams.toString());
+
+
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
@@ -121,10 +126,6 @@ export async function fetchMyShifts(query: string, currentPage: number, queryPar
         }
       }
     }
-
-    console.log(url.toString())
-
-    console.log('Constructed search params:', url.searchParams.toString());
 
     const response = await fetch(url.toString(), {
       headers: {
