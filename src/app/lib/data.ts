@@ -122,6 +122,10 @@ export async function fetchMyShifts(query: string, currentPage: number, queryPar
       }
     }
 
+    console.log(url.toString())
+
+    console.log('Constructed search params:', url.searchParams.toString());
+
     const response = await fetch(url.toString(), {
       headers: {
         'Authorization': `Bearer ${token}`,

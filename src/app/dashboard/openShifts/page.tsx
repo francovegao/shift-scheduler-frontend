@@ -10,7 +10,7 @@ import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
 import TakeShiftModal from "@/app/ui/list/take-shift-modal";
-import TableSearch from "@/app/ui/table-search";
+import TableSearch from "@/app/ui/list/table-search";
 import { useRouter } from "next/navigation";
 import { SetStateAction, useEffect, useState } from "react";
 

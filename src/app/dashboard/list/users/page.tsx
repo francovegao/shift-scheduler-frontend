@@ -8,7 +8,7 @@ import FormContainer from "@/app/ui/list/form-container";
 import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
 import Table from "@/app/ui/list/table";
-import TableSearch from "@/app/ui/table-search";
+import TableSearch from "@/app/ui/list/table-search";
 import { EyeIcon } from "@heroicons/react/16/solid";
 import Link from "next/link";
 import { SetStateAction, useEffect, useState } from "react";

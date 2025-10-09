@@ -5,7 +5,7 @@ import { lusitana } from "@/app/ui/fonts";
 import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
-import TableSearch from "@/app/ui/table-search";
+import TableSearch from "@/app/ui/list/table-search";
 import Link from "next/link";
 import { EyeIcon } from "@heroicons/react/24/outline";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";

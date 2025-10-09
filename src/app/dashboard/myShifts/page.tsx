@@ -6,12 +6,14 @@ import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
 import { lusitana } from "@/app/ui/fonts";
+import FilterDate from "@/app/ui/list/filter-date";
+import FilterShiftStatus from "@/app/ui/list/filter-shift-status";
 import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
-import TableSearch from "@/app/ui/table-search";
-import { useRouter } from "next/navigation";
+import TableSearch from "@/app/ui/list/table-search";
+import { useRouter, useSearchParams } from "next/navigation";
 import { SetStateAction, useEffect, useState } from "react";
 
 type ShiftList = Shift & { company: Company }
@@ -117,22 +119,15 @@ const columns = [
 
 
 
-export default function PharmacistShiftsList({
-  searchParams,
-  }:{
-    searchParams: { [key: string]: string | undefined};
-  }){
+export default function PharmacistShiftsList(){
 
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { firebaseUser, appUser, loading } = useAuth();
     const [isFetching, setIsFetching] = useState(true);
     const [token, setToken] = useState("");
     const [shifts, setShifts] = useState<any[]>([]);
     const [totalPages, setTotalPages] = useState<number>(1);
-
-    const { page, query, ...queryParams } = searchParams;
-    const currentPage = page ? parseInt(page) : 1;
-    const search = query ?? '';  //query?query:"";
 
     // Redirect if not logged in
     useEffect(() => {
@@ -155,6 +150,27 @@ export default function PharmacistShiftsList({
         const getShifts = async () => {
           setIsFetching(true);
           try {
+            const page = searchParams.get('page');
+            const query = searchParams.get('query');
+            const queryParams: Record<string, string> = {};
+
+            searchParams.forEach((value, key) => {
+              if (key !== 'page' && key !== 'query') {
+                //Detect if the value is a valid date
+                const parsedDate = new Date(value);
+                const isValidDate = !isNaN(parsedDate.getTime());
+
+                if (isValidDate) {
+                  queryParams[key] = parsedDate.toISOString();
+                } else {
+                  queryParams[key] = value;
+                }
+              }
+            });
+        
+            const currentPage = page ? parseInt(page) : 1;
+            const search = query ?? '';
+
             const shiftsResponse = await fetchMyShifts(search, currentPage, queryParams, token);
             setShifts(shiftsResponse?.data ?? []);
             setTotalPages(shiftsResponse?.meta?.totalPages ?? 1);
@@ -165,7 +181,7 @@ export default function PharmacistShiftsList({
           }
         };
         if (token){ getShifts() };
-  }, [token, search, currentPage, JSON.stringify(queryParams)]);
+  }, [token, searchParams]);
 
     if (loading || isFetching) return <div>Loading...</div>;
     if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
@@ -229,6 +245,8 @@ export default function PharmacistShiftsList({
           {/* TOP */}
           <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
             <TableSearch placeholder="Search shifts..." />
+            <FilterDate />
+            <FilterShiftStatus />
           </div>
           {/* LIST */}
           <div style={{ overflowX: 'scroll' }}>
