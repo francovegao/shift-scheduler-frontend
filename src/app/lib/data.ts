@@ -69,7 +69,7 @@ export async function fetchCompanies(query: string, currentPage: number, token: 
 
 export async function fetchShifts(query: string, currentPage: number, queryParams: Object, token: string) {
   try {
-    console.log('Fetching shifts data... '+token);
+    console.log('Fetching shifts data... ');
 
 
     const url = new URL('http://localhost:5001/shifts');
@@ -370,7 +370,7 @@ export async function fetchLocationShifts(id: string, token: string) {
 
 export async function fetchOnePharmacist(id: string, token: string) {
   try {
-    console.log('Fetching pharmacist...' + token);
+    console.log('Fetching pharmacist...');
 
     const url = new URL(`http://localhost:5001/users/pharmacist/${id}`);
 
@@ -395,7 +395,7 @@ export async function fetchOnePharmacist(id: string, token: string) {
 
 export async function fetchOneCompany(id: string, token: string) {
   try {
-    console.log('Fetching company...' + token);
+    console.log('Fetching company...');
 
     const url = new URL(`http://localhost:5001/companies/${id}`);
 
@@ -420,7 +420,7 @@ export async function fetchOneCompany(id: string, token: string) {
 
 export async function fetchOneLocation(id: string, token: string) {
   try {
-    console.log('Fetching location...' + token);
+    console.log('Fetching location...');
 
     const url = new URL(`http://localhost:5001/locations/${id}`);
 
