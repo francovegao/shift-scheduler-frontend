@@ -7,6 +7,7 @@ import { useState } from 'react';
 import Status from '../list/status';
 import TakeShiftForm from '../forms/shifts/take-shift-form';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import ShiftInfoModal from '../list/shift-info-modal';
 
 const localizer = momentLocalizer(moment)
 
@@ -57,6 +58,9 @@ export default function BigCalendar({
       if(action==='takeShift'){
         setSelectedShift(event?.shift);
         setOpen(true);
+      }else{
+        setSelectedShift(event?.shift);
+        setOpen(true);
       }
     };
 
@@ -92,10 +96,22 @@ export default function BigCalendar({
               popup
             />
 
-            {open && (
+            { (open && selectedShift && action==='takeShift') && (
               <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
                 <div className='bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]'>
                   <TakeShiftForm pharmacistId={pharmacistId} token={token} data={selectedShift} setOpen={setOpen}/>
+                  <div className='absolute top-4 right-4 cursor-pointer' onClick={()=>setOpen(false)}>
+                    <XMarkIcon className='w-6' />
+                  </div>
+    
+                </div>
+              </div>
+            )}
+
+            { (open && selectedShift) && (
+              <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
+                <div className='bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]'>
+                  <ShiftInfoModal data={selectedShift} setOpen={setOpen}/>
                   <div className='absolute top-4 right-4 cursor-pointer' onClick={()=>setOpen(false)}>
                     <XMarkIcon className='w-6' />
                   </div>

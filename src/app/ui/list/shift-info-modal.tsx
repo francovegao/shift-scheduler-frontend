@@ -10,6 +10,7 @@ import { takeShift } from "@/app/lib/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { getFullAddress } from "@/app/lib/utils";
+import Status from "./status";
 
 // Infer the input and output types from the schema
 type FormInput = z.input<typeof takeShiftSchema>;
@@ -28,85 +29,25 @@ const DateFormat = {
   hour12: false,  
  } as const;
 
-export default function TakeShiftForm({ 
-  token,
+export default function ShiftInfoModal({
   data, 
   setOpen,
-  pharmacistId, 
 }: {
-  pharmacistId?: string;
   data?: any;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  token: string;
   }){
 
-      const {
-          register,
-          handleSubmit,
-          formState: { errors },
-        } = useForm<FormInput, any, FormOutput>({
-          resolver: zodResolver(takeShiftSchema),
-        });
-      
-          const [state, formAction] = useFormState(
-              takeShift.bind(null, token),
-            {
-              success: false,
-              error: false,
-            }
-          );
-      
-          const onSubmit = handleSubmit((data) => {
-              formAction(data)
-            });
-      
-          const router = useRouter();
-      
-          useEffect(() => {
-            if (state.success) {
-              toast(`Shift taken!`, {toastId: 'unique-toast'});
-              setOpen(false);
-              router.refresh();
-            }
-          }, [state, router, setOpen])
-      
-            if (!data) {
-              return <p>Loading...</p>;
-            }
+    const onSubmit = () => {
+        setOpen(false);
+    };
+
+    if (!data) {
+        return <p>Loading...</p>;
+    }
         
     return(
-      <form className='p-4 flex flex-col gap-4' onSubmit={onSubmit} >
-        <input  
-          value={data?.id} 
-          defaultValue={data?.id} 
-          {...register("id")}
-          hidden />
-                {errors.id?.message && ( 
-                  <p className="text-xs text-red-400">
-                    {errors.id?.message.toString()}
-                  </p>
-                )}
-        <input  
-        value={pharmacistId} 
-        defaultValue={pharmacistId} 
-        {...register("pharmacistId")} 
-        hidden />
-                {errors.pharmacistId?.message && ( 
-                  <p className="text-xs text-red-400">
-                    {errors.pharmacistId?.message.toString()}
-                  </p>
-                )}
-        <input 
-        value="taken" 
-        defaultValue="taken" 
-        {...register("status")}
-        hidden/>
-                {errors.status?.message && ( 
-                  <p className="text-xs text-red-400">
-                    {errors.status?.message.toString()}
-                  </p>
-                )}
-        <h1 className="text-xl font-semibold">Take Shift</h1>
+      <form className='p-4 flex flex-col gap-4' onSubmit={onSubmit} >   
+        <h1 className="text-xl font-semibold">View Shift Info</h1>
         <div className="flex justify-around flex-wrap gap-4 mb-4">
           <div>
             <h2 className="text-gray-400 font-medium mb-2">Location Information</h2>
@@ -133,15 +74,32 @@ export default function TakeShiftForm({
                 <h3 className="font-semibold">{new Intl.DateTimeFormat("en-CA", DateFormat).format(new Date(data.startTime))}</h3>
                 <p className="text-sm text-gray-500">{new Date(data.startTime).toLocaleTimeString("en-US", TimeFormat)}-{new Date(data.endTime).toLocaleTimeString("en-US", TimeFormat)} </p>
                 <p className="text-sm text-gray-500">${parseFloat(data.payRate).toFixed(2)} per hr</p>
+                <p className="text-sm text-gray-500">Status: <Status status={data.status} /></p>
               </div>
           </div>
+          <div>
+            <h2 className="text-gray-400 font-medium mb-2">Shift Description</h2>
+              <div className="">
+                <h3 className="font-semibold">{data.title}</h3>
+                <p className="text-sm text-gray-500">{data.description} </p>
+              </div>
+          </div>
+          {data.status !== 'open' && (
+            <div>
+            <h2 className="text-gray-400 font-medium mb-2">Pharmacist Information</h2>
+              <div className="">
+                <h3 className="font-semibold">{data.pharmacist?.user?.firstName} {data.pharmacist?.user?.lastName}</h3>
+                <p className="text-sm text-gray-500">{data.pharmacist?.user?.email}</p>
+                <p className="text-sm text-gray-500">{data.pharmacist?.user?.phone}</p>
+                <p className="text-sm text-gray-500">License: {data.pharmacist?.licenseNumber}</p>
+                {data.pharmacist?.email && (<p className="text-sm text-gray-500">E-transfer: {data.pharmacist?.email}</p> )}
+              </div>
+          </div>
+          )}
         </div>
-        <span className="text-center font-medium">Are you sure you want to take this shift?</span>
-        <span className="text-center font-medium">Please verify all the information before taking this shift</span>
-        <button type="submit" className="bg-green-500 text-white py-2 px-4 rounded-md border-none w-max self-center">
-          Take Shift
+        <button type="submit" className="bg-gray-500 text-white py-2 px-4 rounded-md border-none w-max self-center">
+          Close
         </button>
-        {state.error && <span className="text-red-500 text-center">Something went wrong!</span>}
       </form>
     );
 }

@@ -7,6 +7,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { fetchUser } from "../lib/data";
 import Link from "next/link";
 import SchedulerLogo from "../ui/scheduler-logo";
+import SignOutButton from "../ui/dashboard/sign-out-button";
 
 
 export default function Home() {
@@ -37,7 +38,7 @@ export default function Home() {
   const redirectUser = async (firebaseUser: any) => {
     const token = await firebaseUser.getIdToken();
     const  userInfo = await fetchUser(firebaseUser.uid, token);
-    
+
     const role = userInfo.role; 
 
     router.push(`/dashboard/${role}`);
@@ -50,7 +51,16 @@ export default function Home() {
 
   if(firebaseUser) {
     redirectUser(firebaseUser);
-    return <div>Loading...</div>  //TODO add a signout button, this is reached when a user is registered but is not found in the DB
+    return (
+      <div>
+        Loading... 
+
+        <p className="mt-10">
+          If this is taking too long please press the next button and try again
+          </p>
+        <SignOutButton />
+      </div> 
+    ) 
   }
 
   return (
