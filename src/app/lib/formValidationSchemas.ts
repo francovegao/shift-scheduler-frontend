@@ -17,6 +17,8 @@ export const companySchema = z.object({
     id: z.string().optional(),
     approved: z.coerce.boolean({message: "Status is required."}),
     name: z.string().min(3,{message: "Pharmacy name is required."}),
+    legalName: z.string().optional(),
+    GSTNumber: z.string().optional(),
     email: z.email({message: "Invalid email address."}),
     phone: z.string().min(1,{message: "Phone is required."}),
     address: z.string().optional(),
@@ -30,6 +32,8 @@ export type CompanySchema = z.infer<typeof companySchema>;
 export const locationSchema = z.object({
     id: z.string().optional(),
     name: z.string().min(3,{message: "Location name is required."}),
+    legalName: z.string().optional(),
+    GSTNumber: z.string().optional(),
     email: z.email({message: "Invalid email address."}),
     phone: z.string().min(1,{message: "Phone is required."}),
     address: z.string().optional(),
@@ -53,6 +57,7 @@ export const pharmacistSchema = z.object({
     bio: z.string().optional(),
     experienceYears: z.coerce.number().optional(),
     approved: z.coerce.boolean({message: "Status is required."}),
+    canViewAllCompanies: z.coerce.boolean({message: "View all Pharmacies? is required."}),
 });
 
 export type PharmacistSchema = z.infer<typeof pharmacistSchema>;

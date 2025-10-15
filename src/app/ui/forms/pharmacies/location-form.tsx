@@ -91,6 +91,13 @@ export default function LocationForm({
               error={errors?.name}
             />
             <InputField
+              label="Legal Name"
+              name="legalName"
+              defaultValue={data?.legalName}
+              register={register}
+              error={errors?.legalName}
+            />
+            <InputField
               label="Email"
               name="email"
               type="email"
@@ -194,6 +201,13 @@ export default function LocationForm({
               defaultValue={data?.postalCode}
               register={register}
               error={errors?.postalCode}
+            />
+            <InputField
+              label="GST Number"
+              name="GSTNumber"
+              defaultValue={data?.GSTNumber}
+              register={register}
+              error={errors?.GSTNumber}
             />
             </div>
             {state.error && <span className="text-red-500">Something went wrong!</span>}

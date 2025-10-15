@@ -45,6 +45,7 @@ type PharmacistProfile = {
     bio?: string,
     experienceYears?: number,
     approved: boolean,
+    canViewAllCompanies: boolean,
 }
 
 const columns = [
@@ -74,7 +75,12 @@ const columns = [
     className: "hidden sm:table-cell px-3 py-5 font-medium",
   },
   {
-    header: "Etransfer Email",
+    header: "All Pharmacies?",
+    accessor: "canViewAllCompanies",
+    className: "hidden sm:table-cell px-3 py-5 font-medium",
+  },
+  {
+    header: "E-transfer Email",
     accessor: "etransferemail",
     className: "hidden lg:table-cell px-3 py-5 font-medium",
   },
@@ -161,6 +167,7 @@ export default function PharmacistsList({
       <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">
         <ApprovedStatus status={item.pharmacistProfile?.approved ? "approved":"pending"} />
       </td>
+      <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">{item.pharmacistProfile?.canViewAllCompanies ? "Yes":"No"}</td>
       <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">{item.pharmacistProfile?.email}</td>
       <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">
         <div 

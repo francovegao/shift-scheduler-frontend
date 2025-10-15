@@ -17,6 +17,8 @@ type Company = {
     id: string,
     approved: boolean,
     name: string,
+    legalName?: string,
+    GSTNumber?: string,
     email?: string,
     phone?: string,
     address?: string,
@@ -30,6 +32,11 @@ const columns = [
     header: "Info",
     accessor: "info",
     className: "px-4 py-5 font-medium sm:pl-6",
+  },
+  {
+    header: "GST Number",
+    accessor: "GSTNumber",
+    className: "hidden sm:table-cell px-3 py-5 font-medium",
   },
   {
     header: "Status",
@@ -129,8 +136,10 @@ const renderRow = (item: Company) => (
       <td className="flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex flex-col">
           <h3 className="font-semibold">{item.name}</h3>
+          <p className="text-xs text-gray-500">{item.legalName}</p>
         </div>
       </td>
+      <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">{item?.GSTNumber}</td>
       <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">
         <ApprovedStatus status={item.approved ? "approved":"pending"} />
       </td>

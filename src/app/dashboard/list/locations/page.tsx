@@ -17,6 +17,8 @@ type LocationsList = Location & { company: Company };
 type Location = {
     id: string,
     name: string,
+    legalName?: string,
+    GSTNumber?: string,
     email?: string,
     phone?: string,
     address?: string,
@@ -43,6 +45,16 @@ const columns = [
     header: "Info",
     accessor: "info",
     className: "px-4 py-5 font-medium sm:pl-6",
+  },
+  {
+    header: "Legal Name",
+    accessor: "legalName",
+    className: "px-4 py-5 font-medium sm:pl-6",
+  },
+  {
+    header: "GST Number",
+    accessor: "GSTNumber",
+    className: "hidden sm:table-cell px-3 py-5 font-medium",
   },
   {
     header: "Email",
@@ -143,6 +155,8 @@ export default function LocationsList({
           <p className="text-xs text-gray-500">{item.company.name}</p>
         </div>
       </td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">{item?.legalName}</td>
+      <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">{item?.GSTNumber}</td>
       <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">{item.email}</td>
       <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">{item.phone}</td>
       <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">{item.address}</td>

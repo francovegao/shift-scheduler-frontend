@@ -3,9 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../input-field";
-import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 import { Dispatch, SetStateAction, useEffect } from "react";
-import { PharmacistSchema, pharmacistSchema } from "@/app/lib/formValidationSchemas";
+import { pharmacistSchema } from "@/app/lib/formValidationSchemas";
 import z from "zod";
 import { useRouter } from "next/navigation";
 import { useFormState } from "react-dom";
@@ -47,7 +46,7 @@ export default function PharmacistForm({
       );
 
       const onSubmit = handleSubmit((data) => {
-        console.log(data)
+        console.log("form data:"+data.approved)
         formAction(data)
       });
 
@@ -145,8 +144,10 @@ export default function PharmacistForm({
                 <label className="text-xs text-gray-500">Approved</label>
                 <select
                   className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                  {...register("approved")}
-                  defaultValue={data?.approved}
+                  {...register("approved", {
+                    setValueAs: value => value === 'true'
+                  })}
+                  defaultValue={data?.approved ? 'true' : 'false'}
                 >
                   <option value="true">Yes</option>
                   <option value="false">No</option>
@@ -154,6 +155,24 @@ export default function PharmacistForm({
                 {errors.approved?.message && ( 
                   <p className="text-xs text-red-400">
                     {errors.approved?.message.toString()}
+                  </p>
+                )}
+            </div>
+                <div className="flex flex-col gap-2 w-full md:w-1/4">
+                <label className="text-xs text-gray-500">Can View All Pharmacies?</label>
+                <select
+                  className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                  {...register("canViewAllCompanies", {
+                    setValueAs: value => value === 'true'
+                  })}
+                  defaultValue={data?.canViewAllCompanies ? 'true' : 'false'}
+                >
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+                {errors.canViewAllCompanies?.message && ( 
+                  <p className="text-xs text-red-400">
+                    {errors.canViewAllCompanies?.message.toString()}
                   </p>
                 )}
             </div>

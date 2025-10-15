@@ -156,6 +156,8 @@ export const createCompany = async (token: string, currentState: CurrentState,  
     const body = {
         approved: data.approved,
         name: data.name,
+        legalName: data.legalName,
+        GSTNumber: data.GSTNumber,
         email: data.email,
         phone: data.phone,
         address: data.address,
@@ -195,6 +197,8 @@ export const updateCompany = async (token: string, currentState: CurrentState, d
     const body = {
         approved: data.approved,
         name: data.name,
+        legalName: data.legalName,
+        GSTNumber: data.GSTNumber,
         email: data.email,
         phone: data.phone,
         address: data.address,
@@ -260,6 +264,8 @@ export const createLocation = async (token: string, currentState: CurrentState, 
 
     const body = {
         name: data.name,
+        legalName: data.legalName,
+        GSTNumber: data.GSTNumber,
         email: data.email,
         phone: data.phone,
         address: data.address,
@@ -299,6 +305,8 @@ export const updateLocation = async (token: string, currentState: CurrentState, 
 
     const body = {
         name: data.name,
+        legalName: data.legalName,
+        GSTNumber: data.GSTNumber,
         email: data.email,
         phone: data.phone,
         address: data.address,
@@ -374,6 +382,7 @@ export const createPharmacist = async (token: string, currentState: CurrentState
       bio: data.bio,
       experienceYears: data.experienceYears,
       approved: data.approved,
+      canViewAllCompanies: data.canViewAllCompanies,
     }
 
     const response = await fetch('http://localhost:5001/pharmacist-profiles', {
@@ -415,7 +424,10 @@ export const updatePharmacist = async (token: string, currentState: CurrentState
       bio: data.bio,
       experienceYears: data.experienceYears,
       approved: data.approved,
+      canViewAllCompanies: data.canViewAllCompanies,
     }
+
+    console.log(body)
 
     const response = await fetch(`http://localhost:5001/pharmacist-profiles/${data.id}`, {
         method: 'PATCH',
