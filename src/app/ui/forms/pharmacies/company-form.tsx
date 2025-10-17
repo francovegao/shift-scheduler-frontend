@@ -45,8 +45,7 @@ export default function CompanyForm({
         }
       );
 
-      const onSubmit = handleSubmit((data) => {
-        console.log(data)
+      const onSubmit = handleSubmit((data) => {       
         formAction(data)
       });
 
@@ -56,7 +55,7 @@ export default function CompanyForm({
         if (state.success) {
           toast(`Company has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
           setOpen(false);
-          router.refresh();
+          window.location.reload();
         }
       }, [state, router, type, setOpen])
 

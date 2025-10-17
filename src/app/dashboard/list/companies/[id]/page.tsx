@@ -81,13 +81,14 @@ export default function SingleLocationPage({
                                 />
                                 )}
                         </div>
+                        <p className="text-sm text-gray-500">{company.legalName}</p>
                         <p className="text-sm text-gray-500">
                             {company.approved ? "Approved: This pharmacy can post shifts" : "Not Approved: This pharmacy can't post shifts"}
                         </p>
                         <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
                             <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                 <BuildingOfficeIcon className="w-5"/>
-                                <span>{company?.name || "Add an address"}</span>
+                                <span>GST: {company?.GSTNumber || "Add a GST Number"}</span>
                             </div>
                             <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                 <MapPinIcon className="w-5"/>

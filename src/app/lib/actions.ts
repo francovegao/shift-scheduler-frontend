@@ -180,8 +180,7 @@ export const createCompany = async (token: string, currentState: CurrentState,  
       const errorData = await response.json(); // If the API returns error details
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
-
-    //revalidatePath("/list/users");   
+ 
     return {success: true, error: false};
     //return response.json();
   } catch (error) {
@@ -221,7 +220,7 @@ export const updateCompany = async (token: string, currentState: CurrentState, d
       const errorData = await response.json(); // If the API returns error details
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
-    
+
     return {success: true, error: false};
     //return response.json();
   } catch (error) {
