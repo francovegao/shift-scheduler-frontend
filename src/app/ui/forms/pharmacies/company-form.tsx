@@ -7,7 +7,6 @@ import { Dispatch, SetStateAction, useEffect  } from "react";
 import { companySchema } from "@/app/lib/formValidationSchemas";
 import { createCompany, updateCompany } from "@/app/lib/actions";
 import { useFormState } from "react-dom";
-import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import z from "zod";
 
@@ -49,15 +48,13 @@ export default function CompanyForm({
         formAction(data)
       });
 
-      const router = useRouter();
-
       useEffect(() => {
         if (state.success) {
           toast(`Company has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
           setOpen(false);
           window.location.reload();
         }
-      }, [state, router, type, setOpen])
+      }, [state, type, setOpen])
 
 
     return(

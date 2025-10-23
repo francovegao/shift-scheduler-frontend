@@ -7,13 +7,14 @@ import { lusitana } from "@/app/ui/fonts";
 import FormContainer from "@/app/ui/list/form-container";
 import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
+import RelatedDataModal from "@/app/ui/list/related-data-modal";
 import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/list/table-search";
 import { EyeIcon } from "@heroicons/react/16/solid";
 import Link from "next/link";
 import { SetStateAction, useEffect, useState } from "react";
 
-type UserList = User & { company: Company } & { location: Location };
+type UserList = User & { company: Company } & { location: Location } & { pharmacistProfile: PharmacistProfile };
 
 type User = {
     id: string,
@@ -50,6 +51,10 @@ type Location = {
     companyId: string,
 }
 
+type PharmacistProfile = {
+    id: string,
+}
+
 const columns = [
   {
     header: "Info",
@@ -72,9 +77,9 @@ const columns = [
     className: "hidden sm:table-cell px-3 py-5 font-medium",
   },
       {
-    header: "Company",
-    accessor: "company",
-    className: "hidden md:table-cell px-3 py-5 font-medium",
+    header: "Related",
+    accessor: "related",
+    className: "px-3 py-5 font-medium",
   },
   {
     header: "",
@@ -155,11 +160,28 @@ const renderRow = (item: UserList) => (
       <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">
         {item.role}
       </td>
-      <td className="hidden md:table-cell flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
-        <div className="flex flex-col">
-          <h3 className="font-semibold">{item?.company?.name}</h3>
-          <p className="text-xs text-gray-500">{item?.location?.name}</p>
-        </div>
+      <td className="flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
+        {(item.role === "pharmacy_manager" || item.role === "location_manager") && (
+          <div className="flex flex-col">
+            {item?.company ? (
+              <>
+            <h3 className="font-semibold">{item?.company?.name}</h3>
+            <p className="text-xs text-gray-500">{item?.location?.name}</p>
+            </>
+            ) : (
+             <RelatedDataModal type="link_company" token={token} id={item.id}/> 
+            )}
+          </div>
+        )}
+        {item.role === "relief_pharmacist" && (
+          <div className="flex flex-col">
+            {item.pharmacistProfile ? ( 
+            <h3 className="font-semibold">{item?.pharmacistProfile?.id}</h3>
+            ):(
+            <RelatedDataModal type="link_pharmacist_profile" token={token} id={item.id}/> 
+            )}
+          </div>
+        )}
       </td>
       
       <td className="whitespace-nowrap py-3 pl-6 pr-3">

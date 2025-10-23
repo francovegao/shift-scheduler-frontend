@@ -3,13 +3,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../input-field";
-import { Dispatch, SetStateAction, useEffect } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { pharmacistSchema } from "@/app/lib/formValidationSchemas";
 import z from "zod";
-import { useRouter } from "next/navigation";
 import { useFormState } from "react-dom";
 import { createPharmacist, updatePharmacist } from "@/app/lib/actions";
 import { toast } from "react-toastify";
+import SelectAllowedCompaniesModal from "./select-allowed-companies-modal";
+import RelatedDataModal from "../../list/related-data-modal";
+import SelectAllowedCompaniesForm from "../pharmacies/select-allowed-companies-form";
 
 // Infer the input and output types from the schema
 type FormInput = z.input<typeof pharmacistSchema>;
@@ -21,16 +23,24 @@ export default function PharmacistForm({
     setOpen,
     token,
     relatedData,
+    userId,
     }:{
     type: "create" | "update";
     data?: any; 
     setOpen: Dispatch<SetStateAction<boolean>>;
     token: string;
     relatedData?: any;
+    userId?: string;
     }){
+
+      const [canViewAllPharmacies, setCanViewAllPharmacies] = useState(false);
+      const [showSelectCompaniesForm, setShowSelectCompaniesForm] = useState(false);
+
+      const [createdPharmacistId, setCreatedPharmacistId] = useState('');
 
       const {
         register,
+        watch,
         handleSubmit,
         formState: { errors },
       } = useForm<FormInput, any, FormOutput>({
@@ -42,69 +52,72 @@ export default function PharmacistForm({
         {
           success: false,
           error: false,
+          responseData: null
         }
       );
 
       const onSubmit = handleSubmit((data) => {
-        console.log("form data:"+data.approved)
+        setCanViewAllPharmacies(data.canViewAllCompanies)
         formAction(data)
       });
 
-      const router = useRouter();
-
       useEffect(() => {
         if (state.success) {
-          toast(`Pharmacist has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
-          setOpen(false);
-          router.refresh();
+          if(!canViewAllPharmacies && type==="create"){
+            toast(`Pharmacist Profile has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
+             setCreatedPharmacistId(state.responseData?.id);
+             setShowSelectCompaniesForm(true);
+          }else{
+            toast(`Pharmacist Profile has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
+            setOpen(false);
+            window.location.reload();
+          }
         }
-      }, [state, router, type, setOpen])
+      }, [state, type, setOpen])
 
-      const {pharmacists} = relatedData;
+      //const {pharmacists} = relatedData;
 
     return(
+      <div>
+      {showSelectCompaniesForm ? (
+        <div className="flex flex-col items-center">
+          <SelectAllowedCompaniesForm setOpen={setOpen} token={token} pharmacistId={createdPharmacistId} data={data}/>
+          <p className="font-semibold">Or add them later in the pharmacist profile page</p>
+        </div>
+      ) : (
         <form className="flex flex-col gap-8" onSubmit={onSubmit}>
-          <h1 className="text-xl font-semibold">{type === "create" ? "Create a new pharmacist" : "Update pharmacist"}</h1>
-          <span className="text-xs text-gray-400 font-medium">
-            User Information
-          </span>
-          <div className="flex justify-between flex-wrap gap-4">
+          <h1 className="text-xl font-semibold">{type === "create" ? "Create a New Pharmacist Profile" : "Update Pharmacist Profile"}</h1>
             {data && (
             <InputField
-                label="Id"
-                name="id"
-                defaultValue={data?.id}
-                register={register}
-                error={errors?.id}
-                hidden
-              />
+              label="Pharmacist Profile Id"
+              name="id"
+              defaultValue={data?.id}
+              register={register}
+              error={errors?.id}
+              hidden
+            />
             )}
-            <div className="flex flex-col gap-2 w-full md:w-1/4">
-              <label className="text-xs text-gray-500">Relief Pharmacist</label>
-              <select
-                className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                {...register("userId")}
-                defaultValue={data?.pharmacists}
-              >
-                {pharmacists.map(
-                  (pharmacist: { id: string; firstName: string; lastName: string }) => (
-                    <option
-                      value={pharmacist.id}
-                      key={pharmacist.id}
-                      selected={data && pharmacist.id === data.userId}
-                    >
-                      {pharmacist.firstName + " " + pharmacist.lastName}
-                    </option>
-                  )
-                )}
-              </select>
-              {errors.userId?.message && (
-                <p className="text-xs text-red-400">
-                  {errors.userId.message.toString()}
-                </p>
-              )}
-            </div>
-           </div>
+            {userId && (
+            <InputField
+              label="User Id"
+              name="userId"
+              defaultValue={userId}
+              register={register}
+              error={errors?.userId}
+              hidden
+            />
+            )}
+            {data && (
+            <InputField
+              label="User Id from Data"
+              name="userId"
+              defaultValue={data?.userId}
+              register={register}
+              error={errors?.userId}
+              hidden
+            />
+            )}
+          
           <span className="text-xs text-gray-400 font-medium">
             Pharmacist Information
           </span>
@@ -158,7 +171,7 @@ export default function PharmacistForm({
                   </p>
                 )}
             </div>
-                <div className="flex flex-col gap-2 w-full md:w-1/4">
+              <div className="flex flex-col gap-2 w-full md:w-1/4">
                 <label className="text-xs text-gray-500">Can View All Pharmacies?</label>
                 <select
                   className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
@@ -232,5 +245,7 @@ export default function PharmacistForm({
             {type === "create" ? "Create" : "Update"}
           </button>
         </form>
+        )}
+    </div>
     );
 }

@@ -1,4 +1,4 @@
-import { CompanySchema, LocationSchema, PharmacistSchema, ShiftSchema, TakeShiftSchema, UserSchema } from "./formValidationSchemas"
+import { AllowedCompaniesSchema, CompanySchema, LinkManagerToCompanySchema, LocationSchema, PharmacistSchema, ShiftSchema, TakeShiftSchema, UserSchema } from "./formValidationSchemas"
 
 type CurrentState = {success: boolean; error: boolean }
 
@@ -96,6 +96,38 @@ export const updateUser = async (token: string, currentState: CurrentState, data
         lastName: data.lastName,
         phone: data.phone,
         role: data.role,
+    }
+
+    const response = await fetch(`http://localhost:5001/users/${data.id}`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+  
+    return {success: true, error: false};
+    //return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return {success: false, error: true};
+  }
+}
+
+export const linkManagerToCompany = async (token: string, currentState: CurrentState, data: LinkManagerToCompanySchema)=>{
+   try {
+    console.log('Updating user...');
+
+    const body = {
+        companyId: data.companyId,
+        locationId: data.locationId ? data.locationId : null,
     }
 
     const response = await fetch(`http://localhost:5001/users/${data.id}`, {
@@ -399,12 +431,13 @@ export const createPharmacist = async (token: string, currentState: CurrentState
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
 
-    //revalidatePath("/list/users");   
-    return {success: true, error: false};
+    const newPharmacistProfile = await response.json(); 
+  
+    return { success: true, error: false, responseData: newPharmacistProfile };
     //return response.json();
   } catch (error) {
     console.error('API Error:', error);
-    return {success: false, error: true};
+    return {success: false, error: true, responseData: null};
   }
 }
 
@@ -426,7 +459,36 @@ export const updatePharmacist = async (token: string, currentState: CurrentState
       canViewAllCompanies: data.canViewAllCompanies,
     }
 
-    console.log(body)
+    const response = await fetch(`http://localhost:5001/pharmacist-profiles/${data.id}`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+  
+    return {success: true, error: false, responseData: null};
+    //return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return {success: false, error: true, responseData: null};
+  }
+}
+
+export const setPharmacistAllowedCompanies = async (token: string, currentState: CurrentState, data: AllowedCompaniesSchema)=>{
+   try {
+    console.log('Updating pharmacist...');
+
+    const body = {
+      allowedCompaniesIds: data.companiesArray,
+    }
 
     const response = await fetch(`http://localhost:5001/pharmacist-profiles/${data.id}`, {
         method: 'PATCH',

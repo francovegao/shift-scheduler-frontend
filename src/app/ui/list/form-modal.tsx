@@ -5,7 +5,6 @@ import clsx from 'clsx';
 import { Dispatch, JSX, SetStateAction, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useFormState } from "react-dom";
-import { useRouter } from "next/navigation";
 import { toast } from 'react-toastify';
 import { deleteCompany, deleteLocation, deletePharmacist, deleteShift, deleteUser } from "@/app/lib/actions";
 import { FormContainerProps } from './form-container';
@@ -64,15 +63,13 @@ export default function FormModal({
         error: false,
       });
 
-    const router = useRouter();
-
     useEffect(() => {
       if (state.success) {
         toast(`${table} has been deleted!`, {toastId: 'unique-toast'});
         setOpen(false);
-        router.refresh();
+         window.location.reload();
       }
-    }, [state, router])
+    }, [state])
 
     return type === "delete" && id ? (
       <form className='p-4 flex flex-col gap-4' action={formAction} >
@@ -124,7 +121,7 @@ export default function FormModal({
         
         {open && (
           <div className="w-screen h-screen absolute left-0 top-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
-            <div className='bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]'>
+            <div className='bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] max-h-9/10 overflow-y-scroll'>
               <Form />
               <div className='absolute top-4 right-4 cursor-pointer' onClick={()=>setOpen(false)}>
                 <XMarkIcon className='w-6' />

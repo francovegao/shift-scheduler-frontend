@@ -67,6 +67,35 @@ export async function fetchCompanies(query: string, currentPage: number, token: 
   }
 }
 
+export async function fetchAllCompanies(token: string) {
+  try {
+    console.log('Fetching companies data...');
+
+    const url = new URL('http://localhost:5001/companies');
+    //url.searchParams.append('search', query);
+    //url.searchParams.append('page', currentPage.toString());
+    url.searchParams.append('limit', '1000');   //Limit to 1000 companies
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    //throw new Error('Failed to fetch companies');
+    return null;
+  }
+}
+
 export async function fetchShifts(query: string, currentPage: number, queryParams: Object, token: string) {
   try {
     console.log('Fetching shifts data... ');
@@ -241,7 +270,7 @@ export async function fetchUsers(query: string, currentPage: number, queryParams
 
 export async function fetchPharmacists(query: string, currentPage: number, token: string) {
   try {
-    console.log('Fetching pharmacists data...');
+    console.log('Fetching pharmacists data...'+ token);
 
     const url = new URL('http://localhost:5001/users/pharmacists');
     url.searchParams.append('search', query);

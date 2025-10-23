@@ -13,6 +13,14 @@ export const userSchema = z.object({
 
 export type UserSchema = z.infer<typeof userSchema>;
 
+export const linkManagerToCompanySchema = z.object({
+    id: z.string({message: "User is required!"}),
+    companyId: z.string({message: "Company is required, Please select one!"}),
+    locationId: z.string().optional(),
+});
+
+export type LinkManagerToCompanySchema = z.infer<typeof linkManagerToCompanySchema>;
+
 export const companySchema = z.object({
     id: z.string().optional(),
     approved: z.coerce.boolean({message: "Status is required."}),
@@ -47,7 +55,7 @@ export type LocationSchema = z.infer<typeof locationSchema>;
 
 export const pharmacistSchema = z.object({
     id: z.string().optional(),
-    userId: z.string(),
+    userId: z.string({ message: "User ID is required!" }),
     licenseNumber: z.string().optional(),
     address: z.string().optional(),
     city: z.string().optional(),
@@ -61,6 +69,15 @@ export const pharmacistSchema = z.object({
 });
 
 export type PharmacistSchema = z.infer<typeof pharmacistSchema>;
+
+export const allowedCompaniesSchema = z.object({
+    id: z.string({ message: "Pharmacist ID is required!" }),
+    //companyId: z.string({ message: "Company ID is required!" }),
+    companiesArray: z.array(z.string()),
+    //companiesArray: z.array(z.object({companyId: z.string({ message: "Company ID is required!" })})),
+});
+
+export type AllowedCompaniesSchema = z.infer<typeof allowedCompaniesSchema>;
 
 export const shiftSchema = z.object({
   id: z.string().optional(),

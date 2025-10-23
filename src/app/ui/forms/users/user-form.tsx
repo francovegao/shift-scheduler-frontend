@@ -3,13 +3,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../input-field";
-import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 import { userSchema, UserSchema } from "@/app/lib/formValidationSchemas";
 import { createUser, updateUser } from "@/app/lib/actions";
 import { useFormState } from "react-dom";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
 
 export default function UserForm({ 
     type,
@@ -46,15 +44,15 @@ export default function UserForm({
         formAction(data)
       });
 
-      const router = useRouter();
+    
 
       useEffect(() => {
         if (state.success) {
           toast(`User has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
           setOpen(false);
-          router.refresh();
+          window.location.reload();
         }
-      }, [state, router, type, setOpen])
+      }, [state, type, setOpen])
 
     return(
         <form className="flex flex-col gap-8" onSubmit={onSubmit}>
@@ -71,6 +69,36 @@ export default function UserForm({
                 register={register}
                 error={errors?.id}
                 hidden
+              />
+            )}
+             {type === "create" ? ( 
+              <div className="flex flex-col gap-2 w-full md:w-1/4">
+                <label className="text-xs text-gray-500">Role</label>
+                <select
+                  className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                  {...register("role")}
+                  defaultValue={data?.role}
+                >
+                  <option value=""></option>
+                  <option value="relief_pharmacist">Relief Pharmacist</option>
+                  <option value="pharmacy_manager">Pharmacy Manager</option>
+                  {/* <option value="location_manager">Location Manager</option> */}
+                  <option value="admin">Administrator</option>
+                </select>
+                {errors.role?.message && ( 
+                  <p className="text-xs text-red-400">
+                    {errors.role?.message.toString()}
+                  </p>
+                )}
+            </div>
+            ):(
+              <InputField
+                label="Role"
+                name="role"
+                defaultValue={data?.role}
+                register={register}
+                error={errors?.role}
+                inputProps={ { disabled: true, className: 'bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full' }}
               />
             )}
             <InputField
@@ -115,29 +143,8 @@ export default function UserForm({
                 hidden={data}
               /> 
            </div>
-          <span className="text-xs text-gray-400 font-medium">
-            Roles Information
-          </span>
           <div className="flex justify-between flex-wrap gap-4">
-            <div className="flex flex-col gap-2 w-full md:w-1/4">
-                <label className="text-xs text-gray-500">Role</label>
-                <select
-                  className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                  {...register("role")}
-                  defaultValue={data?.role}
-                >
-                  <option value=""></option>
-                  <option value="relief_pharmacist">Relief Pharmacist</option>
-                  <option value="pharmacy_manager">Pharmacy Manager</option>
-                  <option value="location_manager">Location Manager</option>
-                  <option value="admin">Administrator</option>
-                </select>
-                {errors.role?.message && ( 
-                  <p className="text-xs text-red-400">
-                    {errors.role?.message.toString()}
-                  </p>
-                )}
-            </div>
+           
             {/*<div className="flex flex-col gap-2 w-full md:w-1/4 justify-center">
               <label
                 className="text-xs text-gray-500 flex items-center gap-2 cursor-pointer"
