@@ -8,6 +8,7 @@ import { fetchUser } from "../lib/data";
 import Link from "next/link";
 import SchedulerLogo from "../ui/scheduler-logo";
 import SignOutButton from "../ui/dashboard/sign-out-button";
+import Image from 'next/image';
 
 
 export default function Home() {
@@ -64,60 +65,75 @@ export default function Home() {
   }
 
   return (
-    <div className="h-screen flex items-center justify-center bg-blue-100">
-      <main className="bg-white p-12 rounded-md shadow-2xl flex flex-col gap-2 items-center">
-         <div className="w-48 text-white md:w-64 flex rounded-md bg-blue-600">
-            <SchedulerLogo />
+    <div className="flex flex-col items-center justify-center min-h-screen bg-blue-100 p-4">
+      <div className="w-full max-w-sm p-8 bg-white rounded-md shadow-2xl flex flex-col gap-6">
+         <div className="flex justify-center mb-4">
+            <div className="w-48 md:w-64 text-white flex rounded-md bg-blue-600">
+              <SchedulerLogo />
+            </div>
           </div>
-          <h2 className="text-gray-400">Sign in to your account</h2>
-        <div className="font-mono list-inside list-decimal text-sm/6 text-center">
-          <form onSubmit={logIn} className="p-4">
-            <div>
+
+          <h2 className="text-xl text-gray-500 font-sans text-center">Sign in to your account</h2>
+
+        
+          <form onSubmit={logIn} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="email-input" className="sr-only">Email</label>
               <input
-              className="p-2 m-1 rounded-md ring-1 ring-gray-300"
-                type="text"
+                id="email-input"
+                className="w-full p-3 rounded-md ring-1 ring-gray-300 focus:ring-blue-500 focus:outline-none"
+                type="email"
                 placeholder="Email"
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
-            <div>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="password-input" className="sr-only">Password</label>
               <input
-                className="p-2 m-1 rounded-md ring-1 ring-gray-300"
+                id="password-input"
+                className="w-full p-3 rounded-md ring-1 ring-gray-300 focus:ring-blue-500 focus:outline-none"
                 type="password"
                 placeholder="Password"
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
-            <div>
-              {errorMessage && <p className="text-sm text-red-400 p-2">{errorMessage}</p>}
-            </div>
-            <div className="flex gap-4 p-2 items-center flex-col sm:flex-row">
-              <button
-                className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
+
+            {errorMessage && <p className="text-sm text-red-400 text-center">{errorMessage}</p>}
+
+            <button
+                className="w-full h-12 rounded-full text-white bg-blue-600 font-medium text-base transition-colors hover:bg-blue-700"
                 type="submit"
               >
                 Log In
               </button>
-              <button
-                className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-                onClick={logInWithGoogle}
-              >
-                Log In With Google
-              </button>
-            </div>
           </form>
-          <p>Don't have an account? Please register</p>
-              <Link
-                className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-                href="/register"
-              >
-                Register
-              </Link>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-
-      </footer>
+              
+          <div className="text-center text-gray-500 relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative inline-block px-4 bg-white text-sm">
+              Or
+            </div>
+          </div>
+           <p className="text-center text-gray-500 text-sm">If you already have an account</p>
+          <button
+            onClick={logInWithGoogle}
+            className="w-full h-12 rounded-full border border-gray-300 text-gray-700 font-medium text-base transition-colors hover:bg-gray-100 flex items-center justify-center gap-2"
+          >
+            <Image src="./google-logo.svg" alt="Google Logo" width={20} height={20} />
+            Log In With Google
+          </button>
+          
+          <p className="mt-4 text-center text-gray-500 text-sm">
+            Don't have an account?{' '}
+            <span className="text-blue-600 hover:underline">
+              <Link href="mailto:someone@example.com">Contact the administrator</Link>
+            </span>
+          </p>
+      </div>
     </div>
   );
 }
