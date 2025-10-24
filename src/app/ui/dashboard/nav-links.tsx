@@ -21,7 +21,7 @@ const links = [
   { name: 'Home', href: '/dashboard', icon: HomeIcon, visible: ["admin", "relief_pharmacist", "pharmacy_manager", "location_manager"], },
   { name: 'Shifts', href: '/dashboard/shifts', icon: CalendarDaysIcon, visible: ["admin","pharmacy_manager", "location_manager"], },
   { name: 'Open Shifts', href: '/dashboard/openShifts', icon: CalendarDaysIcon, visible: ["admin", "relief_pharmacist"], },
-  { name: 'My Shifts', href: '/dashboard/myShifts', icon: CalendarDaysIcon, visible: ["admin", "relief_pharmacist" ], },
+  { name: 'My Shifts', href: '/dashboard/myShifts', icon: CalendarDaysIcon, visible: [ "relief_pharmacist" ], },
   { name: 'Users', href: '/dashboard/list/users', icon: UserGroupIcon, visible: ["admin"], },
   { name: 'Pharmacists', href: '/dashboard/list/pharmacists', icon: UserIcon, visible: ["admin"], },
   { name: 'Companies', href: '/dashboard/list/companies', icon: BuildingOfficeIcon, visible: ["admin"], },

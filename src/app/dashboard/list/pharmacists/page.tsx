@@ -5,7 +5,6 @@ import { getFullAddress } from "@/app/lib/utils";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import { lusitana } from "@/app/ui/fonts";
-import SelectAllowedCompaniesModal from "@/app/ui/forms/pharmacists/select-allowed-companies-modal";
 import FormContainer from "@/app/ui/list/form-container";
 import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
@@ -168,12 +167,22 @@ export default function PharmacistsList({
       <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">{item.phone}</td>
       <td className="hidden md:table-cell whitespace-nowrap px-3 py-3">{item.pharmacistProfile?.licenseNumber}</td>
       <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">
-        <ApprovedStatus status={item.pharmacistProfile?.approved ? "approved":"pending"} />
-      </td>
+        <ApprovedStatus status={
+          item.pharmacistProfile?.approved === true 
+          ? "approved"
+          : item.pharmacistProfile?.approved === false 
+          ? "pending"
+          : "no-profile"
+          } />
+      </td> 
       <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">
-        <p>{item.pharmacistProfile?.canViewAllCompanies ? "Yes":"No"}</p>
-        { !item.pharmacistProfile?.canViewAllCompanies && (
-          <p className="text-xs">Can see {item.pharmacistProfile?.allowedCompanies.length} pharmacies</p>
+        {item.pharmacistProfile && (
+          <>
+          <p>{item.pharmacistProfile?.canViewAllCompanies ? "Yes":"No"}</p>
+          { !item.pharmacistProfile?.canViewAllCompanies && (
+            <p className="text-xs">Can see {item.pharmacistProfile?.allowedCompanies.length} pharmacies</p>
+          )}
+          </>
         )}
       </td>
       <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">{item.pharmacistProfile?.email}</td>
@@ -196,9 +205,10 @@ export default function PharmacistsList({
           </div>
         </td>
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
+        {item.pharmacistProfile ? (
         <div className="flex justify-end gap-3">
-          {!item.pharmacistProfile?.canViewAllCompanies &&(
-            <RelatedDataModal type="set_allowed_companies" token={token} id={item?.pharmacistProfile?.id} data={item?.pharmacistProfile}/>
+          {item.pharmacistProfile?.canViewAllCompanies === false && (
+           <RelatedDataModal type="set_allowed_companies" token={token} id={item?.pharmacistProfile?.id} data={item?.pharmacistProfile}/>
           )}
           <Link 
             href={`pharmacists/${item.id}`} //{`pharmacists/${item.pharmacistProfile?.id}`}
@@ -213,6 +223,8 @@ export default function PharmacistsList({
              </>
           )}
         </div>
+         ): <RelatedDataModal type="link_pharmacist_profile" token={token} id={item.id}/>
+         }
       </td>
     </tr>
   );

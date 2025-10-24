@@ -9,8 +9,6 @@ import z from "zod";
 import { useFormState } from "react-dom";
 import { createPharmacist, updatePharmacist } from "@/app/lib/actions";
 import { toast } from "react-toastify";
-import SelectAllowedCompaniesModal from "./select-allowed-companies-modal";
-import RelatedDataModal from "../../list/related-data-modal";
 import SelectAllowedCompaniesForm from "../pharmacies/select-allowed-companies-form";
 
 // Infer the input and output types from the schema

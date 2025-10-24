@@ -8,6 +8,7 @@ import FormContainer from "@/app/ui/list/form-container";
 import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
 import RelatedDataModal from "@/app/ui/list/related-data-modal";
+import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/list/table-search";
 import { EyeIcon } from "@heroicons/react/16/solid";
@@ -53,6 +54,7 @@ type Location = {
 
 type PharmacistProfile = {
     id: string,
+    approved: boolean,
 }
 
 const columns = [
@@ -176,7 +178,7 @@ const renderRow = (item: UserList) => (
         {item.role === "relief_pharmacist" && (
           <div className="flex flex-col">
             {item.pharmacistProfile ? ( 
-            <h3 className="font-semibold">{item?.pharmacistProfile?.id}</h3>
+              <ApprovedStatus status={item.pharmacistProfile?.approved ? "approved":"pending"} />
             ):(
             <RelatedDataModal type="link_pharmacist_profile" token={token} id={item.id}/> 
             )}
@@ -186,12 +188,14 @@ const renderRow = (item: UserList) => (
       
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex justify-end gap-3">
+          {(item.role === "relief_pharmacist" && item.pharmacistProfile) && (
           <Link 
-            href={`users/${item.id}`}
+            href={`pharmacists/${item.id}`}
             className="rounded-md border p-2 hover:bg-gray-100"
           >
-            <EyeIcon className="w-5"  />
+              <EyeIcon className="w-5"  />
           </Link>
+          )}
           {role === "admin" && (
             <>
               <FormContainer table="user" type="update" token={token} data={item} />

@@ -71,7 +71,7 @@ export default function RelatedDataModal({
         {type === 'set_allowed_companies' && (
           <>
             <BuildingOffice2Icon className="w-4 h-4" />
-            <span>Allowed Pharmacies</span>
+            <span>Set Allowed Pharmacies</span>
           </>
         )}
       </button>

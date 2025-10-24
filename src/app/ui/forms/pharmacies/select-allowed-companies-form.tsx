@@ -132,6 +132,9 @@ export default function SelectAllowedCompaniesForm({
         </li>
       ))}
       </ul>
+      <p className="text-sm text-gray-600">
+          Pharmacies Selected: {selectedOptions.length}
+      </p>
       <span className="text-center font-medium">Pharmacist will only be able to see shifts from the selected pharmacies</span>
       {errors.id?.message && ( 
           <p className="text-xs text-red-400">
@@ -147,11 +150,6 @@ export default function SelectAllowedCompaniesForm({
           Save Allowed Pharmacies
         </button>
         {state.error && <span className="text-red-500 text-center">Something went wrong!</span>}
-      <div className="mt-4">
-        <p className="text-sm text-gray-600">
-          Selected: {selectedOptions.length}
-        </p>
-      </div>
     </div>
     </form>
     );

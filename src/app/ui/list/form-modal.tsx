@@ -74,7 +74,10 @@ export default function FormModal({
     return type === "delete" && id ? (
       <form className='p-4 flex flex-col gap-4' action={formAction} >
         <input type="text" name="id" value={id}  hidden />
-        <span className="text-center font-medium">Are you sure you want to delete this {table}?</span>
+        <span className="text-center font-medium">Are you sure you want to delete this {table === "pharmacist" ? "pharmacist profile" : table}?</span>
+        {table === "pharmacist" &&(
+          <span className="text-center font-medium">This will delete the selected pharmacist profile, but not the user.</span>
+        )}
         <span className="text-center font-medium">This action cannot be undone!</span>
         <button type="submit" className="bg-red-500 text-white py-2 px-4 rounded-md border-none w-max self-center">
           Delete
