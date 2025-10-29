@@ -72,15 +72,14 @@ export default function ShiftForm({
         formAction(data)
       });
 
-      const router = useRouter();
 
       useEffect(() => {
         if (state.success) {
           toast(`Shift has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
           setOpen(false);
-          router.refresh();
+          window.location.reload();
         }
-      }, [state, router, type, setOpen])
+      }, [state, type, setOpen])
       
       const formatForDatetimeLocal = (isoString: string ) => {
         if (!isoString) return '';
@@ -160,7 +159,7 @@ export default function ShiftForm({
                 />
             ) : null}
 
-            {role === "admin" ||
+            {/* {role === "admin" ||
             role === "pharmacy_manager" ? (
               <div className="flex flex-col gap-2 w-full md:w-1/4">
                 <label className="text-xs text-gray-500">Location</label>
@@ -189,7 +188,7 @@ export default function ShiftForm({
                   </p>
                 )}
               </div>
-             ) : null}
+             ) : null} */}
 
             {role === "location_manager" ?  (
                 <InputField
@@ -240,7 +239,7 @@ export default function ShiftForm({
               register={register}
               error={errors?.payRate}
             />
-            <div className="flex flex-col gap-2 w-full md:w-1/4">
+             <div className="flex flex-col gap-2 w-full md:w-1/4">
               <label className="text-xs text-gray-500">Relief Pharmacist</label>
               <select
                 className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
@@ -248,14 +247,16 @@ export default function ShiftForm({
                 defaultValue={data?.pharmacists}
               >
                 <option value=""></option>
-                {pharmacists.map(
+                {pharmacists
+                .filter((pharmacist: { pharmacistProfile: any; }) => pharmacist && pharmacist.pharmacistProfile)
+                .map(
                   (pharmacist: { id: string; firstName: string; lastName: string; pharmacistProfile:{id:string} }) => (
                     <option
                       value={pharmacist.pharmacistProfile.id}
                       key={pharmacist.pharmacistProfile.id}
                       selected={data && pharmacist.pharmacistProfile.id === data.pharmacistId}
                     >
-                      {pharmacist.firstName + " " + pharmacist.lastName}
+                      {pharmacist?.firstName + " " + pharmacist?.lastName}
                     </option>
                   )
                 )}

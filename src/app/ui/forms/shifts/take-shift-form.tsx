@@ -60,15 +60,13 @@ export default function TakeShiftForm({
               formAction(data)
             });
       
-          const router = useRouter();
-      
           useEffect(() => {
             if (state.success) {
               toast(`Shift taken!`, {toastId: 'unique-toast'});
               setOpen(false);
-              router.refresh();
+              window.location.reload();
             }
-          }, [state, router, setOpen])
+          }, [state, setOpen])
       
             if (!data) {
               return <p>Loading...</p>;

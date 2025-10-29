@@ -78,7 +78,8 @@ export default function BigCalendarContainer({
     const data = shifts.map((shift) => {
       let title: string= "";
 
-      if(shift.pharmacistId && type === 'dashboard_manager' ){
+      if(shift.pharmacistId &&
+         (type === 'dashboard_manager' || type === "single_company" || type === "single_location") ){
         title = `${shift.pharmacist?.user?.firstName} ${shift.pharmacist?.user?.lastName}`;
       }else{
         title =

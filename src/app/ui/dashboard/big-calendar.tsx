@@ -55,6 +55,7 @@ export default function BigCalendar({
       };
 
     const handleSelectEvent = (event: {shift: any}) => {
+      console.log("here: "+action)
       if(action==='takeShift'){
         setSelectedShift(event?.shift);
         setOpen(true);
@@ -108,7 +109,7 @@ export default function BigCalendar({
               </div>
             )}
 
-            { (open && selectedShift) && (
+            { (open && selectedShift && action!=="takeShift") && (
               <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
                 <div className='bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]'>
                   <ShiftInfoModal data={selectedShift} setOpen={setOpen}/>
@@ -126,7 +127,7 @@ export default function BigCalendar({
 }
 
 const CustomDayEventComponent = ({ event }: any | undefined) => {
-  // Access your custom data from the 'event' object
+  // Access custom data from the 'event' object
   const { title, shift} = event;
 
   return (
@@ -152,7 +153,7 @@ const CustomDayEventComponent = ({ event }: any | undefined) => {
 };
 
 const CustomWeekEventComponent = ({ event }: any | undefined) => {
-  // Access your custom data from the 'event' object
+  // Access custom data from the 'event' object
   const { title, shift} = event;
 
   return (

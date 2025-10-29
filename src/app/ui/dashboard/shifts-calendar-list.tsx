@@ -5,6 +5,7 @@ import { SetStateAction, useEffect, useState } from "react";
 import { useAuth } from "../context/auth-context";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import TakeShiftForm from "../forms/shifts/take-shift-form";
+import ShiftInfoModal from "../list/shift-info-modal";
 
 export default function ShiftsCalendarList({
     dateParam,
@@ -97,6 +98,22 @@ export default function ShiftsCalendarList({
               <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
                 <div className='bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]'>
                   <TakeShiftForm pharmacistId={pharmacistId} token={token} data={event} setOpen={() => setOpenEventId(null)}/>
+                  <div className='absolute top-4 right-4 cursor-pointer' 
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevents the click from bubbling up
+                        setOpenEventId(null);
+                      }}>
+                    <XMarkIcon className='w-6' />
+                  </div>
+    
+                </div>
+              </div>
+            )}
+
+            { (openEventId === event.id && role !== 'relief_pharmacist') && (
+              <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
+                <div className='bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]'>
+                  <ShiftInfoModal data={event} setOpen={() => setOpenEventId(null)}/>
                   <div className='absolute top-4 right-4 cursor-pointer' 
                       onClick={(e) => {
                         e.stopPropagation(); // Prevents the click from bubbling up

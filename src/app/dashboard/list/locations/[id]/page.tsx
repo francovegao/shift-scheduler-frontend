@@ -143,7 +143,7 @@ export default function SingleLocationPage({
                 </div>
             </div>
             {/* BOTTOM */}
-            <div className="mt-4 rounded-md p-4 h-[800px]">
+            <div className="mt-4 rounded-md p-4 h-[800px]  mb-4">
                <h1 className="text-xl font-semibold">Location&apos;s Calendar</h1>
                <BigCalendarContainer type="single_location" id={id} />
             </div>
@@ -153,8 +153,8 @@ export default function SingleLocationPage({
             <div className="bg-white p-4 rounded-md">
                 <h1 className="text-xl font-semibold">Shortcuts</h1>
                 <div className="mt-4 flex gap-4 flex-wrap text-xs text-gray-500">
-                    <Link className="p-3 rounded-md bg-blue-50" href={`/dashboard/shifts?locationId=${"location2"}`}>Location&apos;s Shifts</Link>
-                    <Link className="p-3 rounded-md bg-purple-50" href={`/dashboard/list/users?locationId=${"location2"}`}>Location&apos;s Users</Link>
+                    <Link className="p-3 rounded-md bg-blue-50" href={`/dashboard/shifts?locationId=${id}`}>Location&apos;s Shifts</Link>
+                    <Link className="p-3 rounded-md bg-purple-50" href={`/dashboard/list/users?locationId=${id}`}>Location&apos;s Managers</Link>
                     <Link className="p-3 rounded-md bg-yellow-50" href="/">Location&apos;s Reports</Link>
                     <Link className="p-3 rounded-md bg-pink-50" href="/">Location&apos;s Files</Link>
                     <Link className="p-3 rounded-md bg-blue-50" href="/">Location&apos;s Notifications</Link>

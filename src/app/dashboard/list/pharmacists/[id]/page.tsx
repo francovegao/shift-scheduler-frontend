@@ -140,7 +140,7 @@ export default function SinglePharmacistPage({
                 </div>
             </div>
             {/* BOTTOM */}
-            <div className="mt-4 rounded-md p-4 h-[800px]">
+            <div className="mt-4 rounded-md p-4 h-[800px] mb-4">
                <h1 className="text-xl font-semibold">Pharmacist&apos;s Schedule</h1>
                <BigCalendarContainer type="single_pharmacist" id={id} />
             </div>
@@ -150,7 +150,7 @@ export default function SinglePharmacistPage({
             <div className="bg-white p-4 rounded-md">
                 <h1 className="text-xl font-semibold">Shortcuts</h1>
                 <div className="mt-4 flex gap-4 flex-wrap text-xs text-gray-500">
-                    <Link className="p-3 rounded-md bg-blue-50" href={`/dashboard/shifts?pharmacistId=${"pharmacist2"}`}>Pharmacist&apos;s Shifts</Link>
+                    <Link className="p-3 rounded-md bg-blue-50" href={`/dashboard/shifts?pharmacistId=${pharmacist.pharmacistProfile.id}`}>Pharmacist&apos;s Shifts</Link>
                     <Link className="p-3 rounded-md bg-purple-50" href="/">Pharmacist&apos;s Reports</Link>
                     <Link className="p-3 rounded-md bg-yellow-50" href="/">Pharmacist&apos;s Files</Link>
                     <Link className="p-3 rounded-md bg-pink-50" href="/">Pharmacist&apos;s Notifications</Link>

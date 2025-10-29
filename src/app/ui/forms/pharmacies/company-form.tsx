@@ -108,8 +108,10 @@ export default function CompanyForm({
                 <label className="text-xs text-gray-500">Approved</label>
                 <select
                   className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                  {...register("approved")}
-                  defaultValue={data?.approved}
+                  {...register("approved", {
+                    setValueAs: value => value === 'true'
+                  })}
+                  defaultValue={data?.approved ? 'true' : 'false'}
                 >
                   <option value="true">Yes</option>
                   <option value="false">No</option>
