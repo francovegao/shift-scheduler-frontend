@@ -4,6 +4,8 @@ import { SetStateAction, useEffect, useState } from "react";
 import { useAuth } from "../context/auth-context";
 import { markAsReadNotification } from "@/app/lib/actions";
 import { fetchUnseenNotifications } from "@/app/lib/data";
+import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
 
 export default function Notifications() {
   const { firebaseUser, appUser, loading } = useAuth();
@@ -59,8 +61,48 @@ export default function Notifications() {
     }
   };
 
-    if (loading || isFetching) return <div>Loading...</div>;
-    if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
+  if (loading || isFetching) return <div>Loading...</div>;
+  if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
+
+  const role = appUser.role;
+
+  const getTimeAgo = (date: string | number | Date) => {
+    const notificationDate = new Date(date);
+    const timeAgo = formatDistanceToNow(notificationDate, {addSuffix: true});
+
+    return timeAgo;
+  }
+
+  const getActionLink = (notification : {type: string, actionUrl: string}) => {
+    if (notification.type !== "shift" || !notification.actionUrl) {
+      return (
+        <p className="text-sm text-blue-600 mt-1">
+          {notification.actionUrl}
+        </p>
+      );
+    }
+
+    // Common link properties
+    const commonLinkProps = {
+      className: "text-sm text-blue-600 mt-1"
+    };
+
+    if (role === "pharmacy_manager") {
+      return (
+        <Link {...commonLinkProps} href={`/dashboard/shifts?shiftId=${notification.actionUrl}`}>
+          View More Info
+        </Link>
+      );
+    }
+
+    if (role === "relief_pharmacist") {
+      return (
+        <Link {...commonLinkProps} href={`/dashboard/myShifts?shiftId=${notification.actionUrl}`}>
+          View More Info
+        </Link>
+      );
+    }
+  };
 
   return (
     <div className="w-full md:col-span-4 ">
@@ -74,15 +116,15 @@ export default function Notifications() {
             <div className="flex items-center justify-between">
               <h2 className="font-medium">{item.title}</h2>
               <span className="text-xs text-gray-400 bg-white rounded-md px-1 py-1">
-                {item.createdAt.slice(0,10)}
+                {getTimeAgo(item.createdAt)}
               </span>
             </div>
-            <p className="text-sm text-gray-400 mt-1">
+            <p className="text-sm text-gray-700 mt-1">
               {item.message}
             </p>
-            <p className="text-sm text-blue-600 mt-1">
-              {item.actionUrl}
-            </p>
+            <div>
+              {getActionLink(item)}
+            </div>
             <button
               onClick={() => markAsRead(item.id)}
               className="mt-2 text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"

@@ -270,7 +270,8 @@ export default function ShiftsList(){
               <FormContainer table="shift" type="update" token={token} data={item} />
               <FormContainer table="shift" type="delete" token={token} id={item.id}/>
             </>
-          )}
+          )
+          }
         </div>
       </td>
     </tr>
