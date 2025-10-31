@@ -67,18 +67,33 @@ export default function SinglePharmacistPage({
                 <div className="bg-blue-200 py-6 px-4 rounded-md flex-1 flex gap-4">
                     <div className="w-1/3">
                         <UserCircleIcon className="w-36 h-36 text-gray-600" />
+                        {role === "admin" && (
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="">
+                                    <FormContainer
+                                        table="user"
+                                        type="update"
+                                        token={token}
+                                        data={pharmacist}
+                                    />
+                                    <p className="text-xs text-gray-500 mt-2">Edit User</p>
+                                </div>
+                                <div className="">
+                                    <FormContainer
+                                        table="pharmacist"
+                                        type="update"
+                                        token={token}
+                                        data={pharmacist.pharmacistProfile}
+                                    />
+                                    <p className="text-xs text-gray-500 mt-2">Edit Pharmacist Profile</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                     <div className="w-2/3 flex flex-col justify-between gap-4">
                         <div className="flex items-center gap-4">
                             <h1 className="text-xl font-semibold">{pharmacist?.firstName+ " " + pharmacist?.lastName}</h1>
-                            {role === "admin" && (
-                            <FormContainer
-                                table="pharmacist"
-                                type="update"
-                                token={token}
-                                data={pharmacist}
-                            />
-                            )}
+
                         </div>
                         <p className="text-sm text-gray-500">
                             {pharmacist.pharmacistProfile.bio || "Add a bio to show it here"}

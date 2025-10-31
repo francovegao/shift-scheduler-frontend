@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, momentLocalizer, View, Views } from 'react-big-calendar'
+import { Calendar, momentLocalizer, SlotInfo, View, Views } from 'react-big-calendar'
 import moment from 'moment'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { useState } from 'react';
@@ -64,6 +64,10 @@ export default function BigCalendar({
         setOpen(true);
       }
     };
+
+  function handleSelectSlot(slotInfo: SlotInfo): void {
+     console.log('Selected slot:', slotInfo);
+  }
 
     return(
         <div className="h-full bg-white p-4 rounded-md">

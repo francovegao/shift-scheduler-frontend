@@ -62,8 +62,8 @@ export default function FormContainer({
                 break;
             case "pharmacist":
                 //Fetch users that have role = relief_pharmacist and pharmacistProfile is empty
-                const pharmacistsResponse = await fetchPharmacists("", 1, token);  //TODO: Update this fetch to get all the pharmacists without a pharmacist profile and not just the limited by page
-                setRelatedData({ pharmacists: pharmacistsResponse?.data ?? [] });
+                // const pharmacistsResponse = await fetchPharmacists("", 1, token);  //TODO: Update this fetch to get all the pharmacists without a pharmacist profile and not just the limited by page
+                // setRelatedData({ pharmacists: pharmacistsResponse?.data ?? [] });
                 break;
             case "company":
                 //Fetch the users that have role = pharmacy_manager and companyId is empty

@@ -133,6 +133,13 @@ export default function TakeShiftForm({
                 <p className="text-sm text-gray-500">${parseFloat(data.payRate).toFixed(2)} per hr</p>
               </div>
           </div>
+          <div>
+            <h2 className="text-gray-400 font-medium mb-2">Shift Description</h2>
+              <div className="">
+                <h3 className="font-semibold">{data.title}</h3>
+                <p className="text-sm text-gray-500">{data.description} </p>
+              </div>
+          </div>
         </div>
         <span className="text-center font-medium">Are you sure you want to take this shift?</span>
         <span className="text-center font-medium">Please verify all the information before taking this shift</span>
