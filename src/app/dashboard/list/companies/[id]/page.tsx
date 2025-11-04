@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import ShiftsGraph from "@/app/ui/list/shifts-graph";
 import { 
     UserCircleIcon, PhoneIcon, EnvelopeIcon, 
@@ -66,8 +67,34 @@ export default function SingleLocationPage({
             <div className="flex flex-col lg:flex-row gap-4">
                 {/* USER INFO CARD */}
                 <div className="bg-blue-200 py-6 px-4 rounded-md flex-1 flex gap-4">
-                    <div className="w-1/3">
-                        <BuildingStorefrontIcon className="w-36 h-36 text-gray-600" />
+                    <div className="w-1/3 flex items-center">
+                        {company.name==="Pharm Drugstore" ? (
+                        <div className="relative w-full h-16">
+                        <Image
+                            src={`/${company?.name}-black.png`}
+                            alt="Pharmacy Logo"
+                            fill
+                        />
+                        </div>)
+                        : company.name==="Grassroots Pharmacy"?(
+                            <div className="relative w-full h-24">
+                            <Image
+                                src={`/${company?.name}-black.png`}
+                                alt="Pharmacy Logo"
+                                fill
+                            />
+                            </div>)
+                        : company.name.includes("CurisRx") ? (
+                             <div className="relative w-full h-12">
+                            <Image
+                                src={`/CurisRx-Black-2021.png`}
+                                alt="Pharmacy Logo"
+                                fill
+                            />
+                            </div>
+                        ):(
+                           <BuildingStorefrontIcon className="w-36 h-36 text-gray-600" /> 
+                        )}
                     </div>
                     <div className="w-2/3 flex flex-col justify-between gap-4">
                         <div className="flex items-center gap-4">
