@@ -46,6 +46,23 @@ body {
   flex-wrap: nowrap !important;
 }
 
+.rbc-header {
+  color: white;
+  font-size: 14px !important;
+  display: flex;
+  align-items: center;
+  height: 36px !important;
+  background: #155dfc;
+}
+
+.rbc-allday-cell {
+  display: none;
+}
+
+.rbc-time-header-cell .rbc-today {
+  background-color: #04aa6d !important;
+}
+
 
 .rbc-btn-group{
   font-size: 13px !important;
@@ -82,48 +99,6 @@ body {
   font-size: 14px !important;
 }
 
-.rbc-event {
-  border: none !important;
-  color: black !important;
-  padding: 8px !important;
-  margin-left: 4px !important;
-  width: 100% !important;
-}
-
-.rbc-month-row .rbc-event{
-  width: 90% !important;
-}
-
-.rbc-event:nth-child(1) {
-  background-color: #fefce8 !important;
-}
-.rbc-event:nth-child(2) {
-  background-color: #e2f8ff !important;
-}
-.rbc-event:nth-child(3) {
-  background-color: #f2f1ff !important;
-}
-.rbc-event:nth-child(4) {
-  background-color: #fdf2fb !important;
-}
-.rbc-event:nth-child(5) {
-  background-color: #e2f8ff !important;
-}
-.rbc-event:nth-child(6) {
-  background-color: #fefce8 !important;
-}
-.rbc-event:nth-child(7) {
-  background-color: #f2f1ff !important;
-}
-.rbc-event:nth-child(8) {
-  background-color: #fdf2fb !important;
-}
-
-.rbc-event-label{
-  color: gray !important;
-  margin-bottom: 5px ;
-}
-
 .rbc-month-row{
   background-color: #f7fdff !important;
 }
@@ -131,4 +106,49 @@ body {
 .rbc-date-cell {
   font-size: 14px !important;
 }
+
+.rbc-event {
+  border: 1px solid #f7fdff !important ;
+  color: white !important;
+  padding: 0px !important;
+  margin-left: 4px !important;
+  width: 100% !important;
+  z-index: 2;
+}
+
+.rbc-event.open-shift {
+  background-color: rgb(100 116 139); 
+}
+
+.rbc-event.completed-shift {
+  background-color: rgb(34 197 94); 
+}
+
+.rbc-event.taken-shift {
+  background-color: rgb(59 130 246); 
+}
+
+.rbc-event.cancelled-shift {
+  background-color: rgb(239 68 68); 
+}
+
+.rbc-background-event{
+  z-index: 2;
+  padding: 0px !important;
+  border: none !important;
+}
+
+.rbc-month-row .rbc-event{
+  width: 90% !important;
+}
+
+.rbc-event-label{
+  color: white !important;
+  margin-bottom: 5px ;
+}
+
+.rbc-event-content {
+    font-size: 12px !important;
+}
+
 

@@ -1,19 +1,30 @@
-import { companiesData, fetchShifts, role, shiftsData } from "@/app/lib/data";
+"use client";
+
+import { fetchShifts } from "@/app/lib/data";
+import { getFullAddress } from "@/app/lib/utils";
+import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
+import { useAuth } from "@/app/ui/context/auth-context";
 import BigCalendar from "@/app/ui/dashboard/big-calendar";
+import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
 import { lusitana } from "@/app/ui/fonts";
-import { AddPharmacist, DeletePharmacist, UpdatePharmacist } from "@/app/ui/list/buttons";
+import FilterDate from "@/app/ui/list/filter-date";
+import FilterPayRate from "@/app/ui/list/filter-pay-rate";
+import FilterShiftStatus from "@/app/ui/list/filter-shift-status";
+import FormContainer from "@/app/ui/list/form-container";
 import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
-import TableSearch from "@/app/ui/table-search";
+import TableSearch from "@/app/ui/list/table-search";
+import { useRouter, useSearchParams } from "next/navigation";
+import { SetStateAction, useEffect, useState } from "react";
 
 type ShiftList = Shift & { company: Company }
                  & { location: Location } 
                  & { pharmacist: Pharmacist & { user: User } };
 
 type Shift = {
-    id: number,
+    id: string,
     companyId: string,
     locationId?: string,
     title: string,
@@ -29,11 +40,21 @@ type Shift = {
 type Company = {
   id: string,
   name: string,
+  email: string,
+  phone: string,
+  address: string,
+  city: string,
+  province: string,
 }
 
 type Location = {
   id: string,
   name: string,
+  email: string,
+  phone: string,
+  address: string,
+  city: string,
+  province: string,
 }
 
 type Pharmacist = {
@@ -70,12 +91,12 @@ const columns = [
   {
     header: "Date",
     accessor: "date",
-    className: "hidden table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "Start - End time",
     accessor: "startEndTime",
-    className: "hidden table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "Rate",
@@ -88,37 +109,151 @@ const columns = [
     className: "hidden sm:table-cell px-3 py-5 font-medium",
   },
   {
+    header: "Notes",
+    accessor: "notes",
+    className: "hidden md:table-cell px-3 py-5 font-medium",
+  },
+  {
     header: "Pharmacist",
     accessor: "pharmacist",
-    className: "hidden lg:table-cell px-3 py-5 font-medium",
+    className: "hidden md:table-cell px-3 py-5 font-medium",
   },
   {
     header: "",
     accessor: "edit",
-    className:"relative py-3 pl-6 pr-3"
+    className:"px-4 py-5 font-medium sm:pl-6"
   },
 ];
 
-const renderRow = (item: ShiftList) => (
+
+
+export default function ShiftsList(){
+
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const { firebaseUser, appUser, loading } = useAuth();
+    const [isFetching, setIsFetching] = useState(true);
+    const [token, setToken] = useState("");
+    const [shifts, setShifts] = useState<any[]>([]);
+    const [totalPages, setTotalPages] = useState<number>(1);
+
+    // Redirect if not logged in
+    useEffect(() => {
+      if (!loading && !firebaseUser) {
+        router.push("/");
+      }
+    }, [loading, firebaseUser, router]);
+
+    // Get token
+    useEffect(() => {
+      if (firebaseUser) {
+        firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
+          setToken(idToken);
+        });
+      }
+    }, [firebaseUser]);
+
+        // Fetch shifts when token is ready
+      useEffect(() => {
+        const getShifts = async () => {
+          setIsFetching(true);
+          try {
+            const page = searchParams.get('page');
+            const query = searchParams.get('query');
+            const queryParams: Record<string, string> = {};
+
+            searchParams.forEach((value, key) => {
+              if (key !== 'page' && key !== 'query') {
+
+                if(key === "from" || key === "to" ){
+                   //Detect if the value is a valid date
+                  const parsedDate = new Date(value);
+                  const isValidDate = !isNaN(parsedDate.getTime());
+
+                  if(isValidDate){
+                    queryParams[key] = parsedDate.toISOString();
+                  }
+
+                }else{
+                  queryParams[key] = value;
+                }
+            }});
+        
+            const currentPage = page ? parseInt(page) : 1;
+            const search = query ?? '';
+
+
+            const shiftsResponse = await fetchShifts(search, currentPage, queryParams, token);
+            setShifts(shiftsResponse?.data ?? []);
+            setTotalPages(shiftsResponse?.meta?.totalPages ?? 1);
+          } catch (err) {
+            console.error("Failed to fetch shifts", err);
+          } finally {
+            setIsFetching(false);
+          }
+        };
+        if (token){ getShifts() };
+  }, [token, searchParams]);
+
+    if (loading || isFetching) return <div>Loading...</div>;
+    if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
+
+    const role = appUser.role;
+
+    //Prepare data to send to BigCalendar component
+    const data = shifts.map((shift) => {
+        const title =
+            shift.location?.name
+            ? `${shift.location.name} - ${shift.company.name}`
+            : shift.company.name;
+
+        return {
+            title,
+            allDay: false,
+            start: new Date(shift.startTime),
+            end: new Date(shift.endTime),
+            shift: shift,
+        };
+    });
+
+    const renderRow = (item: ShiftList) => (
     <tr
       key={item.id}
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-purple-50"
     >
       <td className="flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
+        {item.location ? (
         <div className="flex flex-col">
-          <h3 className="font-semibold">{item.company.name}</h3>
-          <p className="text-xs text-gray-500">{item.location?.name}</p>
+          <h3 className="font-semibold">{item.location?.name}</h3>
+          <p className="text-xs text-gray-500">{item.company?.name}</p>
+                    <p className="text-xs text-gray-500">{item.location?.email}</p>
+          <p className="text-xs text-gray-500">{item.location?.phone}</p>
+          <p className="text-xs text-gray-500">{getFullAddress(item.location?.address, item.location?.city, item.location?.province, null)}</p>
         </div>
+        ):(
+          <div className="flex flex-col">
+          <h3 className="font-semibold">{item.company?.name}</h3>
+          <p className="text-xs text-gray-500">{item.company?.email}</p>
+          <p className="text-xs text-gray-500">{item.company?.phone}</p>
+          <p className="text-xs text-gray-500">{getFullAddress(item.company?.address, item.company?.city, item.company?.province, null)}</p>
+        </div>
+        )}
       </td>
-      <td className="hidden table-cell whitespace-nowrap px-3 py-3">{new Intl.DateTimeFormat("en-CA", DateFormat).format(new Date(item.startTime))}</td>
-      <td className="hidden table-cell whitespace-nowrap px-3 py-3">
+      <td className="table-cell whitespace-nowrap px-3 py-3">{new Intl.DateTimeFormat("en-CA", DateFormat).format(new Date(item.startTime))}</td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">
         {new Date(item.startTime).toLocaleTimeString("en-US", TimeFormat)}-{new Date(item.endTime).toLocaleTimeString("en-US", TimeFormat)} 
       </td>
       <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">${parseFloat(item.payRate).toFixed(2)}</td>
       <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">
         <ApprovedStatus status={item.status} />
       </td>
-      <td className="hidden lg:table-cell flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
+      <td className="hidden md:table-cell flex items-center gap-4 py-3 pl-6 pr-3 w-48">
+        <div className="flex flex-col">
+          <h3 className="font-semibold">{item?.title}</h3>
+          <p className="text-xs text-gray-500 break-words">{item?.description}</p>
+        </div>
+      </td>
+      <td className="hidden md:table-cell flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3 w-48">
         <div className="flex flex-col">
           <h3 className="font-semibold">{item.pharmacist?.user.firstName} {item.pharmacist?.user.lastName}</h3>
           <p className="text-xs text-gray-500">{item.pharmacist?.user.email}</p>
@@ -127,65 +262,66 @@ const renderRow = (item: ShiftList) => (
       </td>
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex justify-end gap-3">
-          {role === "admin" && (
+          {(role === "admin" ||
+            role === "pharmacy_manager" ||
+            role === "location_manager" ) &&
+            ( item.status === 'open' ) &&  (
             <>
-              {/*<UpdatePharmacist id={item.id} /> */}
-              <FormModal table="shift" type="update" id={item.id}/>
-              {/*<DeletePharmacist id={item.id} /> */}
-              <FormModal table="shift" type="delete" id={item.id}/>
+              <FormContainer table="shift" type="update" token={token} data={item} />
+              <FormContainer table="shift" type="delete" token={token} id={item.id}/>
             </>
-          )}
+          )
+          }
         </div>
       </td>
     </tr>
   );
 
-export default async function ShiftsList({
-  searchParams,
-  }:{
-    searchParams: Promise< { [key: string]: string | undefined} >;
-  }){
-
-    const searchParameters = await searchParams;
-    //const query = searchParameters?.query || '';
-    //const currentPage = Number(searchParameters?.page) || 1;
-    const { page, query, ...queryParams } = searchParameters;
-    const currentPage = page ? parseInt(page) : 1;
-    const search = query ? query : '';
-   
-
-
-    const shiftsResponse = await fetchShifts(search, currentPage, queryParams);
-    const shifts = shiftsResponse?.data;
-    const totalPages=shiftsResponse.meta?.totalPages;
-    //const totalPages=4;
-
   return (
-    <div className="p-4 lg:p-8">
+    <AuthWrapper allowedRoles={["admin", "pharmacy_manager", "location_manager", "relief_pharmacist"]}>
+      <div className="p-4 lg:p-8">
         <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
-            Shifts List
+          Shifts List
         </h1>
         <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-            {/* TOP */}
-            <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-                <TableSearch placeholder="Search shifts..." />
-                {role === "admin" && (
-                  //<AddPharmacist />
-                  <FormModal table="shift" type="create" />
-                )}
-            </div>
-            {/* LIST */}
-            <div style={{overflowX: 'scroll'}}>
-                <Table columns={columns} renderRow={renderRow} data={shifts}/>
-            </div>
-            {/* PAGINATION */}
-            <div className="mt-5 flex w-full justify-center">
-                <Pagination totalPages={totalPages} />
-            </div>
+          {/* TOP */}
+          <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+            <TableSearch placeholder="Search shifts..." />
+            <FilterDate />
+            <FilterShiftStatus options={[
+                { value: 'open', label: 'Open' },
+                { value: 'taken', label: 'Scheduled' },
+                { value: 'completed', label: 'Completed' },
+                { value: 'cancelled', label: 'Cancelled' },
+              ]} />
+              <FilterPayRate />
+             { (role === "admin" ||
+                role === "pharmacy_manager" ||
+                role === "location_manager") && (
+              <FormContainer table="shift" type="create" token={token}/>
+            )}
+          </div>
+          {/* LIST */}
+          <div style={{ overflowX: 'scroll' }}>
+            <Table columns={columns} renderRow={renderRow} data={shifts} />
+          </div>
+          {/* PAGINATION */}
+          <div className="mt-5 flex w-full justify-center">
+            <Pagination totalPages={totalPages} />
+          </div>
         </div>
         <div className="h-full bg-white p-4 rounded-md">
-          <BigCalendar/>
+          { (role === "admin" ||
+                role === "pharmacy_manager" ||
+                role === "location_manager") && (
+              <BigCalendarContainer type="dashboard_manager" />
+            )}
+            { (role === "relief_pharmacist") && (
+              <BigCalendar token={token} data={data}/>
+            )}
+            
         </div>
-    </div>
-  );
+      </div>
+    </AuthWrapper>
+  );   
 }

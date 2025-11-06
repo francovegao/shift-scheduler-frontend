@@ -1,119 +1,122 @@
+"use client";
+
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
-import clsx from 'clsx';
-import Image from 'next/image';
 import { lusitana } from '@/app/ui/fonts';
-//import { LatestInvoice } from '@/app/lib/definitions';
-//import { fetchLatestInvoices } from '@/app/lib/data';
+import { useAuth } from '../context/auth-context';
+import { SetStateAction, useEffect, useState } from 'react';
+import { fetchLatestShifts } from '@/app/lib/data';
+import ApprovedStatus from '../list/status';
 
-//TEMPORARY
-const latestInvoices = [
-  {
-    id: 'Page A',
-    image_url: "https://picsum.photos/200/300",
-    name: 2400,
-    email: 2400,
-    amount: 2400,
-  },
-  {
-    id: 'Page B',
-    image_url: "https://picsum.photos/200/300",
-    name: 1398,
-    email: 1398,
-    amount: 2210,
-  },
-  {
-    id: 'Page C',
-    image_url: "https://picsum.photos/200/300",
-    name: 9800,
-    email: 9800,
-    amount: 2290,
-  },
-  {
-    id: 'Page D',
-    image_url: "https://picsum.photos/200/300",
-    name: 3908,
-    email: 3908,
-    amount: 2000,
-  },
-  {
-    id: 'Page E',
-    image_url: "https://picsum.photos/200/300",
-    name: 4800,
-    email: 3,
-    amount: 2181,
-  },
-  {
-    id: 'Page F',
-    image_url: "https://picsum.photos/200/300",
-    name: 3800,
-    email: 3800,
-    amount: 2500,
-  },
-  {
-    id: 'Page G',
-    image_url: "https://picsum.photos/200/300",
-    name: 4300,
-    email: 4300,
-    amount: 2100,
-  },
-];
+const DateFormat = {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+ } as const;
 
-/*export default async function LatestInvoices({
-  latestInvoices,
-}: {
-  latestInvoices: LatestInvoice[];
-}) {*/
-  export default async function LatestShifts(){ //Remove props
-  //const latestInvoices = await fetchLatestInvoices();
+const TimeFormat = {
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,  
+ } as const;
+
+  export default function LatestShifts(){ 
+    const { firebaseUser, appUser, loading } = useAuth();
+    const [isFetching, setIsFetching] = useState(true);
+    const [token, setToken] = useState("");
+    const [latestShifts, setLatestShifts] = useState<any[]>([]);
+
+    // Get token
+      useEffect(() => {
+        if (firebaseUser) {
+          firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
+            setToken(idToken);
+          });
+        }
+      }, [firebaseUser]);
+    
+      // Fetch latest shifts when token is ready
+      useEffect(() => {
+        const getLatestShifts = async () => {
+          setIsFetching(true);
+          try {
+            const latestShiftsResponse = await fetchLatestShifts(token);
+            setLatestShifts(latestShiftsResponse?.data ?? []);
+          } catch (err) {
+            console.error("Failed to fetch latest shifts", err);
+          } finally {
+            setIsFetching(false);
+          }
+        };
+        if (token){ getLatestShifts() };
+    }, [token]);
+
+    if (loading || isFetching) return <div>Loading...</div>;
+    if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
+
   return (
     <div className="flex w-full flex-col md:col-span-4">
       <h2 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
         Latest Shifts
       </h2>
-      <div className="flex grow flex-col justify-between rounded-xl bg-gray-50 p-4">
+      <div className="flex grow flex-col justify-between rounded-md bg-gray-50">
+        <div className="bg-white divide-y rounded-md shadow-sm">
+          {latestShifts.length === 0 && (
+            <p className="text-gray-500 text-center py-6">
+              No recent shifts available.
+            </p>
+          )}
 
-        <div className="bg-white px-6">
-          {latestInvoices.map((invoice, i) => {
-            return (
-              <div
-                key={invoice.id}
-                className={clsx(
-                  'flex flex-row items-center justify-between py-4',
-                  {
-                    'border-t': i !== 0,
-                  },
+          {latestShifts.slice(0, 5).map((item) => (
+            <div
+              key={item.id}
+              className="flex flex-row items-center justify-between p-4 hover:bg-gray-50 transition"
+            >
+              <div className="flex flex-col">
+                {item.location ? (
+                  <span>
+                    <p className="truncate text-sm font-semibold">
+                      {item?.location?.name}
+                    </p>
+                    <p className="text-sm text-gray-500">{item?.company?.name}</p>
+                  </span>
+                ) : (
+                  <span>
+                    <p className="truncate text-sm font-semibold">
+                      {item.company.name}
+                    </p>
+                    <p className="text-sm text-gray-500">{item?.location?.name}</p>
+                  </span>
                 )}
-              >
-                <div className="flex items-center">
-                    Image
-                  {/*<Image
-                    src={invoice.image_url}
-                    alt={`${invoice.name}'s profile picture`}
-                    className="mr-4 rounded-full"
-                    width={32}
-                    height={32}
-                  />*/}
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold md:text-base">
-                      {invoice.name}
-                    </p>
-                    <p className="hidden text-sm text-gray-500 sm:block">
-                      {invoice.email}
-                    </p>
-                  </div>
+                <div className="mt-1">
+                  <ApprovedStatus status={item.status} />
                 </div>
+              </div>
+
+              <div className="text-right">
                 <p
-                  className={`${lusitana.className} truncate text-sm font-medium md:text-base`}
+                  className={`${lusitana.className} text-sm font-medium text-gray-700`}
                 >
-                  {invoice.amount}
+                  {new Date(item.startTime).toLocaleDateString(
+                    "en-US", 
+                    DateFormat
+                  )}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {new Date(item.startTime).toLocaleTimeString(
+                    "en-US",
+                    TimeFormat
+                  )}
+                  –
+                  {new Date(item.endTime).toLocaleTimeString("en-US", TimeFormat)}
                 </p>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
-        <div className="flex items-center pb-2 pt-6">
-          <ArrowPathIcon className="h-5 w-5 text-gray-500" />
-          <h3 className="ml-2 text-sm text-gray-500 ">Updated just now</h3>
+
+        <div className="flex items-center pb-3 pt-6 px-4 text-gray-500">
+          <ArrowPathIcon className="h-5 w-5" />
+          <h3 className="ml-2 text-sm">Updated just now</h3>
         </div>
       </div>
     </div>

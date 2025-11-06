@@ -2,57 +2,91 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import z from "zod";
 import InputField from "../input-field";
-import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
+import { Dispatch, SetStateAction, useEffect  } from "react";
+import { companySchema } from "@/app/lib/formValidationSchemas";
+import { createCompany, updateCompany } from "@/app/lib/actions";
+import { useFormState } from "react-dom";
+import { toast } from "react-toastify";
+import z from "zod";
 
-const schema = z.object({
-  name: z.string().min(3,{message: "Last name is required."}),
-  email: z.email({message: "Invalid email address."}),
-  phone: z.string().min(1,{message: "Phone is required."}),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  province: z.string().min(2,{message: "Province is required."}),
-  postalCode: z.string().optional(),
-  companyId: z.string(),
-});
+// Infer the input and output types from the schema
+type FormInput = z.input<typeof companySchema>;
+type FormOutput = z.output<typeof companySchema>;
 
-type Inputs = z.infer<typeof schema>;
-
-export default function LocationForm({ 
+export default function CompanyForm({ 
     type,
     data, 
+    setOpen,
+    token,
+    relatedData,
     }:{
     type: "create" | "update";
     data?: any; 
+    setOpen: Dispatch<SetStateAction<boolean>>;
+    token: string;
+    relatedData?: any;
     }){
-
+      
       const {
         register,
         handleSubmit,
         formState: { errors },
-      } = useForm<Inputs>({
-        resolver: zodResolver(schema),
+      } = useForm<FormInput, any, FormOutput>({
+        resolver: zodResolver(companySchema),
       });
 
-      const onSubmit = handleSubmit((data) => {
-        console.log(data)
-      })
+      const [state, formAction] = useFormState(
+          type === "create" ? createCompany.bind(null, token) : updateCompany.bind(null, token),
+        {
+          success: false,
+          error: false,
+        }
+      );
+
+      const onSubmit = handleSubmit((data) => {       
+        formAction(data)
+      });
+
+      useEffect(() => {
+        if (state.success) {
+          toast(`Company has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
+          setOpen(false);
+          window.location.reload();
+        }
+      }, [state, type, setOpen])
 
 
     return(
         <form className="flex flex-col gap-8" onSubmit={onSubmit}>
-          <h1 className="text-xl font-semibold">{type === "create" ? "Create a new location" : "Update location"}</h1>
+          <h1 className="text-xl font-semibold">{type === "create" ? "Create a new company" : "Update company"}</h1>
           <span className="text-xs text-gray-400 font-medium">
             Account Information
           </span>
           <div className="flex justify-between flex-wrap gap-4">
+             {data && (
+              <InputField
+                  label="Id"
+                  name="id"
+                  defaultValue={data?.id}
+                  register={register}
+                  error={errors?.id}
+                  hidden
+                />
+              )}
             <InputField
-              label="Name"
+              label="Pharmacy Name"
               name="name"
               defaultValue={data?.name}
               register={register}
               error={errors?.name}
+            />
+            <InputField
+              label="Legal Name"
+              name="legalName"
+              defaultValue={data?.legalName}
+              register={register}
+              error={errors?.legalName}
             />
             <InputField
               label="Email"
@@ -70,9 +104,27 @@ export default function LocationForm({
                 register={register}
                 error={errors?.phone}
             />
+            <div className="flex flex-col gap-2 w-full md:w-1/4">
+                <label className="text-xs text-gray-500">Approved</label>
+                <select
+                  className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                  {...register("approved", {
+                    setValueAs: value => value === 'true'
+                  })}
+                  defaultValue={data?.approved ? 'true' : 'false'}
+                >
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+                {errors.approved?.message && ( 
+                  <p className="text-xs text-red-400">
+                    {errors.approved?.message.toString()}
+                  </p>
+                )}
+            </div>
            </div>
           <span className="text-xs text-gray-400 font-medium">
-            Location Information
+            Pharmacy Information
           </span>
           <div className="flex justify-between flex-wrap gap-4">
             <InputField
@@ -82,7 +134,7 @@ export default function LocationForm({
               register={register}
               error={errors?.address}
             />
-              <InputField
+            <InputField
               label="City"
               name="city"
               defaultValue={data?.city}
@@ -120,32 +172,15 @@ export default function LocationForm({
               register={register}
               error={errors?.postalCode}
             />
-            <div className="flex flex-col gap-2 w-full md:w-1/4">
-                    <label className="text-xs text-gray-500">Company</label>
-                    <select
-                    className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                    {...register("companyId")}
-                    defaultValue={data?.companyId}
-                    >
-                    <option value=""></option>
-                    <option value="company1">Test Company</option>
-                    <option value="company2">Some Company</option>
-                    <option value="company3">Other Company</option>
-                    <option value="company4">Another Company</option>
-                    <option value="company5">Service Company</option>
-                    <option value="company6">My Company</option>
-                    <option value="company7">Some Inc.</option>
-                    <option value="company8">One Inc.</option>
-                    <option value="company9">Not Real Pharmacy</option>
-                    <option value="company10">My Pharmacy</option>
-                    </select>
-                    {errors.companyId?.message && ( 
-                    <p className="text-xs text-red-400">
-                        {errors.companyId?.message.toString()}
-                    </p>
-                    )}
-                </div>
+            <InputField
+              label="GST Number"
+              name="GSTNumber"
+              defaultValue={data?.GSTNumber}
+              register={register}
+              error={errors?.GSTNumber}
+            />
             </div>
+            {state.error && <span className="text-red-500">Something went wrong!</span>}
           <button className="bg-blue-400 text-white p-2 rounded-md">
             {type === "create" ? "Create" : "Update"}
           </button>

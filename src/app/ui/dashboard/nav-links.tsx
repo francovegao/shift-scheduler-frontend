@@ -13,17 +13,19 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
-import { role } from '@/app/lib/data';
+import { useAuth } from '../context/auth-context';
 
 // Map of links to display in the side navigation.
 // Depending on the size of the application, this would be stored in a database.
 const links = [
-  { name: 'Home', href: '/dashboard', icon: HomeIcon, visible: ["admin", "pharmacist", "manager"], },
-  { name: 'Shifts', href: '/dashboard/shifts', icon: CalendarDaysIcon, visible: ["admin", "pharmacist", "manager"], },
+  { name: 'Home', href: '/dashboard', icon: HomeIcon, visible: ["admin", "relief_pharmacist", "pharmacy_manager", "location_manager"], },
+  { name: 'Shifts', href: '/dashboard/shifts', icon: CalendarDaysIcon, visible: ["admin","pharmacy_manager", "location_manager"], },
+  { name: 'Open Shifts', href: '/dashboard/openShifts', icon: CalendarDaysIcon, visible: ["relief_pharmacist"], },
+  { name: 'My Shifts', href: '/dashboard/myShifts', icon: CalendarDaysIcon, visible: [ "relief_pharmacist" ], },
   { name: 'Users', href: '/dashboard/list/users', icon: UserGroupIcon, visible: ["admin"], },
   { name: 'Pharmacists', href: '/dashboard/list/pharmacists', icon: UserIcon, visible: ["admin"], },
   { name: 'Companies', href: '/dashboard/list/companies', icon: BuildingOfficeIcon, visible: ["admin"], },
-  { name: 'Locations', href: '/dashboard/list/locations', icon: BuildingOffice2Icon, visible: ["admin", "manager"], },
+  { name: 'Locations', href: '/dashboard/list/locations', icon: BuildingOfficeIcon, visible: ["admin"], },
   {
     name: 'Reports',
     href: '/dashboard/reports',
@@ -34,18 +36,25 @@ const links = [
     name: 'Profile',
     href: '/dashboard/profile',
     icon: UserCircleIcon,
-    visible: ["admin", "pharmacist", "manager"],
+    visible: ["admin", "relief_pharmacist", "pharmacy_manager", "location_manager"],
   },
 ];
 
 export default function NavLinks() {
   const pathname = usePathname();
+  const { firebaseUser, appUser, loading } = useAuth();
+
+  if (loading) return <div>Loading...</div>;
+
+  if (!firebaseUser || !appUser) {
+    return null; // Prevent flicker before redirect
+  }
 
   return (
     <>
       {links.map((link) => {
         const LinkIcon = link.icon;
-        if(link.visible.includes(role)){
+        if(appUser.role && link.visible.includes(appUser.role)){ 
           return (
           <Link
             key={link.name}

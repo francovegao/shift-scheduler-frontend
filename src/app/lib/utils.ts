@@ -30,3 +30,40 @@ export const generatePagination = (currentPage: number, totalPages: number) => {
     totalPages,
   ];
 };
+
+// utility to format API shifts data into chart data
+export function formatShiftsData(apiData: { month: string; count: number }[]) {
+  // Months lookup
+  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  // Initialize all months with 0
+  const result = monthNames.map((name, i) => ({
+    month: name,
+    shifts: 0,
+    fill: i % 2 === 0 ? "#C3EBFA" : "#FAE27C", // alternating colors
+  }));
+
+  // Fill in real values from API
+  apiData.forEach(item => {
+    const date = new Date(item.month);
+    const monthIndex = date.getUTCMonth(); // 0-based
+    result[monthIndex].shifts = item.count;
+  });
+
+  return result;
+}
+
+export const getFullAddress = (
+  address: string | null | undefined,
+  city: string | null | undefined,
+  province: string | null | undefined,
+  postalCode: string | null | undefined, 
+) => {
+
+  if (!address && !city && !province && !postalCode) {
+    return "No address info";
+  }
+
+  const parts = [address, city, province, postalCode].filter(Boolean);
+  return parts.length > 0 ? parts.join(', ') : "No address info";
+};

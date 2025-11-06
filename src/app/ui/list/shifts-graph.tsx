@@ -1,8 +1,9 @@
 "use client";
 
+import { formatShiftsData } from '@/app/lib/utils';
 import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const data = [
+/*const data = [
   { month: "Jan", shifts: 1, fill: "#C3EBFA" },
   { month: "Feb", shifts: 3, fill: "#FAE27C" },
   { month: "Mar", shifts: 2, fill: "#C3EBFA" },
@@ -15,9 +16,15 @@ const data = [
   { month: "Oct", shifts: 0, fill: "#FAE27C" },
   { month: "Nov", shifts: 0, fill: "#C3EBFA" },
   { month: "Dec", shifts: 0, fill: "#FAE27C" },
-];
+];*/
 
-export default function ShiftsGraph() {
+export default function ShiftsGraph({
+  data,
+}:{
+  data?: { month: string; count: number }[];
+}) {
+    const chartData = data ? formatShiftsData(data) : [];
+
     return(
     <div className="bg-white p-4 rounded-md h-80">
       <div className="flex items-center justify-between">
@@ -27,7 +34,7 @@ export default function ShiftsGraph() {
         <BarChart
             width={500}
             height={300}
-            data={data}
+            data={chartData}
             margin={{
             top: 5,
             right: 30,

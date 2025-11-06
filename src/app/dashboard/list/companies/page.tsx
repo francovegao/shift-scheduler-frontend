@@ -1,18 +1,24 @@
-import { companiesData, fetchCompanies, fetchLocations, role } from "@/app/lib/data";
+"use client";
+
+import {  fetchCompanies, } from "@/app/lib/data";
 import { lusitana } from "@/app/ui/fonts";
-import { AddPharmacist, DeletePharmacist, UpdatePharmacist } from "@/app/ui/list/buttons";
-import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
-import TableSearch from "@/app/ui/table-search";
+import TableSearch from "@/app/ui/list/table-search";
 import Link from "next/link";
 import { EyeIcon } from "@heroicons/react/24/outline";
+import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
+import { useAuth } from "@/app/ui/context/auth-context";
+import { SetStateAction, useEffect, useState } from "react";
+import FormContainer from "@/app/ui/list/form-container";
 
 type Company = {
-    id: number,
+    id: string,
     approved: boolean,
     name: string,
+    legalName?: string,
+    GSTNumber?: string,
     email?: string,
     phone?: string,
     address?: string,
@@ -26,6 +32,11 @@ const columns = [
     header: "Info",
     accessor: "info",
     className: "px-4 py-5 font-medium sm:pl-6",
+  },
+  {
+    header: "GST Number",
+    accessor: "GSTNumber",
+    className: "hidden sm:table-cell px-3 py-5 font-medium",
   },
   {
     header: "Status",
@@ -69,6 +80,54 @@ const columns = [
   },
 ];
 
+
+
+export default function CompaniesList({
+  searchParams,
+  }:{
+    searchParams: { [key: string]: string | undefined} ;
+  }){
+    const { firebaseUser, appUser, loading } = useAuth();
+    const [isFetching, setIsFetching] = useState(true);
+    const [token, setToken] = useState("");
+    const [companies, setCompanies] = useState<any[]>([]);
+    const [totalPages, setTotalPages] = useState<number>(1);
+
+    const { page, query, ...queryParams } = searchParams;
+    const currentPage = page ? parseInt(page) : 1;
+    const search = query ? query : '';   
+
+    // Get token
+    useEffect(() => {
+      if (firebaseUser) {
+        firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
+          setToken(idToken);
+        });
+      }
+    }, [firebaseUser]);
+
+    // Fetch companies client-side
+    useEffect(() => {
+    const getCompanies = async () => {
+      setIsFetching(true);
+      try {
+        const companiesResponse = await fetchCompanies(search, currentPage, token);
+        setCompanies(companiesResponse?.data ?? []);
+        setTotalPages(companiesResponse?.meta?.totalPages ?? 1);
+      } catch (err) {
+        console.error("Failed to fetch companies", err);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+    if (token){ getCompanies() };
+   }, [token, search, currentPage, JSON.stringify(queryParams)]);
+    
+    if (loading || isFetching) return <div>Loading...</div>;
+    if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
+    
+    const role = appUser.role;
+
 const renderRow = (item: Company) => (
     <tr
       key={item.id}
@@ -77,8 +136,10 @@ const renderRow = (item: Company) => (
       <td className="flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex flex-col">
           <h3 className="font-semibold">{item.name}</h3>
+          <p className="text-xs text-gray-500">{item.legalName}</p>
         </div>
       </td>
+      <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">{item?.GSTNumber}</td>
       <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">
         <ApprovedStatus status={item.approved ? "approved":"pending"} />
       </td>
@@ -98,10 +159,8 @@ const renderRow = (item: Company) => (
           </Link>
           {role === "admin" && (
             <>
-              {/* <UpdatePharmacist id={item.id} /> */}
-              <FormModal table="company" type="update" id={item.id}/>
-              {/* <DeletePharmacist id={item.id} /> */}
-              <FormModal table="company" type="delete" id={item.id}/>
+              <FormContainer table="company" type="update" token={token} data={item}/>
+              <FormContainer table="company" type="delete" token={token} id={item.id}/>
             </>
           )}
         </div>
@@ -109,43 +168,31 @@ const renderRow = (item: Company) => (
     </tr>
   );
 
-export default async function CompaniesList({
-  searchParams,
-  }:{
-    searchParams: Promise< { [key: string]: string | undefined} >;
-  }){
-
-    const searchParameters = await searchParams;
-    const query = searchParameters?.query || '';
-    const currentPage = Number(searchParameters?.page) || 1;
-
-    const companiesResponse = await fetchCompanies(query, currentPage);
-    const companies = companiesResponse?.data;
-    const totalPages=companiesResponse.meta?.totalPages;
-
   return (
-    <div className="p-4 lg:p-8">
-        <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
-            Companies List
-        </h1>
-        <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-            {/* TOP */}
-            <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-                <TableSearch placeholder="Search companies..." />
-                {role === "admin" && (
-                //<AddPharmacist />
-                <FormModal table="company" type="create" />
-                )}
-            </div>
-            {/* LIST */}
-            <div style={{overflowX: 'scroll'}}>
-                <Table columns={columns} renderRow={renderRow} data={companies}/>
-            </div>
-            {/* PAGINATION */}
-            <div className="mt-5 flex w-full justify-center">
-                <Pagination totalPages={totalPages} />
-            </div>
-        </div>
-    </div>
+    <AuthWrapper allowedRoles={["admin"]}>
+      <div className="p-4 lg:p-8">
+          <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
+              Companies List
+          </h1>
+          <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
+              {/* TOP */}
+              <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+                  <TableSearch placeholder="Search companies..." />
+                  {role === "admin" && (
+                  //<AddPharmacist />
+                  <FormContainer table="company" type="create"  token={token}/>
+                  )}
+              </div>
+              {/* LIST */}
+              <div style={{overflowX: 'scroll'}}>
+                  <Table columns={columns} renderRow={renderRow} data={companies}/>
+              </div>
+              {/* PAGINATION */}
+              <div className="mt-5 flex w-full justify-center">
+                  <Pagination totalPages={totalPages} />
+              </div>
+          </div>
+      </div>
+    </AuthWrapper>
   );
 }
