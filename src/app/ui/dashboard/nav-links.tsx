@@ -25,6 +25,7 @@ const links = [
   { name: 'Users', href: '/dashboard/list/users', icon: UserGroupIcon, visible: ["admin"], },
   { name: 'Pharmacists', href: '/dashboard/list/pharmacists', icon: UserIcon, visible: ["admin"], },
   { name: 'Companies', href: '/dashboard/list/companies', icon: BuildingOfficeIcon, visible: ["admin"], },
+  { name: 'Locations', href: '/dashboard/list/locations', icon: BuildingOfficeIcon, visible: ["admin"], },
   {
     name: 'Reports',
     href: '/dashboard/reports',
