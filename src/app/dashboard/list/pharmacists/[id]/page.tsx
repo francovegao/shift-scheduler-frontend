@@ -6,7 +6,7 @@ import {
     IdentificationIcon, MapPinIcon, CheckCircleIcon,
     ClockIcon, BuildingStorefrontIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState, use } from "react";
 import { useAuth } from "@/app/ui/context/auth-context";
 import { fetchOnePharmacist } from "@/app/lib/data";
 import FormContainer from "@/app/ui/list/form-container";
@@ -15,10 +15,12 @@ import { getFullAddress } from "@/app/lib/utils";
 import { notFound } from "next/navigation";
 
 export default function SinglePharmacistPage({
-    params: { id },
+    params,
 }:{
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }) {
+    const { id } = use(params);
+
     const { firebaseUser, appUser, loading } = useAuth();
     const [isFetching, setIsFetching] = useState(true);
     const [token, setToken] = useState("");

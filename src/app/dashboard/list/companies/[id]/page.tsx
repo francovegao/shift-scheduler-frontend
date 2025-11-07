@@ -9,7 +9,7 @@ import {
     BuildingOfficeIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useAuth } from "@/app/ui/context/auth-context";
-import { SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState, use } from "react";
 import FormContainer from "@/app/ui/list/form-container";
 import { fetchOneCompany } from "@/app/lib/data";
 import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
@@ -17,10 +17,12 @@ import { getFullAddress } from "@/app/lib/utils";
 import { notFound } from 'next/navigation';
 
 export default function SingleLocationPage({
-    params: { id },
+    params,
 }:{
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }) {
+    const { id } = use(params);
+
     const { firebaseUser, appUser, loading } = useAuth();
     const [isFetching, setIsFetching] = useState(true);
     const [token, setToken] = useState("");

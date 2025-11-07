@@ -8,7 +8,7 @@ import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
 export default async function PharmacistPage({
   searchParams,
 }:{
-  searchParams: { [keys: string]: string | undefined};
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
 
   return (
