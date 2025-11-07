@@ -24,7 +24,7 @@ export default async function SinglePharmacistPage() {
                     <div className="w-2/3 flex flex-col justify-between gap-4">
                         <div className="flex items-center gap-4">
                             <h1 className="text-xl font-semibold">Leonard Snyder</h1>
-                            <FormModal
+                            {/* <FormModal
                                 table="pharmacist"
                                 type="update"
                                 data={{
@@ -43,7 +43,7 @@ export default async function SinglePharmacistPage() {
                                     experienceYears: 9,
                                     approved: true,
                                 }}
-                            />
+                            /> */}
                         </div>
                         <p className="text-sm text-gray-500">
                             Lorem ipsum, dolor sit amet consectetyr adipisicing elit.
@@ -107,7 +107,7 @@ export default async function SinglePharmacistPage() {
             {/* BOTTOM */}
             <div className="mt-4 rounded-md p-4 h-[800px]">
                <h1 className="text-xl font-semibold">Pharmacist&apos;s Schedule</h1>
-               <BigCalendar />
+               {/* <BigCalendar /> */}
             </div>
         </div>
         {/* RIGHT */}
