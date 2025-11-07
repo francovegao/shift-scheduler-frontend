@@ -5,7 +5,6 @@ import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import { lusitana } from "@/app/ui/fonts";
 import FormContainer from "@/app/ui/list/form-container";
-import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
 import RelatedDataModal from "@/app/ui/list/related-data-modal";
 import ApprovedStatus from "@/app/ui/list/status";
@@ -13,7 +12,7 @@ import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/list/table-search";
 import { EyeIcon } from "@heroicons/react/16/solid";
 import Link from "next/link";
-import { SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState, use } from "react";
 
 type UserList = User & { company: Company } & { location: Location } & { pharmacistProfile: PharmacistProfile };
 
@@ -95,7 +94,7 @@ const columns = [
 export default function UsersList({
   searchParams,
   }:{
-    searchParams: { [key: string]: string | undefined} ;
+    searchParams: Promise<{ [key: string]: string | undefined }>;
   }){
     const { firebaseUser, appUser, loading } = useAuth();
     const [isFetching, setIsFetching] = useState(true);
@@ -104,7 +103,7 @@ export default function UsersList({
     const [totalPages, setTotalPages] = useState<number>(1);
     
 
-    const { page, query, ...queryParams } =  searchParams;
+    const { page, query, ...queryParams } =  use(searchParams);
     const currentPage = page ? parseInt(page) : 1;
     const search = query ? query : ''; 
 

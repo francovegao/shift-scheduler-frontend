@@ -10,7 +10,7 @@ import Link from "next/link";
 import { EyeIcon } from "@heroicons/react/24/outline";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
-import { SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState, use } from "react";
 import FormContainer from "@/app/ui/list/form-container";
 
 type Company = {
@@ -85,7 +85,7 @@ const columns = [
 export default function CompaniesList({
   searchParams,
   }:{
-    searchParams: { [key: string]: string | undefined} ;
+    searchParams: Promise<{ [key: string]: string | undefined }>;
   }){
     const { firebaseUser, appUser, loading } = useAuth();
     const [isFetching, setIsFetching] = useState(true);
@@ -93,7 +93,7 @@ export default function CompaniesList({
     const [companies, setCompanies] = useState<any[]>([]);
     const [totalPages, setTotalPages] = useState<number>(1);
 
-    const { page, query, ...queryParams } = searchParams;
+    const { page, query, ...queryParams } = use(searchParams);
     const currentPage = page ? parseInt(page) : 1;
     const search = query ? query : '';   
 
