@@ -48,15 +48,13 @@ export default function LocationForm({
         formAction(data)
       });
 
-      const router = useRouter();
-
       useEffect(() => {
         if (state.success) {
           toast(`Location has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
           setOpen(false);
-          router.refresh();
+          window.location.reload();
         }
-      }, [state, router, type, setOpen])
+      }, [state, type, setOpen])
 
       const {companies} = relatedData;
 
