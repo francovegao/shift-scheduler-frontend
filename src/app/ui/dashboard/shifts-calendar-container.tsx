@@ -6,7 +6,7 @@ import Link from "next/link";
 export default async function ShiftsCalendarContainer({
   searchParams,
 }:{
-  searchParams: { [keys: string]: string | undefined};
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const {date} = await searchParams;
 
@@ -20,7 +20,7 @@ export default async function ShiftsCalendarContainer({
             <Link href='/dashboard/openShifts' className="text-gray-500 text-xs hover:bg-gray-100 hover:text-blue-600" >View All</Link>
         </div>
         <div className="flex flex-col gap-4">
-            <ShiftsCalendarList dateParam={date} />
+            <ShiftsCalendarList dateParam={date as string} />
         </div>
         <Link href='/dashboard/openShifts' className="text-gray-500 text-xs hover:bg-gray-100 hover:text-blue-600" >Click Here to view the complete list of open shifts</Link>
     </div>

@@ -8,7 +8,7 @@ import Notifications from '@/app/ui/dashboard/notifications';
 export default async function AdminPage({
   searchParams,
 }:{
-  searchParams: { [keys: string]: string | undefined};
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
 
   return (
