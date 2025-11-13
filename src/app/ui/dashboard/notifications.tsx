@@ -6,6 +6,7 @@ import { markAsReadNotification } from "@/app/lib/actions";
 import { fetchUnseenNotifications } from "@/app/lib/data";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 
 export default function Notifications() {
   const { firebaseUser, appUser, loading } = useAuth();
@@ -84,7 +85,7 @@ export default function Notifications() {
 
     // Common link properties
     const commonLinkProps = {
-      className: "text-sm text-blue-600 mt-1"
+      className: "text-sm text-blue-600 mt-1 hover:bg-blue-300"
     };
 
     if (role === "pharmacy_manager") {
@@ -108,18 +109,18 @@ export default function Notifications() {
     <div className="w-full md:col-span-4 ">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Notifications</h1>
-        <span className="text-xs text-gray-400">View All</span>
+        <span className="text-xs text-gray-500">View All</span>
       </div>
       <div className="flex flex-col gap-4 mt-4 bg-white p-4 rounded-md shadow-sm">
         {notifications.slice(0, visibleCount).map((item) => (
-          <div className=" odd:bg-blue-100 even:bg-purple-100 rounded-md p-4">
+          <div className="text-white odd:bg-complementary-one even:bg-complementary-two rounded-md p-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-medium">{item.title}</h2>
-              <span className="text-xs text-gray-400 bg-white rounded-md px-1 py-1">
+              <h2 className="font-semibold">{item.title}</h2>
+              <span className="text-xs rounded-md px-1 py-1">
                 {getTimeAgo(item.createdAt)}
               </span>
             </div>
-            <p className="text-sm text-gray-700 mt-1">
+            <p className="text-sm font-medium mt-1">
               {item.message}
             </p>
             <div>
@@ -127,7 +128,7 @@ export default function Notifications() {
             </div>
             <button
               onClick={() => markAsRead(item.id)}
-              className="mt-2 text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+              className="mt-2 text-sm bg-secondary text-white px-2 py-1 rounded hover:bg-secondary-100"
             >
               Mark as Read
             </button>
@@ -137,7 +138,13 @@ export default function Notifications() {
         {notifications.length === 0 && (
           <p className="text-gray-400 text-center">No notifications 🎉</p>
         )}
+
+        <div className="flex items-center pb-1 pt-2 px-1 text-gray-500">
+          <ArrowPathIcon className="h-5 w-5" />
+          <h3 className="ml-2 text-sm">Updated just now</h3>
+        </div>
       </div>
+
     </div>
   );
 };

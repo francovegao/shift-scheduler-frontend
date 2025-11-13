@@ -4,7 +4,6 @@ import { fetchPharmacists } from "@/app/lib/data";
 import { getFullAddress } from "@/app/lib/utils";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
-import { lusitana } from "@/app/ui/fonts";
 import FormContainer from "@/app/ui/list/form-container";
 import Pagination from "@/app/ui/list/pagination";
 import RelatedDataModal from "@/app/ui/list/related-data-modal";
@@ -231,7 +230,7 @@ export default function PharmacistsList({
   return (
     <AuthWrapper allowedRoles={["admin"]}>
       <div className="p-4 lg:p-8">
-          <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
+          <h1 className={`font-bold mb-4 text-xl md:text-2xl`}>
               Pharmacists List
           </h1>
           <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">

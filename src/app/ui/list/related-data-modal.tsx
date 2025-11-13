@@ -6,6 +6,7 @@ import {useState } from 'react';
 import LinkManagerToCompanyForm from '../forms/pharmacies/link-manager-to-company-form';
 import SelectAllowedCompaniesForm from '../forms/pharmacies/select-allowed-companies-form';
 import PharmacistForm from '../forms/pharmacists/pharmacist-form';
+import LinkManagerToLocationForm from '../forms/pharmacies/link-manager-to-location-form';
 
 export default function RelatedDataModal({ 
   type, token, data, id 
@@ -23,6 +24,10 @@ export default function RelatedDataModal({
     return type === "link_company" && id ? (
       <div>
         <LinkManagerToCompanyForm token={token} setOpen={setOpen} userId={id}/>
+      </div>
+    ) : type === "link_location" && id ? (
+      <div>
+        <LinkManagerToLocationForm token={token} setOpen={setOpen} userId={id}/>
       </div>
     ) : type === "link_pharmacist_profile" && id ? (  
         <div>

@@ -1,7 +1,6 @@
 "use client";
 
 import {  fetchCompanies, } from "@/app/lib/data";
-import { lusitana } from "@/app/ui/fonts";
 import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
@@ -171,7 +170,7 @@ const renderRow = (item: Company) => (
   return (
     <AuthWrapper allowedRoles={["admin"]}>
       <div className="p-4 lg:p-8">
-          <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
+          <h1 className={`font-bold mb-4 text-xl md:text-2xl`}>
               Companies List
           </h1>
           <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">

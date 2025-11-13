@@ -5,7 +5,6 @@ import { getFullAddress } from "@/app/lib/utils";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import BigCalendar from "@/app/ui/dashboard/big-calendar";
-import { lusitana } from "@/app/ui/fonts";
 import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
@@ -260,7 +259,7 @@ export default function OpenShiftsList(){
   return (
     <AuthWrapper allowedRoles={["admin", "pharmacy_manager", "location_manager", "relief_pharmacist"]}>
       <div className="p-4 lg:p-8">
-        <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
+        <h1 className={`font-semibold mb-4 text-xl md:text-2xl`}>
           Open Shifts List
         </h1>
         <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">

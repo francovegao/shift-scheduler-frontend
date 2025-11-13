@@ -65,10 +65,10 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-blue-100 p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-stone-100 p-4">
       <div className="w-full max-w-sm p-8 bg-white rounded-md shadow-2xl flex flex-col gap-6">
          <div className="flex justify-center mb-4">
-            <div className="w-48 md:w-64 text-white flex rounded-md bg-blue-600">
+            <div className="w-48 md:w-64 text-white flex rounded-md bg-primary">
               <SchedulerLogo />
             </div>
           </div>
@@ -103,7 +103,7 @@ export default function Home() {
             {errorMessage && <p className="text-sm text-red-400 text-center">{errorMessage}</p>}
 
             <button
-                className="w-full h-12 rounded-full text-white bg-blue-600 font-medium text-base transition-colors hover:bg-blue-700"
+                className="w-full h-12 rounded-full text-white bg-primary font-medium text-base transition-colors hover:bg-primary-100"
                 type="submit"
               >
                 Log In

@@ -83,7 +83,7 @@ export default function PharmacistForm({
           <p className="font-semibold">Or add them later in the pharmacist profile page</p>
         </div>
       ) : (
-        <form className="flex flex-col gap-8" onSubmit={onSubmit}>
+        <form className="flex flex-col gap-8 text-black" onSubmit={onSubmit}>
           <h1 className="text-xl font-semibold">{type === "create" ? "Create a New Pharmacist Profile" : "Update Pharmacist Profile"}</h1>
             {data && (
             <InputField
@@ -239,7 +239,7 @@ export default function PharmacistForm({
             />
            </div>
            {state.error && <span className="text-red-500">Something went wrong!</span>}
-          <button className="bg-blue-400 text-white p-2 rounded-md">
+          <button className="bg-primary text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer">
             {type === "create" ? "Create" : "Update"}
           </button>
         </form>

@@ -46,8 +46,8 @@ export default function ShiftInfoModal({
     }
         
     return(
-      <form className='p-4 flex flex-col gap-4' onSubmit={onSubmit} >   
-        <h1 className="text-xl font-semibold">View Shift Info</h1>
+      <form className='p-4 flex flex-col gap-4 text-primary' onSubmit={onSubmit} >   
+        <h1 className="text-xl font-semibold">Shift Info</h1>
         <div className="flex justify-around flex-wrap gap-4 mb-4">
           <div>
             <h2 className="text-gray-400 font-medium mb-2">Location Information</h2>

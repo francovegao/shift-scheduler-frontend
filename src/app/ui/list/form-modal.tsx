@@ -79,7 +79,7 @@ export default function FormModal({
           <span className="text-center font-medium">This will delete the selected pharmacist profile, but not the user.</span>
         )}
         <span className="text-center font-medium">This action cannot be undone!</span>
-        <button type="submit" className="bg-red-500 text-white py-2 px-4 rounded-md border-none w-max self-center">
+        <button type="submit" className="bg-complementary-one text-white p-2 rounded-md hover:bg-complementary-one-100 cursor-pointer">
           Delete
         </button>
         {state.error && <span className="text-red-500 text-center">Something went wrong!</span>}
@@ -97,7 +97,7 @@ export default function FormModal({
           className={clsx(
           'rounded-md cursor-pointer',
           {
-            'flex h-10 items-center bg-blue-600 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
+            'flex h-10 items-center bg-primary px-4 text-sm font-medium text-white transition-colors hover:bg-primary-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
             : type === 'create',
             'border p-2 hover:bg-gray-200': type === 'update',
             'p-2 border hover:bg-gray-200': type === 'delete',
@@ -126,7 +126,7 @@ export default function FormModal({
           <div className="w-screen h-screen absolute left-0 top-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
             <div className='bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] max-h-9/10 overflow-y-scroll'>
               <Form />
-              <div className='absolute top-4 right-4 cursor-pointer' onClick={()=>setOpen(false)}>
+              <div className='absolute top-4 right-4 cursor-pointer text-black' onClick={()=>setOpen(false)}>
                 <XMarkIcon className='w-6' />
               </div>
 

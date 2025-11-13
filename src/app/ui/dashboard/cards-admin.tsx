@@ -6,7 +6,6 @@ import {
   BuildingOfficeIcon,
   UserIcon,
 } from '@heroicons/react/24/outline';
-import { lusitana } from '@/app/ui/fonts';
 import { fetchAdminCardsData } from '@/app/lib/data';
 import { useAuth } from '../context/auth-context';
 import { SetStateAction, useEffect, useState } from 'react';
@@ -60,10 +59,10 @@ export default function CardWrapperAdmin() {
   
   return (
     <>
-      <Card title="Pharmacists" value={pharmacists} type="pharmacists" />
-      <Card title="Companies" value={companies} type="companies" />
-      <Card title="Locations" value={locations} type="locations" />
-      <Card title="Shifts" value={shifts} type="shifts"/>
+      <Card title="Pharmacists" value={pharmacists} type="pharmacists" backgroundColor='bg-complementary-two' />
+      <Card title="Companies" value={companies} type="companies" backgroundColor='bg-primary' />
+      <Card title="Locations" value={locations} type="locations" backgroundColor='bg-secondary'/>
+      <Card title="Shifts" value={shifts} type="shifts" backgroundColor='bg-complementary-one'/>
     </>
   );
 }
@@ -72,23 +71,22 @@ export function Card({
   title,
   value,
   type,
+  backgroundColor,
 }: {
   title: string;
   value: number | string;
   type: 'pharmacists' | 'companies' | 'locations' | 'shifts';
+  backgroundColor?: string;
 }) {
   const Icon = iconMap[type];
 
   return (
-    <div className="rounded-xl bg-gray-50 p-2 shadow-sm flex-1">
+    <div className={`rounded-xl p-2 shadow-sm flex-1 text-white ${backgroundColor}`}>
       <div className="flex p-4">
-        {Icon ? <Icon className="h-5 w-5 text-gray-700" /> : null}
-        <h3 className="ml-2 text-sm font-medium">{title}</h3>
+        {Icon ? <Icon className="h-5 w-5 mt-1 text-white" /> : null}
+        <h3 className="ml-2 text-md font-semibold">{title}</h3>
       </div>
-      <p
-        className={`${lusitana.className}
-          truncate rounded-xl bg-white px-4 py-8 text-center text-2xl`}
-      >
+      <p className={`text-black truncate rounded-xl bg-white px-4 py-8 text-center text-2xl font-bold`}>
         {value}
       </p>
     </div>

@@ -21,6 +21,14 @@ export const linkManagerToCompanySchema = z.object({
 
 export type LinkManagerToCompanySchema = z.infer<typeof linkManagerToCompanySchema>;
 
+export const linkManagerToLocationSchema = z.object({
+    id: z.string({message: "User is required!"}),
+    companyId: z.string({message: "Company is required, Please select one!"}),
+    locationId: z.string({message: "Location is required, Please select one!"}),
+});
+
+export type LinkManagerToLocationSchema = z.infer<typeof linkManagerToLocationSchema>;
+
 export const companySchema = z.object({
     id: z.string().optional(),
     approved: z.coerce.boolean({message: "Status is required."}),

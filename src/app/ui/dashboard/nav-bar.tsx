@@ -21,7 +21,7 @@ export default function NavBar() {
       </div>*/}
       {/* ICONS AND USER */}
       <div className='flex items-center gap-6 justify-end w-full'>
-        <div className='bg-white rounded-full w-7 h-7 flex items-center justify-center cursor-pointer relative'>
+        <div className=' rounded-full w-7 h-7 flex items-center justify-center cursor-pointer relative hover:bg-sky-100 hover:text-primary'>
           <BellIcon className="w-20" />
           <div className='absolute -top-3 -right-3 w-5 h-5 flex items-center justify-center bg--500 text-white rounded-full text-xs'>1</div>
         </div>
@@ -29,7 +29,7 @@ export default function NavBar() {
           <span className="text-xs leading-3 font-medium">{appUser.firstName} {appUser.lastName}</span>
           <span className="text-[10px] text-gray-500 text-right">{appUser.role}</span>
         </div>
-        <UserCircleIcon className="w-7 h-7" />
+        <UserCircleIcon className="w-7 h-7 cursor-pointer relative hover:bg-sky-100 hover:text-primary" />
       </div>
     </div>
   )

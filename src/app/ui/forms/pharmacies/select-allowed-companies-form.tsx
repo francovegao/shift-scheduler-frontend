@@ -146,7 +146,7 @@ export default function SelectAllowedCompaniesForm({
             {errors.companiesArray?.message.toString()}
           </p>
         )}
-        <button type="submit" className="bg-green-500 text-white py-2 px-4 rounded-md border-none w-max self-center">
+        <button type="submit" className="bg-primary text-white py-2 px-4 rounded-md border-none w-max self-center hover:bg-primary-100 cursor-pointer">
           Save Allowed Pharmacies
         </button>
         {state.error && <span className="text-red-500 text-center">Something went wrong!</span>}

@@ -69,13 +69,13 @@ export default function SingleLocationPage({
             {/* TOP */}
             <div className="flex flex-col lg:flex-row gap-4">
                 {/* USER INFO CARD */}
-                <div className="bg-blue-200 py-6 px-4 rounded-md flex-1 flex gap-4">
+                <div className="bg-primary text-white py-6 px-4 rounded-md flex-1 flex gap-4">
                     <div className="w-1/3">
-                        <BuildingStorefrontIcon className="w-36 h-36 text-gray-600" />
+                        <BuildingStorefrontIcon className="w-36 h-36" />
                     </div>
                     <div className="w-2/3 flex flex-col justify-between gap-4">
                         <div className="flex items-center gap-4">
-                            <h1 className="text-xl font-semibold">{location?.name }</h1>
+                            <h2 className="text-xl font-semibold">{location?.name }</h2>
                             {role === "admin" && (
                                 <FormContainer
                                     table="location"
@@ -85,7 +85,7 @@ export default function SingleLocationPage({
                                 />
                             )}
                         </div>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm">
                             {location.company.approved ? "Approved: This location can post shifts" : "Not Approved: This location can't post shifts"}
                         </p>
                         <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
@@ -109,37 +109,37 @@ export default function SingleLocationPage({
                     </div>
                 </div>
                 {/* SMALL CARDS */}
-                <div className="flex-1 flex gap-4 justify-between flex-wrap">
+                <div className="flex-1 flex gap-4 justify-between flex-wrap text-white">
                     {/* CARD */}
-                    <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+                    <div className="bg-complementary-two p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <CalendarIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">{counts?.totalOpen || "0"}</h1>
-                            <span className="text-sm text-gray-400">Open Shifts</span>
+                            <h2 className="text-xl font-semibold">{counts?.totalOpen || "0"}</h2>
+                            <span className="text-sm">Open Shifts</span>
                         </div>
                     </div>
                     {/* CARD */}
-                    <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+                    <div className="bg-primary p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <ClockIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">{counts?.totalTaken || "0"}</h1>
-                            <span className="text-sm text-gray-400">Scheduled Shifts</span>
+                            <h2 className="text-xl font-semibold">{counts?.totalTaken || "0"}</h2>
+                            <span className="text-sm">Scheduled Shifts</span>
                         </div>
                     </div>
                     {/* CARD */}
-                    <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+                    <div className="bg-secondary p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <XCircleIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">{counts?.totalCompleted || "0"}</h1>
-                            <span className="text-sm text-gray-400">Completed Shifts</span>
+                            <h2 className="text-xl font-semibold">{counts?.totalCompleted || "0"}</h2>
+                            <span className="text-sm">Completed Shifts</span>
                         </div>
                     </div>
                     {/* CARD */}
-                    <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+                    <div className="bg-complementary-one p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <CheckCircleIcon className="w-6 h-6" />
                         <div className="">
-                            <h1 className="text-xl font-semibold">{counts?.totalCancelled || "0"}</h1>
-                            <span className="text-sm text-gray-400">Cancelled Shifts</span>
+                            <h2 className="text-xl font-semibold">{counts?.totalCancelled || "0"}</h2>
+                            <span className="text-sm">Cancelled Shifts</span>
                         </div>
                     </div>
                 </div>
@@ -154,12 +154,12 @@ export default function SingleLocationPage({
         <div className="w-full xl:w-1/3 flex flex-col gap-4">
             <div className="bg-white p-4 rounded-md">
                 <h1 className="text-xl font-semibold">Shortcuts</h1>
-                <div className="mt-4 flex gap-4 flex-wrap text-xs text-gray-500">
-                    <Link className="p-3 rounded-md bg-blue-50" href={`/dashboard/shifts?locationId=${id}`}>Location&apos;s Shifts</Link>
-                    <Link className="p-3 rounded-md bg-purple-50" href={`/dashboard/list/users?locationId=${id}`}>Location&apos;s Managers</Link>
-                    <Link className="p-3 rounded-md bg-yellow-50" href="/">Location&apos;s Reports</Link>
-                    <Link className="p-3 rounded-md bg-pink-50" href="/">Location&apos;s Files</Link>
-                    <Link className="p-3 rounded-md bg-blue-50" href="/">Location&apos;s Notifications</Link>
+                <div className="mt-4 flex gap-4 flex-wrap text-xs text-white font-medium">
+                    <Link className="p-3 rounded-md bg-secondary" href={`/dashboard/shifts?locationId=${id}`}>Location&apos;s Shifts</Link>
+                    <Link className="p-3 rounded-md bg-complementary-one" href={`/dashboard/list/users?locationId=${id}`}>Location&apos;s Managers</Link>
+                    <Link className="p-3 rounded-md bg-complementary-two" href="/">Location&apos;s Reports</Link>
+                    <Link className="p-3 rounded-md bg-secondary" href="/">Location&apos;s Files</Link>
+                    <Link className="p-3 rounded-md bg-complementary-one" href="/">Location&apos;s Notifications</Link>
                 </div>
             </div>
             <ShiftsGraph data={counts?.monthlyCounts} />

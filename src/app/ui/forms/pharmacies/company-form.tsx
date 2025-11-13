@@ -58,7 +58,7 @@ export default function CompanyForm({
 
 
     return(
-        <form className="flex flex-col gap-8" onSubmit={onSubmit}>
+        <form className="flex flex-col gap-8 text-black" onSubmit={onSubmit}>
           <h1 className="text-xl font-semibold">{type === "create" ? "Create a new company" : "Update company"}</h1>
           <span className="text-xs text-gray-400 font-medium">
             Account Information
@@ -181,7 +181,7 @@ export default function CompanyForm({
             />
             </div>
             {state.error && <span className="text-red-500">Something went wrong!</span>}
-          <button className="bg-blue-400 text-white p-2 rounded-md">
+          <button className="bg-primary text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer">
             {type === "create" ? "Create" : "Update"}
           </button>
         </form>

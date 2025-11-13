@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from "next/navigation";
-import { useEffect, useReducer, useState } from "react"
+import { useEffect, useState } from "react"
 import Calendar from "react-calendar"
 import 'react-calendar/dist/Calendar.css';
 
@@ -17,7 +17,7 @@ export default function ShiftsCalendar() {
 
     useEffect(() => {
       if(value instanceof Date){
-        router.push(`?date=${value}`);
+        router.push(`?date=${value}`, { scroll: false });
       } 
     }, [value, router]);
 

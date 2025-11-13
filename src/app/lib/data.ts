@@ -98,6 +98,35 @@ export async function fetchAllCompanies(token: string) {
   }
 }
 
+export async function fetchAllLocations(token: string) {
+  try {
+    console.log('Fetching locations data...');
+
+    const url = new URL(`${STAGING_URL}/locations`);
+    //url.searchParams.append('search', query);
+    //url.searchParams.append('page', currentPage.toString());
+    url.searchParams.append('limit', '1000');   //Limit to 1000 companies
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    //throw new Error('Failed to fetch companies');
+    return null;
+  }
+}
+
 export async function fetchShifts(query: string, currentPage: number, queryParams: Object, token: string) {
   try {
     console.log('Fetching shifts data... ');

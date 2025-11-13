@@ -3,7 +3,6 @@
 import { fetchUsers } from "@/app/lib/data";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
-import { lusitana } from "@/app/ui/fonts";
 import FormContainer from "@/app/ui/list/form-container";
 import Pagination from "@/app/ui/list/pagination";
 import RelatedDataModal from "@/app/ui/list/related-data-modal";
@@ -162,7 +161,7 @@ const renderRow = (item: UserList) => (
         {item.role}
       </td>
       <td className="flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
-        {(item.role === "pharmacy_manager" || item.role === "location_manager") && (
+        {(item.role === "pharmacy_manager") && (
           <div className="flex flex-col">
             {item?.company ? (
               <>
@@ -171,6 +170,18 @@ const renderRow = (item: UserList) => (
             </>
             ) : (
              <RelatedDataModal type="link_company" token={token} id={item.id}/> 
+            )}
+          </div>
+        )}
+        {( item.role === "location_manager") && (
+          <div className="flex flex-col">
+            {item?.company ? (
+              <>
+            <h3 className="font-semibold">{item?.location?.name}</h3>
+            <p className="text-xs text-gray-500">{item?.company?.name}</p>
+            </>
+            ) : (
+             <RelatedDataModal type="link_location" token={token} id={item.id}/> 
             )}
           </div>
         )}
@@ -210,7 +221,7 @@ const renderRow = (item: UserList) => (
   return (
     <AuthWrapper allowedRoles={["admin"]}>
       <div className="p-4 lg:p-8">
-          <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
+          <h1 className={`font-bold mb-4 text-xl md:text-2xl`}>
               Users List
           </h1>
           <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">

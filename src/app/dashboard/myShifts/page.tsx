@@ -5,7 +5,6 @@ import { getFullAddress } from "@/app/lib/utils";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
-import { lusitana } from "@/app/ui/fonts";
 import FilterDate from "@/app/ui/list/filter-date";
 import FilterShiftStatus from "@/app/ui/list/filter-shift-status";
 import FormModal from "@/app/ui/list/form-modal";
@@ -241,7 +240,7 @@ export default function PharmacistShiftsList(){
   return (
     <AuthWrapper allowedRoles={["admin", "pharmacy_manager", "location_manager", "relief_pharmacist"]}>
       <div className="p-4 lg:p-8">
-        <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
+        <h1 className={`font-semibold mb-4 text-xl md:text-2xl`}>
           My Shifts
         </h1>
         <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">

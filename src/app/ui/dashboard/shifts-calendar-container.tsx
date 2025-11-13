@@ -1,4 +1,3 @@
-import { EllipsisHorizontalIcon } from "@heroicons/react/24/outline";
 import ShiftsCalendar from "./shifts-calendar";
 import ShiftsCalendarList from "./shifts-calendar-list";
 import Link from "next/link";
@@ -13,7 +12,7 @@ export default async function ShiftsCalendarContainer({
   return (
     <div className="w-full md:col-span-4 bg-white pb-4 px-4 rounded-md shadow-sm">
       <h1 className="text-xl font-semibold my-4">View Open Shifts</h1>
-      <p>Select a date to view the corresponding open shifts</p>
+      <p className="text-xs">Select a date to view the corresponding open shifts</p>
         <ShiftsCalendar />
         <div className="flex items-center justify-between">
             <h1 className="text-xl font-semibold my-4">Shifts</h1>

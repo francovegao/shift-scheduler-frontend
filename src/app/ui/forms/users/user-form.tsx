@@ -55,7 +55,7 @@ export default function UserForm({
       }, [state, type, setOpen])
 
     return(
-        <form className="flex flex-col gap-8" onSubmit={onSubmit}>
+        <form className="flex flex-col gap-8 text-black" onSubmit={onSubmit}>
           <h1 className="text-xl font-semibold">{type === "create" ? "Create a new user" : "Update user"}</h1>
           <span className="text-xs text-gray-400 font-medium">
             User Information
@@ -82,7 +82,7 @@ export default function UserForm({
                   <option value=""></option>
                   <option value="relief_pharmacist">Relief Pharmacist</option>
                   <option value="pharmacy_manager">Pharmacy Manager</option>
-                  {/* <option value="location_manager">Location Manager</option> */}
+                  <option value="location_manager">Location Manager</option>
                   <option value="admin">Administrator</option>
                 </select>
                 {errors.role?.message && ( 
@@ -162,7 +162,7 @@ export default function UserForm({
             </div>*/}
            </div>
            {state.error && <span className="text-red-500">Something went wrong!</span>}
-          <button className="bg-blue-400 text-white p-2 rounded-md">
+          <button className="bg-primary text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer">
             {type === "create" ? "Create" : "Update"}
           </button>
         </form>

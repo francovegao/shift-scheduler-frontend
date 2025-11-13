@@ -1,11 +1,12 @@
 "use client";
 
-import { ArrowPathIcon } from '@heroicons/react/24/outline';
-import { lusitana } from '@/app/ui/fonts';
+import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../context/auth-context';
 import { SetStateAction, useEffect, useState } from 'react';
 import { fetchLatestShifts } from '@/app/lib/data';
 import ApprovedStatus from '../list/status';
+import ShiftInfoModal from '../list/shift-info-modal';
+import Link from 'next/link';
 
 const DateFormat = {
   year: 'numeric',
@@ -24,6 +25,8 @@ const TimeFormat = {
     const [isFetching, setIsFetching] = useState(true);
     const [token, setToken] = useState("");
     const [latestShifts, setLatestShifts] = useState<any[]>([]);
+
+    const [openEventId, setOpenEventId] = useState(null);
 
     // Get token
       useEffect(() => {
@@ -53,13 +56,20 @@ const TimeFormat = {
     if (loading || isFetching) return <div>Loading...</div>;
     if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
 
+    const role = appUser.role;
+
+    const handleSelectEvent = (eventId: SetStateAction<null>) => {
+      setOpenEventId(eventId);
+    };
+
   return (
-    <div className="flex w-full flex-col md:col-span-4">
-      <h2 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
-        Latest Shifts
-      </h2>
-      <div className="flex grow flex-col justify-between rounded-md bg-gray-50">
-        <div className="bg-white divide-y rounded-md shadow-sm">
+    <div className="flex w-full flex-col md:col-span-4 rounded-md">
+        <div className="flex items-center justify-between mt-2 mb-4">
+          <h1 className="text-xl font-semibold">Latest Posted Shifts</h1>
+          <Link href='/dashboard/shifts' className="text-gray-500 text-xs hover:bg-gray-100 hover:text-blue-600" >View All</Link>
+        </div>
+      <div className="flex grow flex-col justify-between rounded-md shadow-sm bg-white">
+        <div className="bg-white divide-y-4 rounded-md p-4">
           {latestShifts.length === 0 && (
             <p className="text-gray-500 text-center py-6">
               No recent shifts available.
@@ -68,8 +78,9 @@ const TimeFormat = {
 
           {latestShifts.slice(0, 5).map((item) => (
             <div
+              onClick={() => handleSelectEvent(item.id)}
               key={item.id}
-              className="flex flex-row items-center justify-between p-4 hover:bg-gray-50 transition"
+              className="flex flex-row items-center rounded-md justify-between p-4  transition text-white odd:bg-primary even:bg-secondary odd:hover:bg-primary-100 even:hover:bg-secondary-100"
             >
               <div className="flex flex-col">
                 {item.location ? (
@@ -77,14 +88,14 @@ const TimeFormat = {
                     <p className="truncate text-sm font-semibold">
                       {item?.location?.name}
                     </p>
-                    <p className="text-sm text-gray-500">{item?.company?.name}</p>
+                    <p className="text-sm">{item?.company?.name}</p>
                   </span>
                 ) : (
                   <span>
                     <p className="truncate text-sm font-semibold">
                       {item.company.name}
                     </p>
-                    <p className="text-sm text-gray-500">{item?.location?.name}</p>
+                    <p className="text-sm">{item?.location?.name}</p>
                   </span>
                 )}
                 <div className="mt-1">
@@ -94,14 +105,14 @@ const TimeFormat = {
 
               <div className="text-right">
                 <p
-                  className={`${lusitana.className} text-sm font-medium text-gray-700`}
+                  className={` text-sm font-medium`}
                 >
                   {new Date(item.startTime).toLocaleDateString(
                     "en-US", 
                     DateFormat
                   )}
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm">
                   {new Date(item.startTime).toLocaleTimeString(
                     "en-US",
                     TimeFormat
@@ -110,11 +121,27 @@ const TimeFormat = {
                   {new Date(item.endTime).toLocaleTimeString("en-US", TimeFormat)}
                 </p>
               </div>
+              { (openEventId === item.id && role !== 'relief_pharmacist') && (
+                <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
+                  <div className='bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]'>
+                    <ShiftInfoModal data={item} setOpen={() => setOpenEventId(null)}/>
+                    <div className='absolute top-4 right-4 cursor-pointer' 
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevents the click from bubbling up
+                          setOpenEventId(null);
+                        }}>
+                      <XMarkIcon className='w-6 text-black' />
+                    </div>
+
+                  </div>
+                </div>
+              )}
+
             </div>
           ))}
         </div>
 
-        <div className="flex items-center pb-3 pt-6 px-4 text-gray-500">
+        <div className="flex items-center pb-3 pt-2 px-4 text-gray-500">
           <ArrowPathIcon className="h-5 w-5" />
           <h3 className="ml-2 text-sm">Updated just now</h3>
         </div>

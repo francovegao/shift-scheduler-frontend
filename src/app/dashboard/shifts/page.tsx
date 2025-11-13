@@ -6,7 +6,6 @@ import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import BigCalendar from "@/app/ui/dashboard/big-calendar";
 import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
-import { lusitana } from "@/app/ui/fonts";
 import FilterDate from "@/app/ui/list/filter-date";
 import FilterPayRate from "@/app/ui/list/filter-pay-rate";
 import FilterShiftStatus from "@/app/ui/list/filter-shift-status";
@@ -280,7 +279,7 @@ export default function ShiftsList(){
   return (
     <AuthWrapper allowedRoles={["admin", "pharmacy_manager", "location_manager", "relief_pharmacist"]}>
       <div className="p-4 lg:p-8">
-        <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
+        <h1 className={`font-bold mb-4 text-xl md:text-2xl`}>
           Shifts List
         </h1>
         <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
@@ -310,7 +309,7 @@ export default function ShiftsList(){
             <Pagination totalPages={totalPages} />
           </div>
         </div>
-        <div className="h-full bg-white p-4 rounded-md">
+        <div className="h-screen bg-white p-1 rounded-md mb-4">
           { (role === "admin" ||
                 role === "pharmacy_manager" ||
                 role === "location_manager") && (

@@ -1,4 +1,3 @@
-import { lusitana } from '@/app/ui/fonts';
 import CardWrapperAdmin from '@/app/ui/dashboard/cards-admin';
 import LatestShifts from '@/app/ui/dashboard/latest-shifts';
 import { AuthWrapper } from '@/app/ui/authentication/auth-wrapper';
@@ -14,7 +13,7 @@ export default async function AdminPage({
   return (
     <AuthWrapper allowedRoles={["admin"]}>
       <main className="p-4 md:p-6">
-        <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
+        <h1 className={`font-bold mb-4 text-xl md:text-2xl`}>
           Admin Dashboard
         </h1>
         {/* USER CARDS */}

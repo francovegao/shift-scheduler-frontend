@@ -143,7 +143,7 @@ export default function TakeShiftForm({
         </div>
         <span className="text-center font-medium">Are you sure you want to take this shift?</span>
         <span className="text-center font-medium">Please verify all the information before taking this shift</span>
-        <button type="submit" className="bg-green-500 text-white py-2 px-4 rounded-md border-none w-max self-center">
+        <button type="submit" className="bg-primary text-white py-2 px-4 rounded-md border-none w-max self-center hover:bg-primary-100 cursor-pointer">
           Take Shift
         </button>
         {state.error && <span className="text-red-500 text-center">Something went wrong!</span>}
