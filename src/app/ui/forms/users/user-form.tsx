@@ -40,7 +40,6 @@ export default function UserForm({
       );
 
       const onSubmit = handleSubmit((data) => {
-        console.log(data)
         formAction(data)
       });
 

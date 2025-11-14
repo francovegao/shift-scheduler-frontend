@@ -3,14 +3,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import InputField from "../input-field";
-import { Dispatch, SetStateAction, useEffect } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {  shiftSchema } from "@/app/lib/formValidationSchemas";
 import z from "zod";
 import { useFormState } from "react-dom";
 import { createShift, updateShift } from "@/app/lib/actions";
-import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/auth-context";
+import { getFullAddress } from "@/app/lib/utils";
 
 // Infer the input and output types from the schema
 type FormInput = z.input<typeof shiftSchema>;
@@ -31,6 +31,15 @@ export default function ShiftForm({
     }){
 
       const { appUser, loading } = useAuth();
+      
+      const [step, setStep] = data ? useState(2) : useState(1);
+
+      const [pharmaciesList, setPharmaciesList] = useState<any>([]);
+
+      const [selectedLocationId, setSelectedLocationId] = data ? useState(data.locationId) :  useState(null);
+      const [selectedCompanyId, setSelectedCompanyId] = data ? useState(data.companyId) : useState(null);
+      const [selectedLocationName, setSelectedLocationName] = data ? useState(data.location?.name) :  useState(null);
+      const [selectedCompanyName, setSelectedCompanyName] = data ? useState(data.company.name) : useState(null);
 
       const {
         register,
@@ -100,197 +109,298 @@ export default function ShiftForm({
     const role = appUser.role;
     const companyId = appUser.companyId || undefined;
     const locationId = appUser.locationId || undefined;
+    
+    useEffect(() => {
+      const unifiedList = [
+        ...relatedData.locations.map((loc: {
+          legalName: any; id: any; name: any; companyId: any; company: any; address: any; city: any; province: any; postalCode: any; 
+          }) => ({
+          type: "location",
+          id: loc.id,
+          name: loc.name,
+          legalName: loc.legalName,
+          companyId: loc.companyId,
+          company: loc.company,
+          address: loc.address,
+          city: loc.city,
+          province: loc.province,
+          postalCode: loc.postalCode,
+        })),
+        ...relatedData.companies.map((c: {
+          legalName: any; id: any; name: any; address: any; city: any; province: any; postalCode: any; 
+          }) => ({
+          type: "company",
+          id: c.id,
+          name: c.name,
+          legalName: c.legalName,
+          companyId: c.id,
+          //company: c,
+          address: c.address,
+          city: c.city,
+          province: c.province,
+          postalCode: c.postalCode,
+        }))
+      ]
+      setPharmaciesList(unifiedList);
+      
+      if(role==="location_manager"){
+        setStep(2)
+      }
+
+    }, [role, type, token]);
+
+    
+    const handleOptionChange = (event: { target: { value: any; }; }) => {
+      const selected = JSON.parse(event.target.value);
+      
+      setSelectedCompanyId(selected.companyId);
+      setSelectedLocationId(selected.type === "location" ? selected.id : null);
+
+      setSelectedCompanyName(selected.company?.name || selected.name);
+      setSelectedLocationName(selected.type === "location" ? selected.name : null);
+
+      setValue("companyId", selected.companyId);
+      setValue("locationId", selected.type === "location" ? selected.id : "");
+    };
 
     return(
         <form className="flex flex-col gap-8" onSubmit={onSubmit}>
           <h1 className="text-xl font-semibold">{type === "create" ? "Create a new shift" : "Update shift"}</h1>
-          <span className="text-sm text-gray-600 font-medium">
-            Shift Information
-          </span>
-          <div className="flex justify-between flex-wrap gap-4">
-            {data && (
-              <InputField
-                  label="Id"
-                  name="id"
-                  defaultValue={data?.id}
-                  register={register}
-                  error={errors?.id}
-                  hidden
-                />
-              )}
-  
-            {role === "admin" ? (
-              <div className="flex flex-col gap-2 w-full md:w-1/4">
-                <label className="text-xs text-gray-500">Pharmacy</label>
-                <select
-                  className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                  {...register("companyId")}
-                  defaultValue={data?.companies}
+
+          { (step === 1 && 
+            (role==="admin" || role==="pharmacy_manager")) &&
+            (
+            <>
+              <span className="text-sm text-gray-600 font-medium">
+                Select Pharmacy / Company
+              </span>
+
+              <div className="flex flex-col gap-6">
+
+                <ul className="space-y-2 max-h-95 overflow-y-auto border p-2 rounded-md">
+                {pharmaciesList.map((pharmacy:any) => (
+                  <li key={pharmacy.id} className="flex items-center border-b border-gray-300">
+                    <input
+                      type="radio"
+                      value={JSON.stringify(pharmacy)}
+                      checked={
+                        selectedCompanyId === pharmacy.companyId &&
+                        selectedLocationId === (pharmacy.type === "location" ? pharmacy.id : null)
+                      }
+                      onChange={handleOptionChange}
+                      className="form-radio h-5 w-5 text-indigo-600 transition duration-150 ease-in-out"
+                    />
+                    <label className="ml-2 text-gray-700">
+                    <p className="font-semibold">{pharmacy?.name} - {pharmacy?.legalName}</p>
+                    {pharmacy.company && (
+                      <p className="text-xs font-medium">{pharmacy?.company?.name} - {pharmacy?.company?.legalName}</p>
+                    )}
+                    <p className="text-xs">{getFullAddress(pharmacy?.address, pharmacy?.city, pharmacy?.province, pharmacy?.postalCode)}</p>
+                  </label>
+                  </li>
+                ))}
+                </ul>
+
+                <button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  className="bg-primary text-white p-2 rounded-md mt-4 cursor-pointer hover:bg-primary-100"
                 >
-                  {companies.map(
-                    (company: { id: string; name: string}) => (
-                      <option
-                        value={company.id}
-                        key={company.id}
-                        selected={data && company.id === data.companyId}
-                      >
-                        {company.name}
-                      </option>
-                    )
-                  )}
-                </select>
-                {errors.companyId?.message && (
-                  <p className="text-xs text-red-400">
-                    {errors.companyId.message.toString()}
-                  </p>
-                )}
+                  Next →
+                </button>
               </div>
+            </>
+          )}
+
+          {step === 2 && (
+            <>
+            <span className="text-sm text-gray-600 font-medium">
+              Shift Information
+            </span>
+            <div className="flex justify-between flex-wrap gap-4">
+              {data && (
+                <InputField
+                    label="Id"
+                    name="id"
+                    defaultValue={data?.id}
+                    register={register}
+                    error={errors?.id}
+                    hidden
+                  />
+                )}
+
+              {role === "admin" || role==="pharmacy_manager" ? (
+                <div className="flex flex-col gap-2 w-full md:w-1/4">
+                  <label className="text-xs text-gray-500">Company</label>
+                  <input
+                    type="text"
+                    value={selectedCompanyName || ""}
+                    disabled
+                    className="bg-gray-100 p-2 rounded-md text-sm w-full"
+                  />
+
+                  <input
+                    type="hidden"
+                    {...register("companyId")}
+                    value={selectedCompanyId ?? ""}
+                  />
+
+                  {errors.companyId?.message && (
+                    <p className="text-xs text-red-400">
+                      {errors.companyId.message.toString()}
+                    </p>
+                  )}
+                </div>
+                ):null}
+
+              { (//role === "pharmacy_manager" ||
+                role === "location_manager") ? (
+                  <InputField
+                    label="Pharmacy"
+                    name="companyId"
+                    defaultValue={companyId}
+                    register={register} 
+                    error={errors?.companyId}
+                    hidden
+                  />
               ) : null}
 
-            { (role === "pharmacy_manager" ||
-              role === "location_manager") ? (
-                <InputField
-                  label="Pharmacy"
-                  name="companyId"
-                  defaultValue={companyId}
-                  register={register} 
-                  error={errors?.companyId}
-                  hidden
-                />
-            ) : null}
+              {role === "admin" ||
+              role === "pharmacy_manager" ? (
+                <div className="flex flex-col gap-2 w-full md:w-1/4">
+                  <label className="text-xs text-gray-500">Pharmacy</label>
+                  <input
+                    type="text"
+                    value={selectedLocationName || ""}
+                    disabled
+                    className="bg-gray-100 p-2 rounded-md text-sm w-full"
+                  />
 
-            {/* {role === "admin" ||
-            role === "pharmacy_manager" ? (
+                  <input
+                    type="hidden"
+                    {...register("locationId")}
+                    value={selectedLocationId ?? ""}
+                  />
+
+                  {errors.locationId?.message && (
+                    <p className="text-xs text-red-400">
+                      {errors.locationId.message.toString()}
+                    </p>
+                  )}
+                </div>
+              ) : null}
+
+              {role === "location_manager" ?  (
+                  <InputField
+                    label="Location"
+                    name="locationId"
+                    defaultValue={locationId}
+                    register={register} 
+                    error={errors?.locationId}
+                    hidden
+                  />
+              ) : null}
+
+
+              <InputField
+                label="Title"
+                name="title"
+                defaultValue={data?.title}
+                register={register}
+                error={errors?.title}
+              />
+                <InputField
+                label="Instructions/Notes"
+                name="description"
+                defaultValue={data?.description}
+                register={register}
+                error={errors?.description}
+              />
+                <InputField
+                label="Start Time"
+                name="startTime"
+                type="datetime-local"
+                defaultValue={formatForDatetimeLocal(data?.startTime)}
+                register={register}
+                error={errors?.startTime}
+              />
+                <InputField
+                label="End Time"
+                name="endTime"
+                type="datetime-local"
+                defaultValue={formatForDatetimeLocal(data?.endTime)}
+                register={register}
+                error={errors?.endTime}
+              />
+              <InputField
+                label="Pay Rate"
+                name="payRate"
+                defaultValue={data?.payRate}
+                register={register}
+                error={errors?.payRate}
+              />
               <div className="flex flex-col gap-2 w-full md:w-1/4">
-                <label className="text-xs text-gray-500">Location</label>
-                <span className="text-xs text-gray-500 whitespace-normal">Select one if this shift is for another location. If not leave blank</span>
+                <label className="text-xs text-gray-500">Relief Pharmacist</label>
                 <select
                   className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                  {...register("locationId")}
-                  defaultValue={data?.locations}
+                  {...register("pharmacistId")}
+                  defaultValue={data?.pharmacists}
                 >
                   <option value=""></option>
-                  {locations.map(
-                    (location: { id: string; name: string}) => (
+                  {pharmacists
+                  .filter((pharmacist: { pharmacistProfile: any; }) => pharmacist && pharmacist.pharmacistProfile)
+                  .map(
+                    (pharmacist: { id: string; firstName: string; lastName: string; pharmacistProfile:{id:string} }) => (
                       <option
-                        value={location.id}
-                        key={location.id}
-                        selected={data && location.id === data.locationId}
+                        value={pharmacist.pharmacistProfile.id}
+                        key={pharmacist.pharmacistProfile.id}
+                        selected={data && pharmacist.pharmacistProfile.id === data.pharmacistId}
                       >
-                        {location.name}
+                        {pharmacist?.firstName + " " + pharmacist?.lastName}
                       </option>
                     )
                   )}
                 </select>
-                {errors.locationId?.message && (
+                {errors.pharmacistId?.message && (
                   <p className="text-xs text-red-400">
-                    {errors.locationId.message.toString()}
+                    {errors.pharmacistId.message.toString()}
                   </p>
                 )}
               </div>
-             ) : null} */}
-
-            {role === "location_manager" ?  (
-                <InputField
-                  label="Location"
-                  name="locationId"
-                  defaultValue={locationId}
-                  register={register} 
-                  error={errors?.locationId}
-                  hidden
-                />
-            ) : null}
-
-
-            <InputField
-              label="Title"
-              name="title"
-              defaultValue={data?.title}
-              register={register}
-              error={errors?.title}
-            />
-              <InputField
-              label="Instructions/Notes"
-              name="description"
-              defaultValue={data?.description}
-              register={register}
-              error={errors?.description}
-            />
-              <InputField
-              label="Start Time"
-              name="startTime"
-              type="datetime-local"
-              defaultValue={formatForDatetimeLocal(data?.startTime)}
-              register={register}
-              error={errors?.startTime}
-            />
-              <InputField
-              label="End Time"
-              name="endTime"
-              type="datetime-local"
-              defaultValue={formatForDatetimeLocal(data?.endTime)}
-              register={register}
-              error={errors?.endTime}
-            />
-            <InputField
-              label="Pay Rate"
-              name="payRate"
-              defaultValue={data?.payRate}
-              register={register}
-              error={errors?.payRate}
-            />
-             <div className="flex flex-col gap-2 w-full md:w-1/4">
-              <label className="text-xs text-gray-500">Relief Pharmacist</label>
-              <select
-                className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                {...register("pharmacistId")}
-                defaultValue={data?.pharmacists}
-              >
-                <option value=""></option>
-                {pharmacists
-                .filter((pharmacist: { pharmacistProfile: any; }) => pharmacist && pharmacist.pharmacistProfile)
-                .map(
-                  (pharmacist: { id: string; firstName: string; lastName: string; pharmacistProfile:{id:string} }) => (
-                    <option
-                      value={pharmacist.pharmacistProfile.id}
-                      key={pharmacist.pharmacistProfile.id}
-                      selected={data && pharmacist.pharmacistProfile.id === data.pharmacistId}
-                    >
-                      {pharmacist?.firstName + " " + pharmacist?.lastName}
-                    </option>
-                  )
-                )}
-              </select>
-              {errors.pharmacistId?.message && (
-                <p className="text-xs text-red-400">
-                  {errors.pharmacistId.message.toString()}
-                </p>
-              )}
-            </div>
-            <div className="flex flex-col gap-2 w-full md:w-1/4">
-                <label className="text-xs text-gray-500">Status</label>
-                <select 
-                  className=" bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                  {...register("status")}
-                  defaultValue={data?.status}
-                  disabled={true}
-                >
-                  <option value="open">open</option>
-                  <option value="taken">taken</option>
-                  <option value="completed">completed</option>
-                  <option value="cancelled">cancelled</option>
-                </select>
-                {errors.status?.message && ( 
-                  <p className="text-xs text-red-400">
-                    {errors.status?.message.toString()}
-                  </p>
-                )}
-            </div>
-           </div> 
-           {state.error && <span className="text-red-500">Something went wrong!</span>}     
-          <button className="bg-primary text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer">
-            {type === "create" ? "Create" : "Update"}
-          </button>
+              <div className="flex flex-col gap-2 w-full md:w-1/4">
+                  <label className="text-xs text-gray-500">Status</label>
+                  <select 
+                    className=" bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                    {...register("status")}
+                    defaultValue={data?.status}
+                    disabled={true}
+                  >
+                    <option value="open">open</option>
+                    <option value="taken">taken</option>
+                    <option value="completed">completed</option>
+                    <option value="cancelled">cancelled</option>
+                  </select>
+                  {errors.status?.message && ( 
+                    <p className="text-xs text-red-400">
+                      {errors.status?.message.toString()}
+                    </p>
+                  )}
+              </div>
+            </div> 
+            {state.error && <span className="text-red-500">Something went wrong!</span>}     
+            <button className="bg-primary text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer">
+              {type === "create" ? "Create" : "Update"}
+            </button>
+            {(!data && role!=="location_manager") && (<button
+              type="button"
+              onClick={() => setStep(1)}
+              className="bg-complementary-one text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer"
+            >
+              ← Back
+            </button>
+            )}
+          </>
+          )}
         </form>
     );
 }

@@ -55,7 +55,7 @@ export default function RelatedDataModal({
         {type === 'link_company' && (
           <>
             <BuildingOfficeIcon className="w-4 h-4" />
-            <span>Select Manager’s Pharmacy</span>
+            <span>Select Manager’s Company</span>
           </>
         )}
 

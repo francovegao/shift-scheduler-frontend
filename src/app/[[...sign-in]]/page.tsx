@@ -109,6 +109,10 @@ export default function Home() {
                 Log In
               </button>
           </form>
+
+          <Link href='/forgot_password' className="w-full h-12 rounded-full border border-gray-300 text-gray-700 font-medium text-base transition-colors hover:bg-gray-100 flex items-center justify-center gap-2" >
+            Forgot Password
+          </Link>
               
           <div className="text-center text-gray-500 relative">
             <div className="absolute inset-0 flex items-center">
