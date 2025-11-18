@@ -14,6 +14,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { SetStateAction, useEffect, useState } from "react";
 import FilterDate from "@/app/ui/list/filter-date";
 import FilterPayRate from "@/app/ui/list/filter-pay-rate";
+import PharmacistAccessGuard from "@/app/ui/authorization/pharmacists-access-guard";
 
 type ShiftList = Shift & { company: Company }
                  & { location: Location } 
@@ -258,32 +259,34 @@ export default function OpenShiftsList(){
 
   return (
     <AuthWrapper allowedRoles={["admin", "pharmacy_manager", "location_manager", "relief_pharmacist"]}>
-      <div className="p-4 lg:p-8">
-        <h1 className={`font-semibold mb-4 text-xl md:text-2xl`}>
-          Open Shifts List
-        </h1>
-        <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-          {/* TOP */}
-          <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-            <TableSearch placeholder="Search shifts..." />
-            <FilterDate />
-            <FilterPayRate />
+      <PharmacistAccessGuard>
+        <div className="p-4 lg:p-8">
+          <h1 className={`font-semibold mb-4 text-xl md:text-2xl`}>
+            Open Shifts List
+          </h1>
+          <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
+            {/* TOP */}
+            <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+              <TableSearch placeholder="Search shifts..." />
+              <FilterDate />
+              <FilterPayRate />
+            </div>
+            {/* LIST */}
+            <div style={{ overflowX: 'scroll' }}>
+              <Table columns={columns} renderRow={renderRow} data={shifts} />
+            </div>
+            {/* PAGINATION */}
+            <div className="mt-5 flex w-full justify-center">
+              <Pagination totalPages={totalPages} />
+            </div>
           </div>
-          {/* LIST */}
-          <div style={{ overflowX: 'scroll' }}>
-            <Table columns={columns} renderRow={renderRow} data={shifts} />
+          <div className="bg-white p-4 rounded-md">
+              <BigCalendar token={token} data={data}  pharmacistId={pharmacistId} action="takeShift"/>
+              <p className="text-gray-500 text-sm flex justify-end">Click on any open shift to take it.</p>
           </div>
-          {/* PAGINATION */}
-          <div className="mt-5 flex w-full justify-center">
-            <Pagination totalPages={totalPages} />
-          </div>
+          
         </div>
-        <div className="bg-white p-4 rounded-md">
-            <BigCalendar token={token} data={data}  pharmacistId={pharmacistId} action="takeShift"/>
-            <p className="text-gray-500 text-sm flex justify-end">Click on any open shift to take it.</p>
-        </div>
-        
-      </div>
+      </PharmacistAccessGuard>
     </AuthWrapper>
   );   
 }
