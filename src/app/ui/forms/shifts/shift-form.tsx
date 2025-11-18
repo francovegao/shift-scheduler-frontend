@@ -111,40 +111,42 @@ export default function ShiftForm({
     const locationId = appUser.locationId || undefined;
     
     useEffect(() => {
-      const unifiedList = [
-        ...relatedData.locations.map((loc: {
-          legalName: any; id: any; name: any; companyId: any; company: any; address: any; city: any; province: any; postalCode: any; 
-          }) => ({
-          type: "location",
-          id: loc.id,
-          name: loc.name,
-          legalName: loc.legalName,
-          companyId: loc.companyId,
-          company: loc.company,
-          address: loc.address,
-          city: loc.city,
-          province: loc.province,
-          postalCode: loc.postalCode,
-        })),
-        ...relatedData.companies.map((c: {
-          legalName: any; id: any; name: any; address: any; city: any; province: any; postalCode: any; 
-          }) => ({
-          type: "company",
-          id: c.id,
-          name: c.name,
-          legalName: c.legalName,
-          companyId: c.id,
-          //company: c,
-          address: c.address,
-          city: c.city,
-          province: c.province,
-          postalCode: c.postalCode,
-        }))
-      ]
-      setPharmaciesList(unifiedList);
-      
       if(role==="location_manager"){
-        setStep(2)
+        return setStep(2)
+      }
+
+      if(role==="admin" || role==="pharmacy_manager"){      
+        const unifiedList = [
+          ...relatedData.locations.map((loc: {
+            legalName: any; id: any; name: any; companyId: any; company: any; address: any; city: any; province: any; postalCode: any; 
+            }) => ({
+            type: "location",
+            id: loc.id,
+            name: loc.name,
+            legalName: loc.legalName,
+            companyId: loc.companyId,
+            company: loc.company,
+            address: loc.address,
+            city: loc.city,
+            province: loc.province,
+            postalCode: loc.postalCode,
+          })),
+          ...relatedData.companies.map((c: {
+            legalName: any; id: any; name: any; address: any; city: any; province: any; postalCode: any; 
+            }) => ({
+            type: "company",
+            id: c.id,
+            name: c.name,
+            legalName: c.legalName,
+            companyId: c.id,
+            //company: c,
+            address: c.address,
+            city: c.city,
+            province: c.province,
+            postalCode: c.postalCode,
+          }))
+        ]
+        setPharmaciesList(unifiedList);
       }
 
     }, [role, type, token]);
