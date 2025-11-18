@@ -181,7 +181,6 @@ export default function ShiftsList(){
             const currentPage = page ? parseInt(page) : 1;
             const search = query ?? '';
 
-
             const shiftsResponse = await fetchShifts(search, currentPage, queryParams, token);
             setShifts(shiftsResponse?.data ?? []);
             setTotalPages(shiftsResponse?.meta?.totalPages ?? 1);

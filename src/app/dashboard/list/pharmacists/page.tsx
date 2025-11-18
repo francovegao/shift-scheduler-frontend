@@ -12,6 +12,7 @@ import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/list/table-search";
 import { EyeIcon } from "@heroicons/react/16/solid";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { SetStateAction, useEffect, useState, use } from "react";
 
 type PharmacistList = User & { roles: Roles[] } & {pharmacistProfile?: PharmacistProfile} ;
@@ -96,21 +97,15 @@ const columns = [
   },
 ];
 
-export default function PharmacistsList({
-  searchParams,
-  }:{
-    searchParams: Promise<{ [key: string]: string | undefined }>;
-  }){
+export default function PharmacistsList(){
+
     const { firebaseUser, appUser, loading } = useAuth();
     const [isFetching, setIsFetching] = useState(true);
     const [token, setToken] = useState("");
     const [pharmacists, setPharmacists] = useState<any[]>([]);
     const [totalPages, setTotalPages] = useState<number>(1);
     
-
-    const { page, query, ...queryParams } = use(searchParams);
-    const currentPage = page ? parseInt(page) : 1;
-    const search = query ? query : ''; 
+    const searchParams = useSearchParams();
 
     // Get token
     useEffect(() => {
@@ -126,6 +121,13 @@ export default function PharmacistsList({
     const getPharmacists = async () => {
       setIsFetching(true);
       try {
+        const page = searchParams.get('page');
+        const query = searchParams.get('query');
+        const queryParams: Record<string, string> = {};
+
+        const currentPage = page ? parseInt(page) : 1;
+        const search = query ?? '';
+
         const pharmacistsResponse = await fetchPharmacists(search, currentPage, token);
         setPharmacists(pharmacistsResponse?.data ?? []);
         setTotalPages(pharmacistsResponse?.meta?.totalPages ?? 1);
@@ -136,7 +138,7 @@ export default function PharmacistsList({
       }
     };
     if (token){ getPharmacists() };
-   }, [token, search, currentPage, JSON.stringify(queryParams)]);
+   }, [token, searchParams]);
 
     if (loading || isFetching) return <div>Loading...</div>;
     if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

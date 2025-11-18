@@ -11,6 +11,7 @@ import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/list/table-search";
 import { EyeIcon } from "@heroicons/react/16/solid";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { SetStateAction, useEffect, useState, use } from "react";
 
 type UserList = User & { company: Company } & { location: Location } & { pharmacistProfile: PharmacistProfile };
@@ -90,21 +91,15 @@ const columns = [
 
 
 
-export default function UsersList({
-  searchParams,
-  }:{
-    searchParams: Promise<{ [key: string]: string | undefined }>;
-  }){
+export default function UsersList(){
+  
     const { firebaseUser, appUser, loading } = useAuth();
     const [isFetching, setIsFetching] = useState(true);
     const [token, setToken] = useState("");
     const [users, setUsers] = useState<any[]>([]);
     const [totalPages, setTotalPages] = useState<number>(1);
-    
 
-    const { page, query, ...queryParams } =  use(searchParams);
-    const currentPage = page ? parseInt(page) : 1;
-    const search = query ? query : ''; 
+    const searchParams = useSearchParams();
 
     // Get token
     useEffect(() => {
@@ -120,6 +115,13 @@ export default function UsersList({
     const getUsers = async () => {
       setIsFetching(true);
       try {
+        const page = searchParams.get('page');
+        const query = searchParams.get('query');
+        const queryParams: Record<string, string> = {};
+
+        const currentPage = page ? parseInt(page) : 1;
+        const search = query ?? '';
+
         const usersResponse = await fetchUsers(search, currentPage, queryParams, token);
         setUsers(usersResponse?.data ?? []);
         setTotalPages(usersResponse?.meta?.totalPages ?? 1);
@@ -130,7 +132,7 @@ export default function UsersList({
       }
     };
     if (token){ getUsers() };
-   }, [token, search, currentPage, JSON.stringify(queryParams)]);
+   }, [token, searchParams]);
     
     if (loading || isFetching) return <div>Loading...</div>;
     if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

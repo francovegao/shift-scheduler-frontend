@@ -11,6 +11,7 @@ import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import { SetStateAction, useEffect, useState, use } from "react";
 import FormContainer from "@/app/ui/list/form-container";
+import { useSearchParams } from "next/navigation";
 
 type Company = {
     id: string,
@@ -81,20 +82,15 @@ const columns = [
 
 
 
-export default function CompaniesList({
-  searchParams,
-  }:{
-    searchParams: Promise<{ [key: string]: string | undefined }>;
-  }){
+export default function CompaniesList(){
+
     const { firebaseUser, appUser, loading } = useAuth();
     const [isFetching, setIsFetching] = useState(true);
     const [token, setToken] = useState("");
     const [companies, setCompanies] = useState<any[]>([]);
     const [totalPages, setTotalPages] = useState<number>(1);
 
-    const { page, query, ...queryParams } = use(searchParams);
-    const currentPage = page ? parseInt(page) : 1;
-    const search = query ? query : '';   
+    const searchParams = useSearchParams(); 
 
     // Get token
     useEffect(() => {
@@ -110,6 +106,13 @@ export default function CompaniesList({
     const getCompanies = async () => {
       setIsFetching(true);
       try {
+        const page = searchParams.get('page');
+        const query = searchParams.get('query');
+        const queryParams: Record<string, string> = {};
+
+        const currentPage = page ? parseInt(page) : 1;
+        const search = query ?? '';
+
         const companiesResponse = await fetchCompanies(search, currentPage, token);
         setCompanies(companiesResponse?.data ?? []);
         setTotalPages(companiesResponse?.meta?.totalPages ?? 1);
@@ -120,7 +123,7 @@ export default function CompaniesList({
       }
     };
     if (token){ getCompanies() };
-   }, [token, search, currentPage, JSON.stringify(queryParams)]);
+   }, [token, searchParams]);
     
     if (loading || isFetching) return <div>Loading...</div>;
     if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

@@ -10,6 +10,7 @@ import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import { SetStateAction, useEffect, useState, use } from "react";
 import FormContainer from "@/app/ui/list/form-container";
+import { useSearchParams } from "next/navigation";
 
 type LocationsList = Location & { company: Company };
 
@@ -92,11 +93,8 @@ const columns = [
   },
 ];
 
-export default function LocationsList({
-  searchParams,
-  }:{
-    searchParams: Promise<{ [key: string]: string | undefined }>;
-  }){
+export default function LocationsList(){
+
     const { firebaseUser, appUser, loading } = useAuth();
     const [token, setToken] = useState("");
 
@@ -104,9 +102,7 @@ export default function LocationsList({
     const [totalPages, setTotalPages] = useState<number>(1);
     const [isFetching, setIsFetching] = useState(true);
 
-    const { page, query, ...queryParams } = use(searchParams);
-    const currentPage = page ? parseInt(page) : 1;
-    const search = query ? query : '';
+    const searchParams = useSearchParams();
 
     // Get token
     useEffect(() => {
@@ -122,6 +118,13 @@ export default function LocationsList({
     const getLocations = async () => {
       setIsFetching(true);
       try {
+        const page = searchParams.get('page');
+        const query = searchParams.get('query');
+        const queryParams: Record<string, string> = {};
+
+        const currentPage = page ? parseInt(page) : 1;
+        const search = query ?? '';
+
         const locationsResponse = await fetchLocations(search, currentPage, queryParams, token);
         setLocations(locationsResponse?.data ?? []);
         setTotalPages(locationsResponse?.meta?.totalPages ?? 1);
@@ -133,7 +136,7 @@ export default function LocationsList({
     };
 
     if (token){ getLocations() };
-  }, [token, search, currentPage, JSON.stringify(queryParams)]);
+  }, [token, searchParams]);
 
     if (loading || isFetching) return <div>Loading...</div>;
     
