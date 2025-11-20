@@ -9,7 +9,7 @@ export async function markAsReadNotification(id: string, dataToSend: object, tok
   try {
     console.log('Marking notification as read...');
 
-    const url = new URL(`${LOCAL_URL}/notifications/${id}`);
+    const url = new URL(`${STAGING_URL}/notifications/${id}`);
 
     const response =await fetch(url.toString(), {
         method: "PATCH",
@@ -38,7 +38,7 @@ export const createUser = async (token: string, currentState: CurrentState,  dat
     console.log('Creating new user...');
 
     //Send data to register user in Firebase
-    const firebaseResponse = await fetch(`${LOCAL_URL}/users/firebase`, {
+    const firebaseResponse = await fetch(`${STAGING_URL}/users/firebase`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -66,7 +66,7 @@ export const createUser = async (token: string, currentState: CurrentState,  dat
       role: data.role,
     }
 
-    const response = await fetch(`${LOCAL_URL}/users`, {
+    const response = await fetch(`${STAGING_URL}/users`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -101,7 +101,7 @@ export const updateUser = async (token: string, currentState: CurrentState, data
         role: data.role,
     }
 
-    const response = await fetch(`${LOCAL_URL}/users/${data.id}`, {
+    const response = await fetch(`${STAGING_URL}/users/${data.id}`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -133,7 +133,7 @@ export const linkManagerToCompany = async (token: string, currentState: CurrentS
         locationId: data.locationId ? data.locationId : null,
     }
 
-    const response = await fetch(`${LOCAL_URL}/users/${data.id}`, {
+    const response = await fetch(`${STAGING_URL}/users/${data.id}`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -162,7 +162,7 @@ export const deleteUser = async (token: string, currentState: CurrentState, data
     try {
         console.log('Deleting user...');
 
-        const response = await fetch(`${LOCAL_URL}/users/${id}`, {
+        const response = await fetch(`${STAGING_URL}/users/${id}`, {
             method: 'DELETE',
             headers: {
               Authorization: `Bearer ${token}`,
@@ -201,7 +201,7 @@ export const createCompany = async (token: string, currentState: CurrentState,  
         postalCode: data.postalCode,
     }
 
-    const response = await fetch(`${LOCAL_URL}/companies`, {
+    const response = await fetch(`${STAGING_URL}/companies`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -241,7 +241,7 @@ export const updateCompany = async (token: string, currentState: CurrentState, d
         postalCode: data.postalCode,
     }
 
-    const response = await fetch(`${LOCAL_URL}/companies/${data.id}`, {
+    const response = await fetch(`${STAGING_URL}/companies/${data.id}`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -270,7 +270,7 @@ export const deleteCompany = async (token: string, currentState: CurrentState, d
     try {
         console.log('Deleting company...');
 
-        const response = await fetch(`${LOCAL_URL}/companies/${id}`, {
+        const response = await fetch(`${STAGING_URL}/companies/${id}`, {
             method: 'DELETE',
             headers: {
               Authorization: `Bearer ${token}`,
@@ -309,7 +309,7 @@ export const createLocation = async (token: string, currentState: CurrentState, 
         companyId: data.companyId,
     }
 
-    const response = await fetch(`${LOCAL_URL}/locations`, {
+    const response = await fetch(`${STAGING_URL}/locations`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -350,7 +350,7 @@ export const updateLocation = async (token: string, currentState: CurrentState, 
         companyId: data.companyId,
     }
 
-    const response = await fetch(`${LOCAL_URL}/locations/${data.id}`, {
+    const response = await fetch(`${STAGING_URL}/locations/${data.id}`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -379,7 +379,7 @@ export const deleteLocation = async (token: string, currentState: CurrentState, 
     try {
         console.log('Deleting location...');
 
-        const response = await fetch(`${LOCAL_URL}/locations/${id}`, {
+        const response = await fetch(`${STAGING_URL}/locations/${id}`, {
             method: 'DELETE',
             headers: {
               Authorization: `Bearer ${token}`,
@@ -419,7 +419,7 @@ export const createPharmacist = async (token: string, currentState: CurrentState
       canViewAllCompanies: data.canViewAllCompanies,
     }
 
-    const response = await fetch(`${LOCAL_URL}/pharmacist-profiles`, {
+    const response = await fetch(`${STAGING_URL}/pharmacist-profiles`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -462,7 +462,7 @@ export const updatePharmacist = async (token: string, currentState: CurrentState
       canViewAllCompanies: data.canViewAllCompanies,
     }
 
-    const response = await fetch(`${LOCAL_URL}/pharmacist-profiles/${data.id}`, {
+    const response = await fetch(`${STAGING_URL}/pharmacist-profiles/${data.id}`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -493,7 +493,7 @@ export const setPharmacistAllowedCompanies = async (token: string, currentState:
       allowedCompaniesIds: data.companiesArray,
     }
 
-    const response = await fetch(`${LOCAL_URL}/pharmacist-profiles/${data.id}`, {
+    const response = await fetch(`${STAGING_URL}/pharmacist-profiles/${data.id}`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -522,7 +522,7 @@ export const deletePharmacist = async (token: string, currentState: CurrentState
     try {
         console.log('Deleting pharmacist...');
 
-        const response = await fetch(`${LOCAL_URL}/pharmacist-profiles/${id}`, {
+        const response = await fetch(`${STAGING_URL}/pharmacist-profiles/${id}`, {
             method: 'DELETE',
             headers: {
               Authorization: `Bearer ${token}`,
@@ -560,7 +560,7 @@ export const createShift = async (token: string, currentState: CurrentState,  da
       pharmacistId: data.pharmacistId ? data.pharmacistId : null,
     }
 
-    const response = await fetch(`${LOCAL_URL}/shifts`, {
+    const response = await fetch(`${STAGING_URL}/shifts`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -600,7 +600,7 @@ export const updateShift = async (token: string, currentState: CurrentState, dat
       pharmacistId: data.pharmacistId ? data.pharmacistId : null,
     }
 
-    const response = await fetch(`${LOCAL_URL}/shifts/${data.id}`, {
+    const response = await fetch(`${STAGING_URL}/shifts/${data.id}`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -632,7 +632,7 @@ export const takeShift = async (token: string, currentState: CurrentState, data:
       pharmacistId: data.pharmacistId ? data.pharmacistId : null,
     }
 
-    const response = await fetch(`${LOCAL_URL}/shifts/${data.id}`, {
+    const response = await fetch(`${STAGING_URL}/shifts/${data.id}`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -661,7 +661,7 @@ export const deleteShift = async (token: string, currentState: CurrentState, dat
     try {
         console.log('Deleting shift...');
 
-        const response = await fetch(`${LOCAL_URL}/pharmacist-profiles/${id}`, {
+        const response = await fetch(`${STAGING_URL}/pharmacist-profiles/${id}`, {
             method: 'DELETE',
             headers: {
               Authorization: `Bearer ${token}`,
