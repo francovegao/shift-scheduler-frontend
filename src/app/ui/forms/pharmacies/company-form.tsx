@@ -9,6 +9,7 @@ import { createCompany, updateCompany } from "@/app/lib/actions";
 import { useFormState } from "react-dom";
 import { toast } from "react-toastify";
 import z from "zod";
+import { useAuth } from "../../context/auth-context";
 
 // Infer the input and output types from the schema
 type FormInput = z.input<typeof companySchema>;
@@ -27,6 +28,8 @@ export default function CompanyForm({
     token: string;
     relatedData?: any;
     }){
+
+      const { appUser, loading } = useAuth();
       
       const {
         register,
@@ -55,6 +58,11 @@ export default function CompanyForm({
           window.location.reload();
         }
       }, [state, type, setOpen])
+
+      if (loading) return <div>Loading...</div>;
+      if ( !appUser) return <div>Please sign in to continue</div>;
+
+      const role = appUser.role;
 
 
     return(
@@ -104,6 +112,7 @@ export default function CompanyForm({
                 register={register}
                 error={errors?.phone}
             />
+            {role=== "admin" && (
             <div className="flex flex-col gap-2 w-full md:w-1/4">
                 <label className="text-xs text-gray-500">Approved</label>
                 <select
@@ -122,6 +131,7 @@ export default function CompanyForm({
                   </p>
                 )}
             </div>
+            )}
            </div>
           <span className="text-xs text-gray-400 font-medium">
             Pharmacy Information

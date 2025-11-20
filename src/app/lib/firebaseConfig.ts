@@ -2,11 +2,15 @@
 import { initializeApp } from "firebase/app";
 import {
   createUserWithEmailAndPassword,
+  EmailAuthProvider,
   getAuth,
   GoogleAuthProvider,
+  reauthenticateWithCredential,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
+  updatePassword,
+  User,
 } from "firebase/auth";
 
 
@@ -40,6 +44,20 @@ export const logout = () => {
 
 export const resetPasswordEmail = (email: string) => {
   return sendPasswordResetEmail(auth, email);
+}
+
+export const changePassword = async (email: string, oldPassword: string, newPassword: string, firebaseUser: User ) => {
+    try {
+      const credential = EmailAuthProvider.credential(email, oldPassword);
+      await reauthenticateWithCredential(firebaseUser, credential);
+      await updatePassword(firebaseUser, newPassword);
+
+      return "Password updated successfully!";
+
+    } catch (error: any) {
+      console.error('Change Password Error:', error.message);
+      return "Error updating password!";
+    }
 }
 
 //Google Login

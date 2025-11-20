@@ -67,3 +67,21 @@ export const getFullAddress = (
   const parts = [address, city, province, postalCode].filter(Boolean);
   return parts.length > 0 ? parts.join(', ') : "No address info";
 };
+
+export const displayRole = (
+  role: string | null | undefined,
+) => {
+
+  switch(role){
+    case "admin":
+      return "Admin"
+    case "pharmacy_manager":
+      return "Company Manager"
+    case "location_manager":
+      return "Location Manager"
+    case "relief_pharmacist":
+      return "Pharmacist"
+    default:
+      return "No Role"
+  }
+};

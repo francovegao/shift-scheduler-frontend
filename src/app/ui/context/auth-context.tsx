@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchUser } from "@/app/lib/data";
+import { fetchUserFb } from "@/app/lib/data";
 import { auth } from "@/app/lib/firebaseConfig";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -51,7 +51,7 @@ export function ContextProvider({ children }: { children: React.ReactNode }) {
         const token = await firebaseUser.getIdToken();
 
         // call your backend with Authorization header
-        const data = await fetchUser(firebaseUser.uid, token);
+        const data = await fetchUserFb(firebaseUser.uid, token);
         setAppUser(data); // assuming backend returns {id, email, role}
       } catch (error) {
         console.error("Error fetching user:", error);

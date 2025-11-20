@@ -139,7 +139,7 @@ export default function LocationForm({
                 )}
               </div>
              ) : null}
-            {role === "pharmacy_manager" ? (
+            {role === "pharmacy_manager" || role === "location_manager" ? (
               <InputField
                 label="Pharmacy"
                 name="companyId"

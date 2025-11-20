@@ -1,6 +1,7 @@
 "use client";
 
 import { fetchUsers } from "@/app/lib/data";
+import { displayRole } from "@/app/lib/utils";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import FormContainer from "@/app/ui/list/form-container";
@@ -160,7 +161,7 @@ const renderRow = (item: UserList) => (
       <td className="hidden md:table-cell whitespace-nowrap px-3 py-3">{item.email}</td>
       <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">{item.phone}</td>
       <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">
-        {item.role}
+        {displayRole(item.role)}
       </td>
       <td className="flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
         {(item.role === "pharmacy_manager") && (

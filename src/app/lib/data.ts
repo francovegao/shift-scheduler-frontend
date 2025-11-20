@@ -7,7 +7,7 @@ export async function fetchLocations(query: string, currentPage: number, queryPa
   try {
     console.log('Fetching locations data...');
 
-    const url = new URL(`${STAGING_URL}/locations`);
+    const url = new URL(`${LOCAL_URL}/locations`);
     url.searchParams.append('search', query);
     url.searchParams.append('page', currentPage.toString());
     url.searchParams.append('limit', ITEMS_PER_PAGE.toString());
@@ -44,7 +44,7 @@ export async function fetchCompanies(query: string, currentPage: number, token: 
   try {
     console.log('Fetching companies data...');
 
-    const url = new URL(`${STAGING_URL}/companies`);
+    const url = new URL(`${LOCAL_URL}/companies`);
     url.searchParams.append('search', query);
     url.searchParams.append('page', currentPage.toString());
     url.searchParams.append('limit', ITEMS_PER_PAGE.toString());
@@ -73,7 +73,7 @@ export async function fetchAllCompanies(token: string) {
   try {
     console.log('Fetching companies data...');
 
-    const url = new URL(`${STAGING_URL}/companies`);
+    const url = new URL(`${LOCAL_URL}/companies`);
     //url.searchParams.append('search', query);
     //url.searchParams.append('page', currentPage.toString());
     url.searchParams.append('limit', '1000');   //Limit to 1000 companies
@@ -102,7 +102,7 @@ export async function fetchAllLocations(token: string) {
   try {
     console.log('Fetching locations data...');
 
-    const url = new URL(`${STAGING_URL}/locations`);
+    const url = new URL(`${LOCAL_URL}/locations`);
     //url.searchParams.append('search', query);
     //url.searchParams.append('page', currentPage.toString());
     url.searchParams.append('limit', '1000');   //Limit to 1000 companies
@@ -132,7 +132,7 @@ export async function fetchShifts(query: string, currentPage: number, queryParam
     console.log('Fetching shifts data... ');
 
 
-    const url = new URL(`${STAGING_URL}/shifts`);
+    const url = new URL(`${LOCAL_URL}/shifts`);
     url.searchParams.append('search', query);
     url.searchParams.append('page', currentPage.toString());
     url.searchParams.append('limit', ITEMS_PER_PAGE.toString());
@@ -150,11 +150,6 @@ export async function fetchShifts(query: string, currentPage: number, queryParam
         'Authorization': `Bearer ${token}`,
       },
     });
-
-        console.log(url.toString())
-
-    console.log('Constructed search params:', url.searchParams.toString());
-
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
@@ -174,7 +169,7 @@ export async function fetchMyShifts(query: string, currentPage: number, queryPar
   try {
     console.log('Fetching pharmacist shifts data...');
  
-    const url = new URL(`${STAGING_URL}/shifts/myshifts`);
+    const url = new URL(`${LOCAL_URL}/shifts/myshifts`);
     url.searchParams.append('search', query);
     url.searchParams.append('page', currentPage.toString());
     url.searchParams.append('limit', ITEMS_PER_PAGE.toString());
@@ -211,7 +206,7 @@ export async function fetchAllMyShifts(token: string) {
   try {
     console.log('Fetching all my shifts data...');
  
-    const url = new URL(`${STAGING_URL}/shifts/allmyshifts`);
+    const url = new URL(`${LOCAL_URL}/shifts/allmyshifts`);
     url.searchParams.append('limit', '1000');   //Limit to 1000 shifts
 
     const response = await fetch(url.toString(), {
@@ -238,7 +233,7 @@ export async function fetchShiftsByDate(date: string, token: string) {
   try {
     console.log('Fetching shifts by date data...');
 
-    const url = new URL(`${STAGING_URL}/shifts/date`);
+    const url = new URL(`${LOCAL_URL}/shifts/date`);
     url.searchParams.append('date', date);
     
 
@@ -266,7 +261,7 @@ export async function fetchUsers(query: string, currentPage: number, queryParams
   try {
     console.log('Fetching users data...');
 
-    const url = new URL(`${STAGING_URL}/users`);
+    const url = new URL(`${LOCAL_URL}/users`);
     url.searchParams.append('search', query);
     url.searchParams.append('page', currentPage.toString());
     url.searchParams.append('limit', ITEMS_PER_PAGE.toString());
@@ -301,9 +296,9 @@ export async function fetchUsers(query: string, currentPage: number, queryParams
 
 export async function fetchPharmacists(query: string, currentPage: number, token: string) {
   try {
-    console.log('Fetching pharmacists data...'+ token);
+    console.log('Fetching pharmacists data...');
 
-    const url = new URL(`${STAGING_URL}/users/pharmacists`);
+    const url = new URL(`${LOCAL_URL}/users/pharmacists`);
     url.searchParams.append('search', query);
     url.searchParams.append('page', currentPage.toString());
     url.searchParams.append('limit', ITEMS_PER_PAGE.toString());
@@ -328,11 +323,36 @@ export async function fetchPharmacists(query: string, currentPage: number, token
   }
 }
 
-export async function fetchUser(uid: string, token: string) {
+export async function fetchUserFb(uid: string, token: string) {
   try {
     console.log('Validating user...');
 
-    const url = new URL(`${STAGING_URL}/users/fb/${uid}`);
+    const url = new URL(`${LOCAL_URL}/users/fb/${uid}`);
+
+    const response = await fetch(url.toString(), {
+                    headers: { 
+                      Authorization: `Bearer ${token}`, 
+                    },
+                  });
+    
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return null;
+  }
+}
+
+export async function fetchUserInfo(id: string, token: string) {
+  try {
+    console.log('Fetching user...');
+
+    const url = new URL(`${LOCAL_URL}/users/${id}`);
 
     const response = await fetch(url.toString(), {
                     headers: { 
@@ -357,7 +377,7 @@ export async function fetchPharmacistShifts(id: string, token: string) {
   try {
     console.log('Fetching single pharmacist shifts...');
 
-    const url = new URL(`${STAGING_URL}/users/shifts/${id}`);
+    const url = new URL(`${LOCAL_URL}/users/shifts/${id}`);
 
     const response = await fetch(url.toString(), {
                     headers: { 
@@ -382,7 +402,7 @@ export async function fetchCompanyShifts(id: string, token: string) {
   try {
     console.log('Fetching single company shifts...');
 
-    const url = new URL(`${STAGING_URL}/companies/shifts/${id}`);
+    const url = new URL(`${LOCAL_URL}/companies/shifts/${id}`);
 
     const response = await fetch(url.toString(), {
                     headers: { 
@@ -407,7 +427,7 @@ export async function fetchLocationShifts(id: string, token: string) {
   try {
     console.log('Fetching single location shifts...');
 
-    const url = new URL(`${STAGING_URL}/locations/shifts/${id}`);
+    const url = new URL(`${LOCAL_URL}/locations/shifts/${id}`);
 
     const response = await fetch(url.toString(), {
                     headers: { 
@@ -432,7 +452,7 @@ export async function fetchOnePharmacist(id: string, token: string) {
   try {
     console.log('Fetching pharmacist...');
 
-    const url = new URL(`${STAGING_URL}/users/pharmacist/${id}`);
+    const url = new URL(`${LOCAL_URL}/users/pharmacist/${id}`);
 
     const response = await fetch(url.toString(), {
                     headers: { 
@@ -457,7 +477,7 @@ export async function fetchOneCompany(id: string, token: string) {
   try {
     console.log('Fetching company...');
 
-    const url = new URL(`${STAGING_URL}/companies/${id}`);
+    const url = new URL(`${LOCAL_URL}/companies/${id}`);
 
     const response = await fetch(url.toString(), {
                     headers: { 
@@ -482,7 +502,7 @@ export async function fetchOneLocation(id: string, token: string) {
   try {
     console.log('Fetching location...');
 
-    const url = new URL(`${STAGING_URL}/locations/${id}`);
+    const url = new URL(`${LOCAL_URL}/locations/${id}`);
 
     const response = await fetch(url.toString(), {
                     headers: { 
@@ -506,7 +526,7 @@ export async function fetchOneLocation(id: string, token: string) {
 export async function fetchUserRole(uid: string, token: string) {
   try {
 
-    const url = new URL(`${STAGING_URL}/users/me/${uid}`);
+    const url = new URL(`${LOCAL_URL}/users/me/${uid}`);
 
     const response = await fetch(url.toString(), {
                     headers: {
@@ -566,7 +586,7 @@ export async function fetchUnseenNotifications( token: string) {
   try {
     console.log('Fetching unseen notifications...');
 
-    const url = new URL(`${STAGING_URL}/notifications/unseen`);
+    const url = new URL(`${LOCAL_URL}/notifications/unseen`);
 
     const response = await fetch(url.toString(), {
                     headers: {
@@ -591,7 +611,7 @@ export async function fetchLatestShifts( token: string) {
   try {
     console.log('Fetching latst shifts...');
 
-    const url = new URL(`${STAGING_URL}/shifts/latest`);
+    const url = new URL(`${LOCAL_URL}/shifts/latest`);
 
     const response = await fetch(url.toString(), {
                     headers: {

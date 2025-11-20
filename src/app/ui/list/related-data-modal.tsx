@@ -1,17 +1,18 @@
 'use client';
 
-import { BuildingOffice2Icon, BuildingOfficeIcon, PencilIcon, PlusIcon, TrashIcon, UserIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { BuildingOffice2Icon, BuildingOfficeIcon, PencilIcon, PlusIcon, ShieldExclamationIcon, TrashIcon, UserIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import {useState } from 'react';
 import LinkManagerToCompanyForm from '../forms/pharmacies/link-manager-to-company-form';
 import SelectAllowedCompaniesForm from '../forms/pharmacies/select-allowed-companies-form';
 import PharmacistForm from '../forms/pharmacists/pharmacist-form';
 import LinkManagerToLocationForm from '../forms/pharmacies/link-manager-to-location-form';
+import ChangePasswordForm from '../forms/security/change-password-form';
 
 export default function RelatedDataModal({ 
   type, token, data, id 
 }:{ 
-  type: "link_company" | "link_location" | "link_pharmacist_profile" | "set_allowed_companies", 
+  type: "link_company" | "link_location" | "link_pharmacist_profile" | "set_allowed_companies" | "update_password", 
   token: string,
   data?: any;
   id?: string; 
@@ -37,8 +38,11 @@ export default function RelatedDataModal({
         <div>
         <SelectAllowedCompaniesForm setOpen={setOpen} token={token} pharmacistId={id} data={data}/>
       </div>
-      //forms[table](setOpen, type, token, data, relatedData)
-    ) : (
+    ) : type === "update_password" ? (
+        <div>
+        <ChangePasswordForm setOpen={setOpen} />
+      </div>
+    ) :(
       "Form not found!"
     );
   };
@@ -77,6 +81,12 @@ export default function RelatedDataModal({
           <>
             <BuildingOffice2Icon className="w-4 h-4" />
             <span>Set Allowed Pharmacies</span>
+          </>
+        )}
+        {type === 'update_password' && (
+          <>
+            <ShieldExclamationIcon className="w-4 h-4" />
+            <span>Change Password</span>
           </>
         )}
       </button>

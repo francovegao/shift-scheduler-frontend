@@ -109,6 +109,15 @@ export default function SingleLocationPage({
                                     data={company}
                                 />
                                 )}
+                            {(role === "pharmacy_manager" &&
+                            appUser?.companyId === company.id) && (
+                                <FormContainer
+                                    table="company"
+                                    type="update"
+                                    token={token}
+                                    data={company}
+                                />
+                                )}
                         </div>
                         <p className="text-sm">{company.legalName}</p>
                         <p className="text-sm">

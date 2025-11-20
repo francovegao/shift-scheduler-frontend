@@ -80,7 +80,7 @@ export default function UserForm({
                 >
                   <option value=""></option>
                   <option value="relief_pharmacist">Relief Pharmacist</option>
-                  <option value="pharmacy_manager">Pharmacy Manager</option>
+                  <option value="pharmacy_manager">Company Manager</option>
                   <option value="location_manager">Location Manager</option>
                   <option value="admin">Administrator</option>
                 </select>

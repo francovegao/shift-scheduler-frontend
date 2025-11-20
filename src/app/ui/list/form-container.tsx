@@ -57,8 +57,9 @@ export default function FormContainer({
                 }
                 if(role === "location_manager"){
                     //Don't fetch companies or locations, only fetch pharmacists
+                    const companyRes = await fetchOneCompany(companyId ?? "", token);
                     const pharmacistsRes = await fetchPharmacists("", 1, token);  //TODO: Update this fetch to get all the pharmacists without a pharmacist profile and not just the limited by page
-                    setRelatedData({ pharmacists: pharmacistsRes?.data ?? []});
+                    setRelatedData({ pharmacists: pharmacistsRes?.data ?? [], companies: [companyRes?.data]});
                 }
                 break;
             case "pharmacist":

@@ -4,7 +4,7 @@ import { auth, login, loginGoogle } from "../lib/firebaseConfig";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { fetchUser } from "../lib/data";
+import { fetchUserFb } from "../lib/data";
 import Link from "next/link";
 import SchedulerLogo from "../ui/scheduler-logo";
 import SignOutButton from "../ui/dashboard/sign-out-button";
@@ -38,7 +38,7 @@ export default function Home() {
 
   const redirectUser = async (firebaseUser: any) => {
     const token = await firebaseUser.getIdToken();
-    const  userInfo = await fetchUser(firebaseUser.uid, token);
+    const  userInfo = await fetchUserFb(firebaseUser.uid, token);
 
     const role = userInfo.role; 
 

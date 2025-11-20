@@ -84,6 +84,26 @@ export default function SingleLocationPage({
                                     data={location}
                                 />
                             )}
+                            {(role === "pharmacy_manager" && 
+                            appUser?.companyId===location.companyId)
+                             &&  (
+                                <FormContainer
+                                    table="location"
+                                    type="update"
+                                    token={token}
+                                    data={location}
+                                />
+                            )}
+                            {(role === "location_manager" && 
+                            appUser?.locationId===location.id)
+                             &&  (
+                                <FormContainer
+                                    table="location"
+                                    type="update"
+                                    token={token}
+                                    data={location}
+                                />
+                            )}
                         </div>
                         <p className="text-sm">
                             {location.company.approved ? "Approved: This location can post shifts" : "Not Approved: This location can't post shifts"}

@@ -10,6 +10,7 @@ import { useFormState } from "react-dom";
 import { createPharmacist, updatePharmacist } from "@/app/lib/actions";
 import { toast } from "react-toastify";
 import SelectAllowedCompaniesForm from "../pharmacies/select-allowed-companies-form";
+import { useAuth } from "../../context/auth-context";
 
 // Infer the input and output types from the schema
 type FormInput = z.input<typeof pharmacistSchema>;
@@ -30,6 +31,8 @@ export default function PharmacistForm({
     relatedData?: any;
     userId?: string;
     }){
+
+      const { appUser, loading } = useAuth();
 
       const [canViewAllPharmacies, setCanViewAllPharmacies] = useState(false);
       const [showSelectCompaniesForm, setShowSelectCompaniesForm] = useState(false);
@@ -72,6 +75,11 @@ export default function PharmacistForm({
           }
         }
       }, [state, type, setOpen])
+
+      if (loading) return <div>Loading...</div>;
+      if ( !appUser) return <div>Please sign in to continue</div>;
+
+      const role = appUser.role;
 
       //const {pharmacists} = relatedData;
 
@@ -151,42 +159,46 @@ export default function PharmacistForm({
               register={register}
               error={errors?.experienceYears}
             />
-            <div className="flex flex-col gap-2 w-full md:w-1/4">
-                <label className="text-xs text-gray-500">Approved</label>
-                <select
-                  className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                  {...register("approved", {
-                    setValueAs: value => value === 'true'
-                  })}
-                  defaultValue={data?.approved ? 'true' : 'false'}
-                >
-                  <option value="true">Yes</option>
-                  <option value="false">No</option>
-                </select>
-                {errors.approved?.message && ( 
-                  <p className="text-xs text-red-400">
-                    {errors.approved?.message.toString()}
-                  </p>
-                )}
-            </div>
+            {role=== 'admin' && (
+            <>
               <div className="flex flex-col gap-2 w-full md:w-1/4">
-                <label className="text-xs text-gray-500">Can View All Pharmacies?</label>
-                <select
-                  className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                  {...register("canViewAllCompanies", {
-                    setValueAs: value => value === 'true'
-                  })}
-                  defaultValue={data?.canViewAllCompanies ? 'true' : 'false'}
-                >
-                  <option value="true">Yes</option>
-                  <option value="false">No</option>
-                </select>
-                {errors.canViewAllCompanies?.message && ( 
-                  <p className="text-xs text-red-400">
-                    {errors.canViewAllCompanies?.message.toString()}
-                  </p>
-                )}
-            </div>
+                  <label className="text-xs text-gray-500">Approved</label>
+                  <select
+                    className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                    {...register("approved", {
+                      setValueAs: value => value === 'true'
+                    })}
+                    defaultValue={data?.approved ? 'true' : 'false'}
+                  >
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                  </select>
+                  {errors.approved?.message && ( 
+                    <p className="text-xs text-red-400">
+                      {errors.approved?.message.toString()}
+                    </p>
+                  )}
+              </div>
+                <div className="flex flex-col gap-2 w-full md:w-1/4">
+                  <label className="text-xs text-gray-500">Can View All Pharmacies?</label>
+                  <select
+                    className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                    {...register("canViewAllCompanies", {
+                      setValueAs: value => value === 'true'
+                    })}
+                    defaultValue={data?.canViewAllCompanies ? 'true' : 'false'}
+                  >
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                  </select>
+                  {errors.canViewAllCompanies?.message && ( 
+                    <p className="text-xs text-red-400">
+                      {errors.canViewAllCompanies?.message.toString()}
+                    </p>
+                  )}
+              </div>
+            </>
+            )}
            </div>
            <span className="text-xs text-gray-400 font-medium">
             Personal Information

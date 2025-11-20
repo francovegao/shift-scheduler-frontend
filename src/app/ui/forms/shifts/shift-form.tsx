@@ -32,14 +32,15 @@ export default function ShiftForm({
 
       const { appUser, loading } = useAuth();
       
-      const [step, setStep] = data ? useState(2) : useState(1);
+      const [step, setStep] = useState(data ? 2 : 1);
+      const [companyApproved, setCompanyApproved] = useState(true);
 
       const [pharmaciesList, setPharmaciesList] = useState<any>([]);
 
-      const [selectedLocationId, setSelectedLocationId] = data ? useState(data.locationId) :  useState(null);
-      const [selectedCompanyId, setSelectedCompanyId] = data ? useState(data.companyId) : useState(null);
-      const [selectedLocationName, setSelectedLocationName] = data ? useState(data.location?.name) :  useState(null);
-      const [selectedCompanyName, setSelectedCompanyName] = data ? useState(data.company.name) : useState(null);
+      const [selectedLocationId, setSelectedLocationId] = useState(data ? data.locationId : null);
+      const [selectedCompanyId, setSelectedCompanyId] = useState(data ? data.companyId : null);
+      const [selectedLocationName, setSelectedLocationName] = useState(data ? data.location?.name : null);
+      const [selectedCompanyName, setSelectedCompanyName] = useState(data ? data.company.name : null);
 
       const {
         register,
@@ -77,8 +78,17 @@ export default function ShiftForm({
       );
 
       const onSubmit = handleSubmit((data) => {
-        console.log(data)
-        formAction(data)
+        const pattern = /(?:N\/A|NA)/i;
+        let finalData = data;
+
+        if(pattern.test(data.payRate)){
+          finalData = {
+            ...data,
+            payRate: "0.0",
+          }
+        }
+        formAction(finalData)
+
       });
 
 
@@ -111,10 +121,19 @@ export default function ShiftForm({
     const locationId = appUser.locationId || undefined;
     
     useEffect(() => {
+      if (!relatedData) return;
+
+      // Approval logic
+      if (role === "pharmacy_manager" || role === "location_manager") {
+        setCompanyApproved(relatedData.companies?.[0]?.approved ?? false);
+      }
+    
+      // location_manager starts at step 2
       if(role==="location_manager"){
-        return setStep(2)
+        setStep(2)
       }
 
+      // Build unified list
       if(role==="admin" || role==="pharmacy_manager"){      
         const unifiedList = [
           ...relatedData.locations.map((loc: {
@@ -149,7 +168,7 @@ export default function ShiftForm({
         setPharmaciesList(unifiedList);
       }
 
-    }, [role, type, token]);
+    }, [role, relatedData, data]);
 
     
     const handleOptionChange = (event: { target: { value: any; }; }) => {
@@ -165,13 +184,48 @@ export default function ShiftForm({
       setValue("locationId", selected.type === "location" ? selected.id : "");
     };
 
+    //Render conditions
+    const showStep1ApprovalBlock =
+      !companyApproved &&
+      role === "pharmacy_manager" &&
+      step === 1;
+
+    const showStep1Selection =
+      companyApproved &&
+      step === 1 &&
+      (role === "admin" || role === "pharmacy_manager");
+
+    const showStep2ApprovalBlock =
+      !companyApproved &&
+      step === 2 &&
+      !data;
+
+    const showStep2Form =
+      (companyApproved || data || role === "admin") &&
+      step === 2;
+
+    function RestrictedBlock() {
+      return (
+        <div className="flex flex-col items-center justify-center h-full p-10">
+          <h1 className="text-2xl font-semibold text-red-600">Action Restricted</h1>
+          <p className="mt-4 text-gray-700 text-center max-w-lg">
+            Your company is currently not approved to post shifts.
+            <br />
+            Please contact the administrator to obtain approval.
+          </p>
+        </div>
+      );
+    }
+
     return(
         <form className="flex flex-col gap-8" onSubmit={onSubmit}>
           <h1 className="text-xl font-semibold">{type === "create" ? "Create a new shift" : "Update shift"}</h1>
 
-          { (step === 1 && 
-            (role==="admin" || role==="pharmacy_manager")) &&
-            (
+          { showStep1ApprovalBlock && (
+            <RestrictedBlock />
+          )}
+      
+          { showStep1Selection && (
             <>
               <span className="text-sm text-gray-600 font-medium">
                 Select Pharmacy / Company
@@ -214,7 +268,12 @@ export default function ShiftForm({
             </>
           )}
 
-          {step === 2 && (
+
+          { showStep2ApprovalBlock && (
+            <RestrictedBlock />
+          )}
+
+          { showStep2Form && (
             <>
             <span className="text-sm text-gray-600 font-medium">
               Shift Information
