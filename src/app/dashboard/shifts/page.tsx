@@ -12,6 +12,7 @@ import FilterShiftStatus from "@/app/ui/list/filter-shift-status";
 import FormContainer from "@/app/ui/list/form-container";
 import FormModal from "@/app/ui/list/form-modal";
 import Pagination from "@/app/ui/list/pagination";
+import SortListColumns from "@/app/ui/list/sort-list-columns";
 import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/list/table-search";
@@ -100,22 +101,22 @@ const columns = [
   {
     header: "Rate",
     accessor: "payRate",
-    className: "hidden sm:table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "Status",
     accessor: "status",
-    className: "hidden sm:table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "Notes",
     accessor: "notes",
-    className: "hidden md:table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "Pharmacist",
     accessor: "pharmacist",
-    className: "hidden md:table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "",
@@ -241,17 +242,17 @@ export default function ShiftsList(){
       <td className="table-cell whitespace-nowrap px-3 py-3">
         {new Date(item.startTime).toLocaleTimeString("en-US", TimeFormat)}-{new Date(item.endTime).toLocaleTimeString("en-US", TimeFormat)} 
       </td>
-      <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">${parseFloat(item.payRate).toFixed(2)}</td>
-      <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">
+      <td className="table-cell whitespace-nowrap px-3 py-3">${parseFloat(item.payRate).toFixed(2)}</td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">
         <ApprovedStatus status={item.status} />
       </td>
-      <td className="hidden md:table-cell flex items-center gap-4 py-3 pl-6 pr-3 w-48">
+      <td className="table-cell flex items-center gap-4 py-3 pl-6 pr-3 w-48">
         <div className="flex flex-col">
           <h3 className="font-semibold">{item?.title}</h3>
           <p className="text-xs text-gray-500 break-words">{item?.description}</p>
         </div>
       </td>
-      <td className="hidden md:table-cell flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3 w-48">
+      <td className="table-cell flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3 w-48">
         <div className="flex flex-col">
           <h3 className="font-semibold">{item.pharmacist?.user.firstName} {item.pharmacist?.user.lastName}</h3>
           <p className="text-xs text-gray-500">{item.pharmacist?.user.email}</p>
@@ -283,9 +284,26 @@ export default function ShiftsList(){
         </h1>
         <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
           {/* TOP */}
-          <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+          <div className="mt-2 flex items-center justify-between gap-4 md:mt-2">
             <TableSearch placeholder="Search shifts..." />
-            <FilterDate />
+            <SortListColumns options={[
+                { value: 'name:asc', label: 'Pharmacy Name ↑' },
+                { value: 'name:desc', label: 'Pharmacy Name ↓' },
+                { value: 'payRate:asc', label: 'Pay Rate ↑' },
+                { value: 'payRate:desc', label: 'Pay Rate ↓' },
+                { value: 'startTime:asc', label: 'Shift Date ↑' },
+                { value: 'startTime:desc', label: 'Shift Date ↓' },
+              ]} />
+             { (role === "admin" ||
+                role === "pharmacy_manager" ||
+                role === "location_manager") && (
+              <FormContainer table="shift" type="create" token={token}/>
+            )}
+          </div>
+          <div className="mt-4 flex flex-wrap items-center gap-4 md:justify-between md:mt-4">
+            <div className="w-full lg:w-auto">
+              <FilterDate />
+            </div>
             <FilterShiftStatus options={[
                 { value: 'open', label: 'Open' },
                 { value: 'taken', label: 'Scheduled' },
@@ -293,11 +311,6 @@ export default function ShiftsList(){
                 { value: 'cancelled', label: 'Cancelled' },
               ]} />
               <FilterPayRate />
-             { (role === "admin" ||
-                role === "pharmacy_manager" ||
-                role === "location_manager") && (
-              <FormContainer table="shift" type="create" token={token}/>
-            )}
           </div>
           {/* LIST */}
           <div style={{ overflowX: 'scroll' }}>

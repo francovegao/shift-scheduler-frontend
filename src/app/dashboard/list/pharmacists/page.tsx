@@ -7,6 +7,7 @@ import { useAuth } from "@/app/ui/context/auth-context";
 import FormContainer from "@/app/ui/list/form-container";
 import Pagination from "@/app/ui/list/pagination";
 import RelatedDataModal from "@/app/ui/list/related-data-modal";
+import SortListColumns from "@/app/ui/list/sort-list-columns";
 import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/list/table-search";
@@ -58,37 +59,37 @@ const columns = [
   {
     header: "Email",
     accessor: "email",
-    className: "hidden md:table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "Phone",
     accessor: "phone",
-    className: "hidden lg:table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "License Number",
     accessor: "licenseNumber",
-    className: "hidden md:table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "Status",
     accessor: "status",
-    className: "hidden sm:table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "All Pharmacies?",
     accessor: "canViewAllCompanies",
-    className: "hidden sm:table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "E-transfer Email",
     accessor: "etransferemail",
-    className: "hidden lg:table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "Address",
     accessor: "address",
-    className: "hidden lg:table-cell px-3 py-5 font-medium",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "",
@@ -125,10 +126,15 @@ export default function PharmacistsList(){
         const query = searchParams.get('query');
         const queryParams: Record<string, string> = {};
 
+        searchParams.forEach((value, key) => {
+          if (key !== 'page' && key !== 'query') {
+            queryParams[key] = value;
+        }});
+
         const currentPage = page ? parseInt(page) : 1;
         const search = query ?? '';
 
-        const pharmacistsResponse = await fetchPharmacists(search, currentPage, token);
+        const pharmacistsResponse = await fetchPharmacists(search, currentPage, queryParams, token);
         setPharmacists(pharmacistsResponse?.data ?? []);
         setTotalPages(pharmacistsResponse?.meta?.totalPages ?? 1);
       } catch (err) {
@@ -163,10 +169,10 @@ export default function PharmacistsList(){
           <p className="text-xs text-gray-500">{item?.lastName}</p>
         </div>
       </td>
-      <td className="hidden md:table-cell whitespace-nowrap px-3 py-3">{item.email}</td>
-      <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">{item.phone}</td>
-      <td className="hidden md:table-cell whitespace-nowrap px-3 py-3">{item.pharmacistProfile?.licenseNumber}</td>
-      <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">
+      <td className="table-cell whitespace-nowrap px-3 py-3">{item.email}</td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">{item.phone}</td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">{item.pharmacistProfile?.licenseNumber}</td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">
         <ApprovedStatus status={
           item.pharmacistProfile?.approved === true 
           ? "approved"
@@ -175,7 +181,7 @@ export default function PharmacistsList(){
           : "no-profile"
           } />
       </td> 
-      <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">
+      <td className="table-cell whitespace-nowrap px-3 py-3">
         {item.pharmacistProfile && (
           <>
           <p>{item.pharmacistProfile?.canViewAllCompanies ? "Yes":"No"}</p>
@@ -185,8 +191,8 @@ export default function PharmacistsList(){
           </>
         )}
       </td>
-      <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">{item.pharmacistProfile?.email}</td>
-      <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">
+      <td className="table-cell whitespace-nowrap px-3 py-3">{item.pharmacistProfile?.email}</td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">
         <div 
           className="text-sm truncate max-w-[10rem]" 
           title={getFullAddress(
@@ -239,6 +245,12 @@ export default function PharmacistsList(){
               {/* TOP */}
               <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
                   <TableSearch placeholder="Search pharmacists..." />
+                  <SortListColumns options={[
+                      { value: 'firstName:asc', label: 'First Name ↑' },
+                      { value: 'firstName:desc', label: 'First Name ↓' },
+                      { value: 'lastName:asc', label: 'Last Name ↑' },
+                      { value: 'lastName:desc', label: 'Last Name ↓' },
+                    ]} />
                   {/* {role === "admin" && (
                   <FormContainer table="pharmacist" type="create" token={token} />
                   )} */}

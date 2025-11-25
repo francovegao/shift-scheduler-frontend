@@ -3,11 +3,13 @@ const ITEMS_PER_PAGE = 10;
 const LOCAL_URL = 'http://localhost:8080'
 const STAGING_URL = 'https://scheduler-nest-api-353576862326.us-west1.run.app'
 
+const CURRENT_URL = STAGING_URL;
+
 export async function fetchLocations(query: string, currentPage: number, queryParams: Object, token: string) {
   try {
     console.log('Fetching locations data...');
 
-    const url = new URL(`${STAGING_URL}/locations`);
+    const url = new URL(`${CURRENT_URL}/locations`);
     url.searchParams.append('search', query);
     url.searchParams.append('page', currentPage.toString());
     url.searchParams.append('limit', ITEMS_PER_PAGE.toString());
@@ -40,14 +42,22 @@ export async function fetchLocations(query: string, currentPage: number, queryPa
   }
 }
 
-export async function fetchCompanies(query: string, currentPage: number, token: string) {
+export async function fetchCompanies(query: string, currentPage: number, queryParams: Object, token: string) {
   try {
     console.log('Fetching companies data...');
 
-    const url = new URL(`${STAGING_URL}/companies`);
+    const url = new URL(`${CURRENT_URL}/companies`);
     url.searchParams.append('search', query);
     url.searchParams.append('page', currentPage.toString());
     url.searchParams.append('limit', ITEMS_PER_PAGE.toString());
+
+    if(queryParams){
+      for (const [key, value] of Object.entries(queryParams)) {
+        if (value !== undefined) {
+          url.searchParams.append(key, value.toString());
+        }
+      }
+    }
 
     const response = await fetch(url.toString(), {
       headers: {
@@ -73,7 +83,7 @@ export async function fetchAllCompanies(token: string) {
   try {
     console.log('Fetching companies data...');
 
-    const url = new URL(`${STAGING_URL}/companies`);
+    const url = new URL(`${CURRENT_URL}/companies`);
     //url.searchParams.append('search', query);
     //url.searchParams.append('page', currentPage.toString());
     url.searchParams.append('limit', '1000');   //Limit to 1000 companies
@@ -102,7 +112,7 @@ export async function fetchAllLocations(token: string) {
   try {
     console.log('Fetching locations data...');
 
-    const url = new URL(`${STAGING_URL}/locations`);
+    const url = new URL(`${CURRENT_URL}/locations`);
     //url.searchParams.append('search', query);
     //url.searchParams.append('page', currentPage.toString());
     url.searchParams.append('limit', '1000');   //Limit to 1000 companies
@@ -132,7 +142,7 @@ export async function fetchShifts(query: string, currentPage: number, queryParam
     console.log('Fetching shifts data... ');
 
 
-    const url = new URL(`${STAGING_URL}/shifts`);
+    const url = new URL(`${CURRENT_URL}/shifts`);
     url.searchParams.append('search', query);
     url.searchParams.append('page', currentPage.toString());
     url.searchParams.append('limit', ITEMS_PER_PAGE.toString());
@@ -169,7 +179,7 @@ export async function fetchMyShifts(query: string, currentPage: number, queryPar
   try {
     console.log('Fetching pharmacist shifts data...');
  
-    const url = new URL(`${STAGING_URL}/shifts/myshifts`);
+    const url = new URL(`${CURRENT_URL}/shifts/myshifts`);
     url.searchParams.append('search', query);
     url.searchParams.append('page', currentPage.toString());
     url.searchParams.append('limit', ITEMS_PER_PAGE.toString());
@@ -206,7 +216,7 @@ export async function fetchAllMyShifts(token: string) {
   try {
     console.log('Fetching all my shifts data...');
  
-    const url = new URL(`${STAGING_URL}/shifts/allmyshifts`);
+    const url = new URL(`${CURRENT_URL}/shifts/allmyshifts`);
     url.searchParams.append('limit', '1000');   //Limit to 1000 shifts
 
     const response = await fetch(url.toString(), {
@@ -233,7 +243,7 @@ export async function fetchShiftsByDate(date: string, token: string) {
   try {
     console.log('Fetching shifts by date data...');
 
-    const url = new URL(`${STAGING_URL}/shifts/date`);
+    const url = new URL(`${CURRENT_URL}/shifts/date`);
     url.searchParams.append('date', date);
     
 
@@ -261,7 +271,7 @@ export async function fetchUsers(query: string, currentPage: number, queryParams
   try {
     console.log('Fetching users data...');
 
-    const url = new URL(`${STAGING_URL}/users`);
+    const url = new URL(`${CURRENT_URL}/users`);
     url.searchParams.append('search', query);
     url.searchParams.append('page', currentPage.toString());
     url.searchParams.append('limit', ITEMS_PER_PAGE.toString());
@@ -294,14 +304,22 @@ export async function fetchUsers(query: string, currentPage: number, queryParams
   }
 }
 
-export async function fetchPharmacists(query: string, currentPage: number, token: string) {
+export async function fetchPharmacists(query: string, currentPage: number, queryParams: Object, token: string) {
   try {
     console.log('Fetching pharmacists data...');
 
-    const url = new URL(`${STAGING_URL}/users/pharmacists`);
+    const url = new URL(`${CURRENT_URL}/users/pharmacists`);
     url.searchParams.append('search', query);
     url.searchParams.append('page', currentPage.toString());
     url.searchParams.append('limit', ITEMS_PER_PAGE.toString());
+
+    if(queryParams){
+      for (const [key, value] of Object.entries(queryParams)) {
+        if (value !== undefined) {
+          url.searchParams.append(key, value.toString());
+        }
+      }
+    }
 
     const response = await fetch(url.toString(), {
       headers: {
@@ -327,7 +345,7 @@ export async function fetchUserFb(uid: string, token: string) {
   try {
     console.log('Validating user...');
 
-    const url = new URL(`${STAGING_URL}/users/fb/${uid}`);
+    const url = new URL(`${CURRENT_URL}/users/fb/${uid}`);
 
     const response = await fetch(url.toString(), {
                     headers: { 
@@ -352,7 +370,7 @@ export async function fetchUserInfo(id: string, token: string) {
   try {
     console.log('Fetching user...');
 
-    const url = new URL(`${STAGING_URL}/users/${id}`);
+    const url = new URL(`${CURRENT_URL}/users/${id}`);
 
     const response = await fetch(url.toString(), {
                     headers: { 
@@ -377,7 +395,7 @@ export async function fetchPharmacistShifts(id: string, token: string) {
   try {
     console.log('Fetching single pharmacist shifts...');
 
-    const url = new URL(`${STAGING_URL}/users/shifts/${id}`);
+    const url = new URL(`${CURRENT_URL}/users/shifts/${id}`);
 
     const response = await fetch(url.toString(), {
                     headers: { 
@@ -402,7 +420,7 @@ export async function fetchCompanyShifts(id: string, token: string) {
   try {
     console.log('Fetching single company shifts...');
 
-    const url = new URL(`${STAGING_URL}/companies/shifts/${id}`);
+    const url = new URL(`${CURRENT_URL}/companies/shifts/${id}`);
 
     const response = await fetch(url.toString(), {
                     headers: { 
@@ -427,7 +445,7 @@ export async function fetchLocationShifts(id: string, token: string) {
   try {
     console.log('Fetching single location shifts...');
 
-    const url = new URL(`${STAGING_URL}/locations/shifts/${id}`);
+    const url = new URL(`${CURRENT_URL}/locations/shifts/${id}`);
 
     const response = await fetch(url.toString(), {
                     headers: { 
@@ -452,7 +470,7 @@ export async function fetchOnePharmacist(id: string, token: string) {
   try {
     console.log('Fetching pharmacist...');
 
-    const url = new URL(`${STAGING_URL}/users/pharmacist/${id}`);
+    const url = new URL(`${CURRENT_URL}/users/pharmacist/${id}`);
 
     const response = await fetch(url.toString(), {
                     headers: { 
@@ -477,7 +495,7 @@ export async function fetchOneCompany(id: string, token: string) {
   try {
     console.log('Fetching company...');
 
-    const url = new URL(`${STAGING_URL}/companies/${id}`);
+    const url = new URL(`${CURRENT_URL}/companies/${id}`);
 
     const response = await fetch(url.toString(), {
                     headers: { 
@@ -502,7 +520,7 @@ export async function fetchOneLocation(id: string, token: string) {
   try {
     console.log('Fetching location...');
 
-    const url = new URL(`${STAGING_URL}/locations/${id}`);
+    const url = new URL(`${CURRENT_URL}/locations/${id}`);
 
     const response = await fetch(url.toString(), {
                     headers: { 
@@ -526,7 +544,7 @@ export async function fetchOneLocation(id: string, token: string) {
 export async function fetchUserRole(uid: string, token: string) {
   try {
 
-    const url = new URL(`${STAGING_URL}/users/me/${uid}`);
+    const url = new URL(`${CURRENT_URL}/users/me/${uid}`);
 
     const response = await fetch(url.toString(), {
                     headers: {
@@ -550,9 +568,9 @@ export async function fetchUserRole(uid: string, token: string) {
 export async function fetchAdminCardsData(token: string) {
   try {
     const shiftsCountPromise = fetchShifts("",1,{}, token);
-    const companiesCountPromise = fetchCompanies("",1, token);
+    const companiesCountPromise = fetchCompanies("",1, {}, token);
     const locationsCountPromise = fetchLocations("",1,{}, token);
-    const pharmacistsCountPromise = fetchPharmacists("",1, token);
+    const pharmacistsCountPromise = fetchPharmacists("",1, {}, token);
   
     const data = await Promise.all([
       shiftsCountPromise,
@@ -586,7 +604,7 @@ export async function fetchUnseenNotifications( token: string) {
   try {
     console.log('Fetching unseen notifications...');
 
-    const url = new URL(`${STAGING_URL}/notifications/unseen`);
+    const url = new URL(`${CURRENT_URL}/notifications/unseen`);
 
     const response = await fetch(url.toString(), {
                     headers: {
@@ -611,7 +629,7 @@ export async function fetchLatestShifts( token: string) {
   try {
     console.log('Fetching latst shifts...');
 
-    const url = new URL(`${STAGING_URL}/shifts/latest`);
+    const url = new URL(`${CURRENT_URL}/shifts/latest`);
 
     const response = await fetch(url.toString(), {
                     headers: {
