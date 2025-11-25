@@ -36,29 +36,29 @@ export default function FormContainer({
             case "location": {
                 //Fetch users that have role = location_manager and locationId is empty
                 //Fetch companies to link the location to the company
-                const companiesResponse = await fetchCompanies("", 1, token);  //TODO: Update this fetch to get all the companies, not just the limited by page
+                const companiesResponse = await fetchCompanies("", 1, {}, token);  //TODO: Update this fetch to get all the companies, not just the limited by page
                 setRelatedData({ companies: companiesResponse?.data ?? [] });
                 break;
             }
             case "shift":
                 if(role === "admin" ){
                     //Fetch the companies?, Locations? and pharmacists? to create a new shift
-                    const companiesRes = await fetchCompanies("", 1, token);  //TODO: Update this fetch to get all the companies, not just the limited by page
+                    const companiesRes = await fetchCompanies("", 1, {}, token);  //TODO: Update this fetch to get all the companies, not just the limited by page
                     const locationsRes = await fetchLocations("", 1,{}, token);  
-                    const pharmacistsRes = await fetchPharmacists("", 1, token);  //TODO: Update this fetch to get all the pharmacists without a pharmacist profile and not just the limited by page
+                    const pharmacistsRes = await fetchPharmacists("", 1, {}, token);  //TODO: Update this fetch to get all the pharmacists without a pharmacist profile and not just the limited by page
                     setRelatedData({ pharmacists: pharmacistsRes?.data ?? [], companies: companiesRes?.data ?? [], locations: locationsRes?.data ?? [] });
                 }
                 if(role === "pharmacy_manager"){
                     //Don't fetch companies, only locations linked to the user companyId and pharmacists
                     const companyRes = await fetchOneCompany(companyId ?? "", token);
                     const locationsRes = await fetchLocations("", 1,{companyId: companyId}, token);
-                    const pharmacistsRes = await fetchPharmacists("", 1, token);  //TODO: Update this fetch to get all the pharmacists without a pharmacist profile and not just the limited by page
+                    const pharmacistsRes = await fetchPharmacists("", 1, {}, token);  //TODO: Update this fetch to get all the pharmacists without a pharmacist profile and not just the limited by page
                     setRelatedData({ pharmacists: pharmacistsRes?.data ?? [], companies: [companyRes?.data] , locations: locationsRes?.data ?? [] });
                 }
                 if(role === "location_manager"){
                     //Don't fetch companies or locations, only fetch pharmacists
                     const companyRes = await fetchOneCompany(companyId ?? "", token);
-                    const pharmacistsRes = await fetchPharmacists("", 1, token);  //TODO: Update this fetch to get all the pharmacists without a pharmacist profile and not just the limited by page
+                    const pharmacistsRes = await fetchPharmacists("", 1, {}, token);  //TODO: Update this fetch to get all the pharmacists without a pharmacist profile and not just the limited by page
                     setRelatedData({ pharmacists: pharmacistsRes?.data ?? [], companies: [companyRes?.data]});
                 }
                 break;
