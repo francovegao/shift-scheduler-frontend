@@ -17,10 +17,10 @@ export default async function AdminPage({
           Admin Dashboard
         </h1>
         {/* USER CARDS */}
-        <div className="p-8 grid gap-6 grid-cols-2 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <CardWrapperAdmin />
         </div>
-        <div className="flex gap-4 flex-col md:flex-row">
+        <div className=" p-4 flex gap-4 flex-col md:flex-row">
         {/* LEFT */}
         <div className="w-full lg:w-2/3 flex flex-col gap-8">
           {/* MIDDLE CHARTS */}

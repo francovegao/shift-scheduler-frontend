@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from "../context/auth-context";
 import { displayRole } from "@/app/lib/utils";
+import SignOutButton from "./sign-out-button";
 
 export default function NavBar() {
   const { firebaseUser, appUser, loading } = useAuth();

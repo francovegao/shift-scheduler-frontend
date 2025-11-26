@@ -69,7 +69,7 @@ export default function SingleLocationPage({
             <div className="flex flex-col lg:flex-row gap-4">
                 {/* USER INFO CARD */}
                 <div className="bg-primary py-6 px-4 rounded-md flex-1 flex gap-4 text-white">
-                    <div className="w-1/3 flex items-center">
+                    <div className="w-1/3 flex flex-col justify-center items-center">
                         {company.name==="Pharm Drugstore" ? (
                         <div className="relative w-full h-16">
                         <Image

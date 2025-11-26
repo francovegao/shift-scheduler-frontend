@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 import { useAuth } from '../context/auth-context';
+import SignOutButton from './sign-out-button';
 
 // Map of links to display in the side navigation.
 // Depending on the size of the application, this would be stored in a database.
@@ -51,7 +52,7 @@ export default function NavLinks() {
   }
 
   return (
-    <>
+    <div className="flex flex-wrap gap-2 md:flex-col md:gap-2">
       {links.map((link) => {
         const LinkIcon = link.icon;
         if(appUser.role && link.visible.includes(appUser.role)){ 
@@ -60,7 +61,7 @@ export default function NavLinks() {
             key={link.name}
             href={link.href}
             className={clsx(
-              'flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-primary md:flex-none md:justify-start md:p-2 md:px-3',
+              'flex h-[48px] items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-primary md:flex-none md:justify-start md:p-2 md:px-3',
               {
                 'bg-sky-100 text-primary': pathname === link.href,
               },
@@ -72,6 +73,6 @@ export default function NavLinks() {
           );
         }       
       })}
-    </>
+    </div>
   );
 }

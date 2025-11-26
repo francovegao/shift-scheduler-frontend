@@ -123,13 +123,15 @@ export default function FormModal({
         </button>
         
         {open && (
-          <div className="w-screen h-screen absolute left-0 top-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
-            <div className='bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] max-h-9/10 overflow-y-scroll'>
+          <div className="w-screen h-screen fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center overflow-hidden">
+            <div className="bg-white p-4 pb-10 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] max-h-[calc(100dvh-40px)] overflow-y-auto">
               <Form />
-              <div className='absolute top-4 right-4 cursor-pointer text-black' onClick={()=>setOpen(false)}>
-                <XMarkIcon className='w-6' />
+              <div
+                className="absolute top-4 right-4 cursor-pointer text-black"
+                onClick={() => setOpen(false)}
+              >
+                <XMarkIcon className="w-6" />
               </div>
-
             </div>
           </div>
         )}
