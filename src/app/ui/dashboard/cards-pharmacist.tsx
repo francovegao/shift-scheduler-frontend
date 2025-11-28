@@ -40,7 +40,8 @@ export default function CardWrapperPharmacist() {
           const getData = async () => {
             setIsFetching(true);
             try {
-              const cardResponse = await fetchAllMyShifts( token);
+              const queryParams: Record<string, string> = {};
+              const cardResponse = await fetchAllMyShifts( token, queryParams);
               setOpenShifts(cardResponse.meta.totalOpen);
               setTakenShifts(cardResponse.meta.totalTaken);
               setCompletedShifts(cardResponse.meta.totalCompleted);
