@@ -73,7 +73,7 @@ export default function SingleLocationPage({
                         {company.name==="Pharm Drugstore" ? (
                         <div className="relative w-full h-16">
                         <Image
-                            src={`/${company?.name}-black.png`}
+                            src={`/${company?.name}-white.png`}
                             alt="Pharmacy Logo"
                             fill
                         />
@@ -81,7 +81,7 @@ export default function SingleLocationPage({
                         : company.name==="Grassroots Pharmacy"?(
                             <div className="relative w-full h-24">
                             <Image
-                                src={`/${company?.name}-black.png`}
+                                src={`/${company?.name}-white.png`}
                                 alt="Pharmacy Logo"
                                 fill
                             />
@@ -89,7 +89,7 @@ export default function SingleLocationPage({
                         : company.name.includes("CurisRx") ? (
                              <div className="relative w-full h-12">
                             <Image
-                                src={`/CurisRx-Black-2021.png`}
+                                src={`/CurisRx-White-2021.png`}
                                 alt="Pharmacy Logo"
                                 fill
                             />

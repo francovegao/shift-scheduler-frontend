@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import FormModal from "./form-modal";
 import { fetchCompanies, fetchLocations, fetchOneCompany, fetchPharmacists } from "@/app/lib/data";
 import { useAuth } from "../context/auth-context";
+import { useSelectedCompany } from "@/app/lib/useSelectedCompany";
 
 export type FormContainerProps = {
   table: "shift" | "user" | "pharmacist" | "company" | "location";
@@ -24,7 +25,7 @@ export default function FormContainer({
     const [isFetching, setIsFetching] = useState(false);
     const [relatedData, setRelatedData] = useState<any>({});
 
-
+    const currentCompanyId = useSelectedCompany((state) => state.currentCompanyId);
 
     useEffect(() => {
         if (type === "delete") return;
@@ -50,7 +51,8 @@ export default function FormContainer({
                 }
                 if(role === "pharmacy_manager"){
                     //Don't fetch companies, only locations linked to the user companyId and pharmacists
-                    const companyRes = await fetchOneCompany(companyId ?? "", token);
+                    
+                    const companyRes = await fetchOneCompany(currentCompanyId ?? companyId ?? "", token);
                     const locationsRes = await fetchLocations("", 1,{companyId: companyId}, token);
                     const pharmacistsRes = await fetchPharmacists("", 1, {}, token);  //TODO: Update this fetch to get all the pharmacists without a pharmacist profile and not just the limited by page
                     setRelatedData({ pharmacists: pharmacistsRes?.data ?? [], companies: [companyRes?.data] , locations: locationsRes?.data ?? [] });

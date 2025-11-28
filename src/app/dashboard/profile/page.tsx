@@ -25,6 +25,7 @@ type User = {
   files: any | null;
   company: any;
   location: any;
+  allowedCompanies: string[], 
 };
 
 
@@ -72,7 +73,7 @@ export default function ProfilePage() {
         <div className="p-4 lg:p-8">
             <BasicProfileInfo user={user} token={token} />
 
-            {role === "pharmacy_manager" && <CompanyManagerProfileInfo company={user?.company} token={token}/>}
+            {role === "pharmacy_manager" && <CompanyManagerProfileInfo company={user?.company} allowedCompanies={user?.allowedCompanies} token={token}/>}
             {role === "relief_pharmacist" && <ReliefPharmacistProfileInfo pharmacistProfile={user?.pharmacistProfile} token={token}/>} 
             {role === "location_manager" && <LocationManagerProfileInfo location={user?.location} companyName={user?.company?.name} token={token} />}   
 

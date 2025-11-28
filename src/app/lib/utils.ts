@@ -76,7 +76,7 @@ export const displayRole = (
     case "admin":
       return "Admin"
     case "pharmacy_manager":
-      return "Company Manager"
+      return "Pharmacy Manager"
     case "location_manager":
       return "Location Manager"
     case "relief_pharmacist":

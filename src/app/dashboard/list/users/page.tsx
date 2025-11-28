@@ -27,6 +27,7 @@ type User = {
     role: string,
     companyId?: string,
     locationId?: String
+    allowedCompanies: string[],
 } 
 
 type Company = {
@@ -175,7 +176,7 @@ const renderRow = (item: UserList) => (
             {item?.company ? (
               <>
             <h3 className="font-semibold">{item?.company?.name}</h3>
-            <p className="text-xs text-gray-500">{item?.location?.name}</p>
+            <p className="text-xs text-gray-500">Managed Pharmacies: {item?.allowedCompanies.length+1}</p>
             </>
             ) : (
              <RelatedDataModal type="link_company" token={token} id={item.id}/> 
@@ -207,13 +208,16 @@ const renderRow = (item: UserList) => (
       
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex justify-end gap-3">
+          {(item.role === "pharmacy_manager" && item?.company) && (
+            <RelatedDataModal type="set_managed_companies" token={token} id={item?.id} data={item}/>
+          )}
           {(item.role === "relief_pharmacist" && item.pharmacistProfile) && (
-          <Link 
-            href={`pharmacists/${item.id}`}
-            className="rounded-md border p-2 hover:bg-gray-100"
-          >
-              <EyeIcon className="w-5"  />
-          </Link>
+            <Link 
+              href={`pharmacists/${item.id}`}
+              className="rounded-md border p-2 hover:bg-gray-100"
+            >
+                <EyeIcon className="w-5"  />
+            </Link>
           )}
           {role === "admin" && (
             <>

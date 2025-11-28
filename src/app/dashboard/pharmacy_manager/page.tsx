@@ -1,5 +1,5 @@
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
-import Announcements from "@/app/ui/dashboard/notifications";
+import Notifications from "@/app/ui/dashboard/notifications";
 import LatestShifts from "@/app/ui/dashboard/latest-shifts";
 import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
 import CardWrapperManager from "@/app/ui/dashboard/cards-manager";
@@ -29,7 +29,7 @@ export default async function CompanyManagerPage() {
               {/* RIGHT */}
               <div className="w-full xl:w-1/3 flex flex-col gap-8">
                 <LatestShifts />
-                <Announcements />
+                <Notifications />
               </div>
             </div>
       </main>

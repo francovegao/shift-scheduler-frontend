@@ -7,6 +7,7 @@ import { fetchLatestShifts } from '@/app/lib/data';
 import ApprovedStatus from '../list/status';
 import ShiftInfoModal from '../list/shift-info-modal';
 import Link from 'next/link';
+import { useSelectedCompany } from '@/app/lib/useSelectedCompany';
 
 const DateFormat = {
   year: 'numeric',
@@ -27,6 +28,7 @@ const TimeFormat = {
     const [latestShifts, setLatestShifts] = useState<any[]>([]);
 
     const [openEventId, setOpenEventId] = useState(null);
+    const currentCompanyId = useSelectedCompany((state) => state.currentCompanyId);
 
     // Get token
       useEffect(() => {
@@ -42,7 +44,20 @@ const TimeFormat = {
         const getLatestShifts = async () => {
           setIsFetching(true);
           try {
-            const latestShiftsResponse = await fetchLatestShifts(token);
+              const queryParams: Record<string, string> = {};
+
+              //Set current selected companyId
+              if(appUser?.role ==="pharmacy_manager"){
+                if(currentCompanyId !== appUser?.companyId ){
+                  queryParams["companyId"] = currentCompanyId || "";
+                }
+              }
+
+              if (queryParams["companyId"] === "") {
+                  delete queryParams["companyId"];
+              }
+
+            const latestShiftsResponse = await fetchLatestShifts(token, queryParams);
             setLatestShifts(latestShiftsResponse?.data ?? []);
           } catch (err) {
             console.error("Failed to fetch latest shifts", err);
@@ -51,7 +66,7 @@ const TimeFormat = {
           }
         };
         if (token){ getLatestShifts() };
-    }, [token]);
+    }, [token, currentCompanyId]);
 
     if (loading || isFetching) return <div>Loading...</div>;
     if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

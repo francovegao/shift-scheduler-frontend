@@ -8,11 +8,12 @@ import SelectAllowedCompaniesForm from '../forms/pharmacies/select-allowed-compa
 import PharmacistForm from '../forms/pharmacists/pharmacist-form';
 import LinkManagerToLocationForm from '../forms/pharmacies/link-manager-to-location-form';
 import ChangePasswordForm from '../forms/security/change-password-form';
+import SelectManagedCompaniesForm from '../forms/pharmacies/select-managed-companies-form';
 
 export default function RelatedDataModal({ 
   type, token, data, id 
 }:{ 
-  type: "link_company" | "link_location" | "link_pharmacist_profile" | "set_allowed_companies" | "update_password", 
+  type: "link_company" | "link_location" | "link_pharmacist_profile" | "set_allowed_companies" | "set_managed_companies" | "update_password", 
   token: string,
   data?: any;
   id?: string; 
@@ -37,6 +38,10 @@ export default function RelatedDataModal({
     ) : type === "set_allowed_companies" && id ? (
         <div>
         <SelectAllowedCompaniesForm setOpen={setOpen} token={token} pharmacistId={id} data={data}/>
+      </div>
+    ) : type === "set_managed_companies" && id ? (
+        <div>
+        <SelectManagedCompaniesForm setOpen={setOpen} token={token} userId={id} data={data}/>
       </div>
     ) : type === "update_password" ? (
         <div>
@@ -81,6 +86,12 @@ export default function RelatedDataModal({
           <>
             <BuildingOffice2Icon className="w-4 h-4" />
             <span>Set Allowed Pharmacies</span>
+          </>
+        )}
+        {type === 'set_managed_companies' && (
+          <>
+            <BuildingOffice2Icon className="w-4 h-4" />
+            <span>Set Managed Pharmacies</span>
           </>
         )}
         {type === 'update_password' && (

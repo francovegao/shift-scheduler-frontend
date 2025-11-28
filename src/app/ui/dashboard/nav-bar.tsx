@@ -1,93 +1,168 @@
 'use client';
 
-import { BellIcon, UserCircleIcon } from "@heroicons/react/24/outline";
+import { BellIcon, BuildingOfficeIcon, ChevronDownIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 import Link from 'next/link';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, SetStateAction } from 'react';
 import { useAuth } from "../context/auth-context";
 import { displayRole } from "@/app/lib/utils";
-import SignOutButton from "./sign-out-button";
+import { fetchUserInfo } from "@/app/lib/data";
+import { useSelectedCompany } from "@/app/lib/useSelectedCompany";
+import Notifications from "./notifications";
+import Menu from "./menu";
+
+type User = {
+  id: string;
+  firebaseUid: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  phone: string | null;
+  createdAt: string;
+  role: "admin" | "pharmacy_manager" | "location_manager" | "relief_pharmacist" | null;
+  companyId: string | null;
+  locationId: string | null;
+  pharmacistProfile: any | null;
+  files: any | null;
+  company: any;
+  location: any;
+  allowedCompanies: any[], 
+};
 
 export default function NavBar() {
   const { firebaseUser, appUser, loading } = useAuth();
-  const [isMenuOpen, setIsMenuOpen] = useState(false); 
-  const menuRef = useRef<HTMLDivElement | null>(null);
-  const buttonRef = useRef<HTMLDivElement | null>(null);  
+  const [isFetching, setIsFetching] = useState(true);
+  const [token, setToken] = useState(""); 
 
-  // Close menu when clicking outside
+  const [user, setUser] = useState<User | null>(null);
+
+  const currentCompanyId = useSelectedCompany((state) => state.currentCompanyId);
+  const setCompany = useSelectedCompany((state) => state.setCompany);
+
+  
+  // Get token
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node) &&
-        buttonRef.current &&
-        !buttonRef.current.contains(event.target as Node)
-      ) {
-        setIsMenuOpen(false);
+      if (firebaseUser) {
+      firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
+          setToken(idToken);
+      });
       }
-    };
+  }, [firebaseUser]);
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  useEffect(() => {
+      const getUser = async () => {
+      setIsFetching(true);
+      try {
+          if (appUser?.id) {
+              const userResponse = await fetchUserInfo(appUser.id, token);
+              setUser(userResponse?.data ?? null);
+          }
+      } catch (err) {
+          console.error("Failed to fetch user", err);
+      } finally {
+          setIsFetching(false);
+      }
+      };
+      if (token){ getUser() };
 
-  const toggleUserMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+
+  }, [token, appUser]);
+
+  useEffect(() => {
+  if (user && !currentCompanyId) {
+    setCompany(user.companyId ?? null);
+  }
+}, [user]);
+
+  const saveSelectedCompany = (id: string) => {
+    setCompany(id);
   };
 
-  if (loading) return <div>Loading...</div>;
-
-  if (!firebaseUser || !appUser) {
-    return null; 
-  }
+  if (loading || isFetching) return <div>Loading...</div>;
+  if (!firebaseUser || !appUser || !user) return <div>Please sign in to continue</div>;
 
   return (
     <div className='flex items-center justify-between p-4'>
       {/* ICONS AND USER */}
       <div className='flex items-center gap-6 justify-end w-full'>
-        <div className='rounded-full w-7 h-7 flex items-center justify-center cursor-pointer relative hover:bg-sky-100 hover:text-primary'>
-          <BellIcon className="w-20" />
-          <div className='absolute -top-3 -right-3 w-5 h-5 flex items-center justify-center bg--500 text-white rounded-full text-xs'>1</div>
-        </div>
-        <div className='flex flex-col'>
-          <span className="text-xs leading-3 font-medium">{appUser.firstName} {appUser.lastName}</span>
-          <span className="text-[10px] text-gray-500 text-right">{displayRole(appUser.role)}</span>
-        </div>
-        
-        {/* User Menu Container */}
-        <div className="relative">
-          <div
-            ref={buttonRef} // Attach ref to the clickable area
-            onClick={toggleUserMenu} 
-            className="cursor-pointer hover:bg-sky-100 hover:text-primary rounded-full"
-          >
-            <UserCircleIcon className="w-7 h-7" />
-          </div>
 
-          {/* Dropdown Menu */}
-          {isMenuOpen && (
-            <div
-              ref={menuRef} // Attach ref to the menu
-              className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 py-1"
-            >
-              <Link
-                href="/"
-                className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Home
-              </Link>
-              <Link
-                href="/dashboard/profile"
-                className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <p>Profile</p>
-              </Link>
+      {appUser?.role === "pharmacy_manager" &&(
+        <Menu
+          button={
+            <div className="flex items-center gap-1 cursor-pointer hover:bg-sky-100 hover:text-primary rounded-md p-1">
+              <BuildingOfficeIcon className="w-7 h-7" />
+              <div className="flex flex-col">
+                <span className="text-xs font-medium">
+                  {user.allowedCompanies.find(c => c.id === currentCompanyId)?.name ||
+                    user?.company?.name}
+                </span>
+                <span className="text-[10px] text-complementary-one text-right">
+                  Current Pharmacy
+                </span>
+              </div>
+              <ChevronDownIcon className="w-4 h-4" />
             </div>
-          )}
-        </div>
+          }
+        >
+          <p
+            key={user.companyId}
+            onClick={() => { saveSelectedCompany(user.companyId!); close(); }}
+            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          >
+            {user.company?.name}
+          </p>
+
+          {user.allowedCompanies.map((c) => (
+            <p
+              key={c.id}
+              onClick={() => { saveSelectedCompany(c.id); close(); }}
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+            >
+              {c.name}
+            </p>
+          ))}
+        </Menu>
+      )}
+
+
+        <Menu
+          button={
+            <div className="flex items-center gap-1 cursor-pointer hover:bg-sky-100 hover:text-primary rounded-md p-1">
+              <UserCircleIcon className="w-7 h-7" />
+              <div className="flex flex-col">
+                <span className="text-xs font-medium">{appUser.firstName} {appUser.lastName}</span>
+                <span className="text-[10px] text-gray-500 text-right">{displayRole(appUser.role)}</span>
+              </div>
+            </div>
+          }
+        >
+          <Link
+            href="/"
+            className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+          >
+            Home
+          </Link>
+
+          <Link
+            href="/dashboard/profile"
+            className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+          >
+            Profile
+          </Link>
+        </Menu>
+
+        <Menu
+          width="w-80"
+          button={
+            <div className="rounded-full w-7 h-7 flex items-center justify-center cursor-pointer hover:bg-sky-100 hover:text-primary">
+              <BellIcon className="w-5 h-5" />
+            </div>
+          }
+        >
+          <div className="py-2 px-4">
+            <Notifications />
+          </div>
+        </Menu>
+
       </div>
     </div>
   )

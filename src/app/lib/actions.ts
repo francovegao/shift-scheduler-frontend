@@ -126,6 +126,37 @@ export const updateUser = async (token: string, currentState: CurrentState, data
   }
 }
 
+export const setManagerAllowedCompanies = async (token: string, currentState: CurrentState, data: AllowedCompaniesSchema)=>{
+   try {
+    console.log('Updating user...');
+
+    const body = {
+      allowedCompaniesIds: data.companiesArray,
+    }
+
+    const response = await fetch(`${CURRENT_URL}/users/${data.id}`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+  
+    return {success: true, error: false};
+    //return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return {success: false, error: true};
+  }
+}
+
 export const linkManagerToCompany = async (token: string, currentState: CurrentState, data: LinkManagerToCompanySchema)=>{
    try {
     console.log('Updating user...');

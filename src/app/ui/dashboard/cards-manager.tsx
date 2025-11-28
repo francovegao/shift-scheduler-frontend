@@ -9,6 +9,7 @@ import {
 import { fetchAllMyShifts } from '@/app/lib/data';
 import { useAuth } from '../context/auth-context';
 import { SetStateAction, useEffect, useState } from 'react';
+import { useSelectedCompany } from '@/app/lib/useSelectedCompany';
 
 const iconMap = {
   openShifts: BookOpenIcon,
@@ -25,6 +26,7 @@ export default function CardWrapperManager() {
   const [myTakenShifts, setTakenShifts] = useState<number>(0);
   const [myCompletedShifts, setCompletedShifts] = useState<number>(0);
   const [myCancelledShifts, setCancelledShifts] = useState<number>(0);
+  const currentCompanyId = useSelectedCompany((state) => state.currentCompanyId);
 
   // Get token
     useEffect(() => {
@@ -40,7 +42,25 @@ export default function CardWrapperManager() {
           const getData = async () => {
             setIsFetching(true);
             try {
-              const cardResponse = await fetchAllMyShifts( token);
+              setOpenShifts(0);
+              setTakenShifts(0);
+              setCompletedShifts(0);
+              setCancelledShifts(0);
+
+              const queryParams: Record<string, string> = {};
+
+              //Set current selected companyId
+              if(appUser?.role ==="pharmacy_manager"){
+                if(currentCompanyId !== appUser?.companyId ){
+                  queryParams["companyId"] = currentCompanyId || "";
+                }
+              }
+
+              if (queryParams["companyId"] === "") {
+                  delete queryParams["companyId"];
+              }
+
+              const cardResponse = await fetchAllMyShifts(token, queryParams);
               setOpenShifts(cardResponse.meta.totalOpen);
               setTakenShifts(cardResponse.meta.totalTaken);
               setCompletedShifts(cardResponse.meta.totalCompleted);
@@ -52,7 +72,7 @@ export default function CardWrapperManager() {
             }
           };
           if (token){ getData() };
-    }, [ token ]);
+    }, [ token, currentCompanyId ]);
   
       if (loading || isFetching) return <div>Loading...</div>;
       if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

@@ -212,12 +212,20 @@ export async function fetchMyShifts(query: string, currentPage: number, queryPar
   }
 }
 
-export async function fetchAllMyShifts(token: string) {
+export async function fetchAllMyShifts(token: string, queryParams: Object) {
   try {
     console.log('Fetching all my shifts data...');
  
     const url = new URL(`${CURRENT_URL}/shifts/allmyshifts`);
     url.searchParams.append('limit', '1000');   //Limit to 1000 shifts
+
+    if(queryParams){
+      for (const [key, value] of Object.entries(queryParams)) {
+        if (value !== undefined) {
+          url.searchParams.append(key, value.toString());
+        }
+      }
+    }
 
     const response = await fetch(url.toString(), {
       headers: {
@@ -625,11 +633,19 @@ export async function fetchUnseenNotifications( token: string) {
   }
 }
 
-export async function fetchLatestShifts( token: string) {
+export async function fetchLatestShifts( token: string, queryParams: Object) {
   try {
     console.log('Fetching latst shifts...');
 
     const url = new URL(`${CURRENT_URL}/shifts/latest`);
+
+    if(queryParams){
+      for (const [key, value] of Object.entries(queryParams)) {
+        if (value !== undefined) {
+          url.searchParams.append(key, value.toString());
+        }
+      }
+    }
 
     const response = await fetch(url.toString(), {
                     headers: {

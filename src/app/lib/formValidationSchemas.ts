@@ -79,7 +79,7 @@ export const pharmacistSchema = z.object({
 export type PharmacistSchema = z.infer<typeof pharmacistSchema>;
 
 export const allowedCompaniesSchema = z.object({
-    id: z.string({ message: "Pharmacist ID is required!" }),
+    id: z.string({ message: "User ID is required!" }),
     //companyId: z.string({ message: "Company ID is required!" }),
     companiesArray: z.array(z.string()),
     //companiesArray: z.array(z.object({companyId: z.string({ message: "Company ID is required!" })})),

@@ -1,6 +1,7 @@
 "use client";
 
 import { fetchShifts } from "@/app/lib/data";
+import { useSelectedCompany } from "@/app/lib/useSelectedCompany";
 import { getFullAddress } from "@/app/lib/utils";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
@@ -136,6 +137,7 @@ export default function ShiftsList(){
     const [token, setToken] = useState("");
     const [shifts, setShifts] = useState<any[]>([]);
     const [totalPages, setTotalPages] = useState<number>(1);
+    const currentCompanyId = useSelectedCompany((state) => state.currentCompanyId);
 
     // Redirect if not logged in
     useEffect(() => {
@@ -182,6 +184,13 @@ export default function ShiftsList(){
             const currentPage = page ? parseInt(page) : 1;
             const search = query ?? '';
 
+            //Set current selected companyId
+            if(appUser?.role ==="pharmacy_manager"){
+              if(currentCompanyId !== appUser?.companyId ){
+                queryParams["companyId"] = currentCompanyId || "";
+              }
+            }
+
             const shiftsResponse = await fetchShifts(search, currentPage, queryParams, token);
             setShifts(shiftsResponse?.data ?? []);
             setTotalPages(shiftsResponse?.meta?.totalPages ?? 1);
@@ -192,7 +201,7 @@ export default function ShiftsList(){
           }
         };
         if (token){ getShifts() };
-  }, [token, searchParams]);
+  }, [token, searchParams, currentCompanyId]);
 
     if (loading || isFetching) return <div>Loading...</div>;
     if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

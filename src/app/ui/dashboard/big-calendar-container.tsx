@@ -4,6 +4,7 @@ import { fetchAllMyShifts, fetchCompanyShifts, fetchLocationShifts, fetchPharmac
 import BigCalendar from "./big-calendar";
 import { useAuth } from "../context/auth-context";
 import { SetStateAction, useEffect, useState } from "react";
+import { useSelectedCompany } from "@/app/lib/useSelectedCompany";
 
 
 export default function BigCalendarContainer({  
@@ -17,6 +18,7 @@ export default function BigCalendarContainer({
     const [isFetching, setIsFetching] = useState(true);
     const [token, setToken] = useState("");
     const [shifts, setShifts] = useState<any[]>([]);
+    const currentCompanyId = useSelectedCompany((state) => state.currentCompanyId);
 
     // Get token
     useEffect(() => {
@@ -34,7 +36,20 @@ export default function BigCalendarContainer({
           switch (type) {
             case "dashboard_pharmacist":
             case "dashboard_manager":
-              const shiftsResponse = await fetchAllMyShifts(token);
+              const queryParams: Record<string, string> = {};
+
+              //Set current selected companyId
+              if(appUser?.role ==="pharmacy_manager"){
+                if(currentCompanyId !== appUser?.companyId ){
+                  queryParams["companyId"] = currentCompanyId || "";
+                }
+              }
+
+              if (queryParams["companyId"] === "") {
+                  delete queryParams["companyId"];
+              }
+
+              const shiftsResponse = await fetchAllMyShifts(token, queryParams);
               setShifts(shiftsResponse?.data ?? []);
               break;
             case "single_pharmacist":
@@ -70,7 +85,7 @@ export default function BigCalendarContainer({
   };
 
   if (token) fetchData();
-  }, [type, token]);
+  }, [type, token, currentCompanyId]);
 
     if (loading || isFetching) return <div>Loading...</div>;
     if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

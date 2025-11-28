@@ -11,6 +11,7 @@ import { createShift, updateShift } from "@/app/lib/actions";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/auth-context";
 import { getFullAddress } from "@/app/lib/utils";
+import { useSelectedCompany } from "@/app/lib/useSelectedCompany";
 
 // Infer the input and output types from the schema
 type FormInput = z.input<typeof shiftSchema>;
@@ -41,6 +42,7 @@ export default function ShiftForm({
       const [selectedCompanyId, setSelectedCompanyId] = useState(data ? data.companyId : null);
       const [selectedLocationName, setSelectedLocationName] = useState(data ? data.location?.name : null);
       const [selectedCompanyName, setSelectedCompanyName] = useState(data ? data.company.name : null);
+      const currentCompanyId = useSelectedCompany((state) => state.currentCompanyId);
 
       const {
         register,
@@ -124,12 +126,13 @@ export default function ShiftForm({
       if (!relatedData) return;
 
       // Approval logic
-      if (role === "pharmacy_manager" || role === "location_manager") {
+      if (role === "pharmacy_manager") {
         setCompanyApproved(relatedData.companies?.[0]?.approved ?? false);
       }
     
       // location_manager starts at step 2
       if(role==="location_manager"){
+        setCompanyApproved(relatedData.companies?.[0]?.approved ?? false);
         setStep(2)
       }
 
