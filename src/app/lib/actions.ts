@@ -232,6 +232,9 @@ export const createCompany = async (token: string, currentState: CurrentState,  
         city: data.city,
         province: data.province,
         postalCode: data.postalCode,
+        contactName: data.contactName,
+        contactEmail: data.contactEmail,
+        contactPhone: data.contactPhone,
     }
 
     const response = await fetch(`${CURRENT_URL}/companies`, {
@@ -272,6 +275,9 @@ export const updateCompany = async (token: string, currentState: CurrentState, d
         city: data.city,
         province: data.province,
         postalCode: data.postalCode,
+        contactName: data.contactName,
+        contactEmail: data.contactEmail,
+        contactPhone: data.contactPhone,
     }
 
     const response = await fetch(`${CURRENT_URL}/companies/${data.id}`, {

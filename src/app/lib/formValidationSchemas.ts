@@ -41,6 +41,9 @@ export const companySchema = z.object({
     city: z.string().optional(),
     province: z.string().min(2,{message: "Province is required."}),
     postalCode: z.string().optional(),
+    contactName: z.string().optional(),
+    contactPhone: z.string().optional(),
+    contactEmail: z.string().optional(),
 });
 
 export type CompanySchema = z.infer<typeof companySchema>;

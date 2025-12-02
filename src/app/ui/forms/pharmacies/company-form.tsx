@@ -97,7 +97,7 @@ export default function CompanyForm({
               error={errors?.legalName}
             />
             <InputField
-              label="Email"
+              label="Pharmacy Email"
               name="email"
               type="email"
               defaultValue={data?.email}
@@ -105,7 +105,7 @@ export default function CompanyForm({
               error={errors?.email}
             />
             <InputField
-                label="Phone"
+                label="Pharmacy Phone"
                 name="phone"
                 type="phone"
                 defaultValue={data?.phone}
@@ -132,6 +132,13 @@ export default function CompanyForm({
                 )}
             </div>
             )}
+            <InputField
+              label="GST Number"
+              name="GSTNumber"
+              defaultValue={data?.GSTNumber}
+              register={register}
+              error={errors?.GSTNumber}
+            />
            </div>
           <span className="text-xs text-gray-400 font-medium">
             Pharmacy Information
@@ -183,11 +190,25 @@ export default function CompanyForm({
               error={errors?.postalCode}
             />
             <InputField
-              label="GST Number"
-              name="GSTNumber"
-              defaultValue={data?.GSTNumber}
+              label="Contact Name"
+              name="contactName"
+              defaultValue={data?.contactName}
               register={register}
-              error={errors?.GSTNumber}
+              error={errors?.contactName}
+            />
+            <InputField
+              label="Contact Phone"
+              name="contactPhone"
+              defaultValue={data?.contactPhone}
+              register={register}
+              error={errors?.contactPhone}
+            />
+            <InputField
+              label="Contact Email"
+              name="contactEmail"
+              defaultValue={data?.contactEmail}
+              register={register}
+              error={errors?.contactEmail}
             />
             </div>
             {state.error && <span className="text-red-500">Something went wrong!</span>}

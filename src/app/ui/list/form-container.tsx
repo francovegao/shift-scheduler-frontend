@@ -87,7 +87,7 @@ export default function FormContainer({
   }, [table, type, token]);
 
   
-    if (loading) return <div>Loading...</div>;
+    if (loading || isFetching) return <div>Loading...</div>;
     if ( !appUser) return <div>Please sign in to continue</div>;
 
     const role = appUser.role;

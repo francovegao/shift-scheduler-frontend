@@ -6,7 +6,8 @@ import {
     UserCircleIcon, PhoneIcon, EnvelopeIcon, 
     CalendarIcon, MapPinIcon, CheckCircleIcon,
     ClockIcon, BuildingStorefrontIcon, XCircleIcon,
-    BuildingOfficeIcon } from "@heroicons/react/24/outline";
+    BuildingOfficeIcon, 
+    UserIcon} from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useAuth } from "@/app/ui/context/auth-context";
 import { SetStateAction, useEffect, useState, use } from "react";
@@ -60,6 +61,7 @@ export default function SingleLocationPage({
     if(!company) { notFound(); }
 
     const role = appUser.role;
+    const hasContactInfo = company?.contactName || company?.contactPhone || company?.contactEmail;
 
   return (
     <div className="flex-1 p-4 flex flex-col gap-4 xl:flex-row">
@@ -109,7 +111,7 @@ export default function SingleLocationPage({
                                     data={company}
                                 />
                                 )}
-                            {(role === "pharmacy_manager" &&
+                            {/* {(role === "pharmacy_manager" &&
                             appUser?.companyId === company.id) && (
                                 <FormContainer
                                     table="company"
@@ -117,7 +119,7 @@ export default function SingleLocationPage({
                                     token={token}
                                     data={company}
                                 />
-                                )}
+                                )} */}
                         </div>
                         <p className="text-sm">{company.legalName}</p>
                         <p className="text-sm">
@@ -139,6 +141,20 @@ export default function SingleLocationPage({
                             <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                 <PhoneIcon className="w-5"/>
                                 <span>{company?.phone || "Add a phone number"}</span>
+                            </div>
+                            <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
+                                <UserIcon className="w-5"/>
+                                <div className="flex flex-col"> 
+                                    {hasContactInfo ? (
+                                        <>
+                                            <span>{company?.contactName || "Add contact's name"}</span>
+                                            <span>{company?.contactPhone || "Add contact's phone"}</span>
+                                            <span>{company?.contactEmail}</span>
+                                        </>
+                                    ) : (
+                                        <span>Add contact person info</span>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>

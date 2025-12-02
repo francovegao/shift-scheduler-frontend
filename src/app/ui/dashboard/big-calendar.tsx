@@ -137,7 +137,7 @@ const CustomDayEventComponent = ({ event }: any | undefined) => {
   return (
     <div>
       <p className='mb-2 font-semibold'>{title}</p>
-      {shift.payRate && <p className='mb-2'>${shift.payRate} /hr</p>}
+      <p className='mb-2'>${parseFloat(shift?.payRate).toFixed(2)} /hr</p>
       {shift.status === 'open' && (
         <>
          <p>Info:</p>
@@ -163,7 +163,13 @@ const CustomWeekEventComponent = ({ event }: any | undefined) => {
   return (
     <div>
       <p className='mb-2 font-semibold'>{title}</p>
-      {shift.payRate && <p className='mb-2'>${shift.payRate} /hr</p>}
+      {shift.status !== 'open' && (
+        <div className='mb-2 font-medium'>
+         <p>{shift.location?.name}</p>
+         <p>{shift.company.name}</p>
+        </div>
+         )}
+      <p className='mb-2'>${parseFloat(shift?.payRate).toFixed(2)} /hr</p>
     </div>
   );
 };

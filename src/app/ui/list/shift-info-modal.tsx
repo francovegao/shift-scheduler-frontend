@@ -50,7 +50,7 @@ export default function ShiftInfoModal({
         <h1 className="text-xl font-semibold">Shift Info</h1>
         <div className="flex justify-around flex-wrap gap-4 mb-4">
           <div>
-            <h2 className="text-gray-400 font-medium mb-2">Location Information</h2>
+            <h2 className="text-gray-400 font-medium mb-2">Pharmacy Information</h2>
             {data.location ? (
               <div className="">
                 <h3 className="font-semibold">{data.location?.name}</h3>
@@ -97,6 +97,13 @@ export default function ShiftInfoModal({
           </div>
           )}
         </div>
+          {data.status === 'taken' && (
+          <div className="font-semibold text-complementary-one">To cancel this shift please contact:
+                <p className="text-sm text-gray-500">{data.company?.contactName}</p>
+                <p className="text-sm text-gray-500">{data.company?.contactPhone}</p>
+                <p className="text-sm text-gray-500">{data.company?.contactEmail}</p>
+          </div>
+          )}
         <button type="submit" className="bg-gray-500 text-white py-2 px-4 rounded-md border-none w-max self-center">
           Close
         </button>

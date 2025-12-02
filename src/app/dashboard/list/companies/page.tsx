@@ -26,6 +26,9 @@ type Company = {
     city?: string,
     province?: string,
     postalCode?: string,
+    contactName?: string,
+    contactEmail?: string,
+    contactPhone?: string,
 }
 
 const columns = [
@@ -33,6 +36,11 @@ const columns = [
     header: "Info",
     accessor: "info",
     className: "px-4 py-5 font-medium sm:pl-6",
+  },
+  {
+    header: "Pharmacy's Email & Phone",
+    accessor: "contact",
+    className: "table-cell px-3 py-5 font-medium",
   },
   {
     header: "GST Number",
@@ -45,13 +53,8 @@ const columns = [
     className: "table-cell px-3 py-5 font-medium",
   },
   {
-    header: "Email",
-    accessor: "email",
-    className: "table-cell px-3 py-5 font-medium",
-  },
-  {
-    header: "Phone",
-    accessor: "phone",
+    header: "Contact Person",
+    accessor: "contact",
     className: "table-cell px-3 py-5 font-medium",
   },
   {
@@ -147,12 +150,23 @@ const renderRow = (item: Company) => (
           <p className="text-xs text-gray-500">{item.legalName}</p>
         </div>
       </td>
+      <td className="flex items-center gap-4 table-cell whitespace-nowrap px-3 py-3">
+        <div className="flex flex-col">
+          <h3 className="text-sm font-semibold">{item.email}</h3>
+          <p className="text-sm text-gray-700">{item.phone}</p>
+        </div>
+      </td>
       <td className="table-cell whitespace-nowrap px-3 py-3">{item?.GSTNumber}</td>
       <td className="table-cell whitespace-nowrap px-3 py-3">
         <ApprovedStatus status={item.approved ? "approved":"pending"} />
       </td>
-      <td className="table-cell whitespace-nowrap px-3 py-3">{item.email}</td>
-      <td className="table-cell whitespace-nowrap px-3 py-3">{item.phone}</td>
+      <td className="flex items-center gap-4 table-cell whitespace-nowrap px-3 py-3">
+        <div className="flex flex-col">
+          <h3 className="text-sm font-semibold">{item?.contactName}</h3>
+          <h3 className="text-sm text-gray-700">{item?.contactPhone}</h3>
+          <p className="text-sm text-gray-700">{item?.contactEmail}</p>
+        </div>
+      </td>
       <td className="table-cell whitespace-nowrap px-3 py-3">{item.address}</td>
       <td className="table-cell whitespace-nowrap px-3 py-3">{item.city}</td>
       <td className="table-cell whitespace-nowrap px-3 py-3">{item.province}</td>
