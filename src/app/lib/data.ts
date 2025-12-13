@@ -4,7 +4,7 @@ const LOCAL_URL = 'http://localhost:8080'
 const STAGING_URL = 'https://scheduler-nest-api-staging-353576862326.us-west1.run.app'
 const PROD_URL = 'https://scheduler-nest-api-live-353576862326.us-west1.run.app'
 
-const CURRENT_URL = PROD_URL;
+const CURRENT_URL = STAGING_URL;
 
 export async function fetchLocations(query: string, currentPage: number, queryParams: Object, token: string) {
   try {
