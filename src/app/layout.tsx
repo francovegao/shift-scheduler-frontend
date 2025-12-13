@@ -6,8 +6,8 @@ import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
 export const metadata: Metadata = {
-  title: "Relief Pharmacist Scheduler",
-  description: "Rleif Pharmacist Scheduler Web App",
+  title: "Shift Happens",
+  description: "Relief Pharmacist Scheduler Web App",
 };
 
 const poppins = Poppins({
