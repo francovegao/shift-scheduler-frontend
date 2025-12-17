@@ -277,6 +277,62 @@ export async function fetchShiftsByDate(date: string, token: string) {
   }
 }
 
+export async function fetchMonthCounts(month: string, token: string) {
+  try {
+    console.log('Fetching shifts count by month data...');
+
+    const url = new URL(`${CURRENT_URL}/shifts/month`);
+    url.searchParams.append('month', month);
+    
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    //throw new Error('Failed to fetch locations');
+    return null;
+  }
+}
+
+export async function fetchWeekCounts(week: string, token: string) {
+  try {
+    console.log('Fetching shifts count by week data...');
+
+    const url = new URL(`${CURRENT_URL}/shifts/week`);
+    url.searchParams.append('week', week);
+    
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    //throw new Error('Failed to fetch locations');
+    return null;
+  }
+}
+
 export async function fetchUsers(query: string, currentPage: number, queryParams: Object, token: string) {
   try {
     console.log('Fetching users data...');
