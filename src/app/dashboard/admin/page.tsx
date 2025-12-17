@@ -3,6 +3,8 @@ import LatestShifts from '@/app/ui/dashboard/latest-shifts';
 import { AuthWrapper } from '@/app/ui/authentication/auth-wrapper';
 import ShiftsCalendarContainer from '@/app/ui/dashboard/shifts-calendar-container';
 import Notifications from '@/app/ui/dashboard/notifications';
+import { MonthShiftCounts } from '@/app/ui/dashboard/monthly-count-chart';
+import { WeeklyShiftsChart } from '@/app/ui/dashboard/weekly-shifts-chart';
 
 export default async function AdminPage({
   searchParams,
@@ -25,19 +27,18 @@ export default async function AdminPage({
         <div className="w-full lg:w-2/3 flex flex-col gap-8">
           {/* MIDDLE CHARTS */}
           <div className="flex gap-4 flex-col lg:flex-row">
-            {/* COUNT CHART */}
-            <div className="w-full lg:w-1/3 h-[450px]">
-              Chart 1: Show graph of created shifts vs completed shifts every month of the year
-              Option 2: Show open shifts vs taken shifts circle graph for the next month
+            {/* MONTHLY BREAKDOWN CHART */}
+            <div className="w-full lg:w-1/3 h-[450px] container-type-inline-size">
+              <MonthShiftCounts />
             </div>
             {/* ATTENDANCE CHART */}
-            <div className="w-full lg:w-2/3 h-[450px]">
-              Chart 2: Show graph of next week with open shifts vs taken shifts
+            <div className="w-full lg:w-2/3 h-[450px] container-type-inline-size mt-14 md:mt-20 lg:mt-0">
+              <WeeklyShiftsChart />
             </div>
           </div>
           {/* BOTTOM CHART */}
           <div className="w-full h-[500px]">
-            Bottom: Maybe show graph of most active companies or most active relief pharmacist
+            {/* Bottom: Maybe show graph of most active companies or most active relief pharmacist */}
           </div>
         </div>
         {/* RIGHT */}

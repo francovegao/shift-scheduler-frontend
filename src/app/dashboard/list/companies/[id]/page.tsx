@@ -160,9 +160,9 @@ export default function SingleLocationPage({
                     </div>
                 </div>
                 {/* SMALL CARDS */}
-                <div className="flex-1 flex gap-4 justify-between flex-wrap text-white">
+                <div className="flex-1 flex gap-2 space-around flex-wrap text-white">
                     {/* CARD */}
-                    <div className="bg-complementary-two p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+                    <div className="bg-complementary-two p-4 rounded-md flex gap-2 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <CalendarIcon className="w-6 h-6" />
                         <div className="">
                             <h2 className="text-xl font-semibold">{counts?.totalOpen || "0"}</h2>
@@ -170,7 +170,7 @@ export default function SingleLocationPage({
                         </div>
                     </div>
                     {/* CARD */}
-                    <div className="bg-primary p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+                    <div className="bg-primary p-4 rounded-md flex gap-2 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <ClockIcon className="w-6 h-6" />
                         <div className="">
                             <h2 className="text-xl font-semibold">{counts?.totalTaken || "0"}</h2>
@@ -178,7 +178,7 @@ export default function SingleLocationPage({
                         </div>
                     </div>
                     {/* CARD */}
-                    <div className="bg-secondary p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+                    <div className="bg-secondary p-4 rounded-md flex gap-2 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <XCircleIcon className="w-6 h-6" />
                         <div className="">
                             <h2 className="text-xl font-semibold">{counts?.totalCompleted || "0"}</h2>
@@ -186,7 +186,7 @@ export default function SingleLocationPage({
                         </div>
                     </div>
                     {/* CARD */}
-                    <div className="bg-complementary-one p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+                    <div className="bg-complementary-one p-4 rounded-md flex gap-2 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <CheckCircleIcon className="w-6 h-6" />
                         <div className="">
                             <h2 className="text-xl font-semibold">{counts?.totalCancelled || "0"}</h2>
