@@ -34,6 +34,7 @@ type Shift = {
     endTime: string,
     payRate: string,
     status: string,
+    published: boolean,
     createdAt : string,
     pharmacistId: string,
 }
@@ -262,12 +263,22 @@ export default function ShiftsList(){
         </div>
       </td>
       <td className="table-cell flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3 w-48">
-        <div className="flex flex-col">
-          <h3 className="font-semibold">{item.pharmacist?.user.firstName} {item.pharmacist?.user.lastName}</h3>
-          <p className="text-xs text-gray-500">{item.pharmacist?.user.email}</p>
-          <p className="text-xs text-gray-500">{item.pharmacist?.user.phone}</p>
-        </div>
-      </td>
+        {item.published === true ? (
+          <div className="flex flex-col">
+            <h3 className="font-semibold">{item.pharmacist?.user.firstName} {item.pharmacist?.user.lastName}</h3>
+            <p className="text-xs text-gray-500">{item.pharmacist?.user.email}</p>
+            <p className="text-xs text-gray-500">{item.pharmacist?.user.phone}</p>
+          </div>
+        ) : (
+          <div className="flex flex-col">
+            <span className="flex items-center justify-center rounded-full px-2 py-1 text-xs bg-orange-500 text-white">
+              <h3 className="font-semibold">Draft Shift</h3>
+            </span>
+            <p className="text-xs text-gray-500">Not visible to Pharmacists</p>
+            <p className="text-xs text-gray-500">Publish Shift to make it visible</p>
+          </div>
+        )}
+      </td>     
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex justify-end gap-3">
           {(role === "admin" ||

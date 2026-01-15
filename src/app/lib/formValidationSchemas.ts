@@ -100,6 +100,7 @@ export const shiftSchema = z.object({
   endTime: z.coerce.date({message: "End date is required"}),
   payRate: z.string().min(1,{message: "Pay rate is required."}),
   status: z.enum(["open", "taken", "cancelled", "completed"]),
+  published: z.coerce.boolean({message: "Published is required."}),
   pharmacistId: z.string().optional(),
 });
 

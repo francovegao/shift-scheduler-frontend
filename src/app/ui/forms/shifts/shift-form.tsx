@@ -55,6 +55,16 @@ export default function ShiftForm({
         resolver: zodResolver(shiftSchema),
       });
 
+        // Watch the value of the 'pharmacistId' field
+      const isPublished = watch("published", data ? data.published : true);
+
+      // Use a useEffect hook to update the 'status' whenever 'watchedPharmacistId' changes
+      useEffect(() => {
+         if (isPublished === false) {
+            setValue("pharmacistId", "");
+          }
+      }, [isPublished, setValue]);
+
        // Watch the value of the 'pharmacistId' field
       const watchedPharmacistId = useWatch({
         control,
@@ -404,10 +414,31 @@ export default function ShiftForm({
                 error={errors?.payRate}
               />
               <div className="flex flex-col gap-2 w-full md:w-1/4">
+                <label className="text-xs text-gray-500">Published</label>
+                <select
+                    className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                    {...register("published", {
+                      setValueAs: value => value === 'true'
+                    })}
+                    defaultValue={data ? (data.published ? "true" : "false") : "true"}
+                  >
+                    <option value="true">Yes</option>
+                    <option value="false">No: Draft Shift, not visible to Relief Pharmacists</option>
+                  </select>
+                  {errors.published?.message && ( 
+                    <p className="text-xs text-red-400">
+                      {errors.published?.message.toString()}
+                    </p>
+                  )}
+              </div>
+              <div className="flex flex-col gap-2 w-full md:w-1/4">
                 <label className="text-xs text-gray-500">Relief Pharmacist</label>
                 <select
-                  className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                  className={`ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full transition-colors ${
+                              !isPublished ? "bg-gray-200" : "bg-white"
+                            }`}
                   {...register("pharmacistId")}
+                  disabled={!isPublished}
                   defaultValue={data?.pharmacists}
                 >
                   <option value=""></option>

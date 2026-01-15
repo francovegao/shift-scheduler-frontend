@@ -597,6 +597,7 @@ export const createShift = async (token: string, currentState: CurrentState,  da
       endTime: data.endTime,
       payRate: parseFloat(data.payRate),
       status: data.status,
+      published: data.published,
       pharmacistId: data.pharmacistId ? data.pharmacistId : null,
     }
 
@@ -637,6 +638,7 @@ export const updateShift = async (token: string, currentState: CurrentState, dat
       endTime: data.endTime,
       payRate: parseFloat(data.payRate),
       status: data.status,
+      published: data.published,
       pharmacistId: data.pharmacistId ? data.pharmacistId : null,
     }
 

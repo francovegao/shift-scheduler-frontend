@@ -25,6 +25,7 @@ export default function CardWrapperAdmin() {
   const [companies, setCompanies] = useState<number>(0);
   const [locations, setLocations] = useState<number>(0);
   const [shifts, setShifts] = useState<number>(0);
+  const [draftShifts, setDraftShifts] = useState<number>(0);
 
   // Get token
     useEffect(() => {
@@ -43,7 +44,7 @@ export default function CardWrapperAdmin() {
               const cardResponse = await fetchAdminCardsData( token);
               setShifts(cardResponse.numberOfShifts);
               setCompanies(cardResponse.numberOfCompanies);
-              setLocations(cardResponse.numberOfLocations);
+              setDraftShifts(cardResponse.numberOfDraftShifts);
               setPharmacists(cardResponse.numberOfPharmacists);
             } catch (err) {
               console.error("Failed to fetch cards data", err);
@@ -61,8 +62,8 @@ export default function CardWrapperAdmin() {
     <>
       <Card title="Pharmacists" value={pharmacists} type="pharmacists" backgroundColor='bg-complementary-two' />
       <Card title="Companies" value={companies} type="companies" backgroundColor='bg-primary' />
-      <Card title="Locations" value={locations} type="locations" backgroundColor='bg-secondary'/>
-      <Card title="Shifts" value={shifts} type="shifts" backgroundColor='bg-complementary-one'/>
+      <Card title="Shifts" value={shifts} type="shifts" backgroundColor='bg-secondary'/>
+      <Card title="Draft Shifts" value={draftShifts} type="shifts" backgroundColor='bg-complementary-one'/>
     </>
   );
 }

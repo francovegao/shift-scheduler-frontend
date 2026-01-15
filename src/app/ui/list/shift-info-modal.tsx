@@ -75,6 +75,11 @@ export default function ShiftInfoModal({
                 <p className="text-sm text-gray-500">{new Date(data.startTime).toLocaleTimeString("en-US", TimeFormat)}-{new Date(data.endTime).toLocaleTimeString("en-US", TimeFormat)} </p>
                 <p className="text-sm text-gray-500">${parseFloat(data.payRate).toFixed(2)} per hr</p>
                 <p className="text-sm text-gray-500">Status: <Status status={data.status} /></p>
+                 {data.published === false && (
+                    <span className="flex items-center justify-center rounded-2xl mt-1 py-1 px-3 text-xs bg-orange-500 text-white text-center text-wrap">
+                      <h3 className="font-semibold">Draft Shift</h3>
+                    </span>
+                  )}
               </div>
           </div>
           <div>

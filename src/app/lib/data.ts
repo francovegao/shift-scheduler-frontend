@@ -634,6 +634,7 @@ export async function fetchUserRole(uid: string, token: string) {
 export async function fetchAdminCardsData(token: string) {
   try {
     const shiftsCountPromise = fetchShifts("",1,{}, token);
+    const draftShiftsCountPromise = fetchShifts("",1,{published: false}, token);
     const companiesCountPromise = fetchCompanies("",1, {}, token);
     const locationsCountPromise = fetchLocations("",1,{}, token);
     const pharmacistsCountPromise = fetchPharmacists("",1, {}, token);
@@ -643,12 +644,14 @@ export async function fetchAdminCardsData(token: string) {
       companiesCountPromise,
       locationsCountPromise,
       pharmacistsCountPromise,
+       draftShiftsCountPromise
     ]);
 
     const numberOfShifts = Number(data[0].meta?.totalItems ?? '0');
     const numberOfCompanies = Number(data[1].meta?.totalItems ?? '0');
     const numberOfLocations = Number(data[2].meta?.totalItems ?? '0');
     const numberOfPharmacists = Number(data[3].meta?.totalItems ?? '0');
+     const numberOfDraftShifts = Number(data[4].meta?.totalItems ?? '0');
     
     //const numberOfCustomers = Number(data[1][0].count ?? '0');
     //const totalPaidInvoices = formatCurrency(data[2][0].paid ?? '0');
@@ -658,6 +661,7 @@ export async function fetchAdminCardsData(token: string) {
       numberOfPharmacists,
       numberOfCompanies,
       numberOfLocations,
+      numberOfDraftShifts,
       numberOfShifts,
     };
   } catch (error) {

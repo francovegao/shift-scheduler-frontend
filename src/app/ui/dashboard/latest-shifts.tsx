@@ -115,6 +115,11 @@ const TimeFormat = {
                 )}
                 <div className="mt-1">
                   <ApprovedStatus status={item.status} />
+                  {item.published === false && (
+                    <span className="flex items-center justify-center rounded-2xl mt-1 py-1 px-3 text-xs bg-orange-500 text-white text-center text-wrap">
+                      <h3 className="font-semibold">Draft Shift</h3>
+                    </span>
+                  )}
                 </div>
               </div>
 
