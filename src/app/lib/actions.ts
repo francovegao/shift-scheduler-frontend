@@ -1,4 +1,5 @@
-import { AllowedCompaniesSchema, CompanySchema, LinkManagerToCompanySchema, LocationSchema, PharmacistSchema, ShiftSchema, TakeShiftSchema, UserSchema } from "./formValidationSchemas"
+import { AllowedCompaniesSchema, CompanySchema, LinkManagerToCompanySchema, LocationSchema, PharmacistSchema, SeriesShiftSchema, ShiftSchema, SingleShiftSchema, TakeShiftSchema, UserSchema } from "./formValidationSchemas"
+import { timeToMinutes } from "./utils";
 
 const CURRENT_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -665,6 +666,97 @@ export const updateShift = async (token: string, currentState: CurrentState, dat
   }
 }
 
+export const createShiftSeries = async (token: string, currentState: CurrentState,  data: ShiftSchema)=>{
+   try {
+    console.log(data)
+    console.log('Creating new shift series...');
+
+    const body = {
+      companyId: data.companyId,
+      locationId: data.locationId ? data.locationId : null,
+      title: data.title,
+      description: data.description,
+      payRate: parseFloat(data.payRate),
+      startMinutes: timeToMinutes(data.startMinutes),
+      endMinutes: timeToMinutes(data.endMinutes),
+      repeatType: data.repeatType,
+      daysOfWeek: data.daysOfWeek,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      excludeWeekends: data.excludeWeekends,
+      published: data.published,
+      status: data.status,
+      pharmacistId: data.pharmacistId ? data.pharmacistId : null,
+    }
+
+    const response = await fetch(`${CURRENT_URL}/shift-series`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    //revalidatePath("/list/users");   
+    return {success: true, error: false};
+    //return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return {success: false, error: true};
+  }
+}
+
+export const updateShiftSeries = async (token: string, currentState: CurrentState, data: ShiftSchema)=>{
+   try {
+    console.log('Updating shift series...');
+
+    const body = {
+      companyId: data.companyId,
+      locationId: data.locationId ? data.locationId : null,
+      title: data.title,
+      description: data.description,
+      payRate: parseFloat(data.payRate),
+      startMinutes: timeToMinutes(data.startMinutes),
+      endMinutes: timeToMinutes(data.endMinutes),
+      repeatType: data.repeatType,
+      daysOfWeek: data.daysOfWeek,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      excludeWeekends: data.excludeWeekends,
+      published: data.published,
+      //pharmacistId: data.pharmacistId ? data.pharmacistId : null,
+    }
+
+    const response = await fetch(`${CURRENT_URL}/shift-series/${data.id}`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+  
+    return {success: true, error: false};
+    //return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return {success: false, error: true};
+  }
+}
+
 export const takeShift = async (token: string, currentState: CurrentState, data: TakeShiftSchema)=>{
    try {
     console.log('Taking shift...');
@@ -703,7 +795,7 @@ export const deleteShift = async (token: string, currentState: CurrentState, dat
     try {
         console.log('Deleting shift...');
 
-        const response = await fetch(`${CURRENT_URL}/pharmacist-profiles/${id}`, {
+        const response = await fetch(`${CURRENT_URL}/shifts/${id}`, {
             method: 'DELETE',
             headers: {
               Authorization: `Bearer ${token}`,
