@@ -8,18 +8,7 @@ import ApprovedStatus from '../list/status';
 import ShiftInfoModal from '../list/shift-info-modal';
 import Link from 'next/link';
 import { useSelectedCompany } from '@/app/lib/useSelectedCompany';
-
-const DateFormat = {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
- } as const;
-
-const TimeFormat = {
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,  
- } as const;
+import { formatInTimeZone } from 'date-fns-tz';
 
   export default function LatestShifts(){ 
     const { firebaseUser, appUser, loading } = useAuth();
@@ -127,18 +116,10 @@ const TimeFormat = {
                 <p
                   className={` text-sm font-medium`}
                 >
-                  {new Date(item.startTime).toLocaleDateString(
-                    "en-US", 
-                    DateFormat
-                  )}
+                  {formatInTimeZone(item.startTime, item?.company?.timezone, 'MMM dd, yyyy')}
                 </p>
                 <p className="text-sm">
-                  {new Date(item.startTime).toLocaleTimeString(
-                    "en-US",
-                    TimeFormat
-                  )}
-                  –
-                  {new Date(item.endTime).toLocaleTimeString("en-US", TimeFormat)}
+                  {formatInTimeZone(item.startTime, item?.company?.timezone, "HH:mm")}-{formatInTimeZone(item.endTime, item?.company?.timezone, "HH:mm")}
                 </p>
               </div>
               { (openEventId === item.id && role !== 'relief_pharmacist') && (

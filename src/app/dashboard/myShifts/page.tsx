@@ -12,6 +12,7 @@ import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/list/table-search";
+import { formatInTimeZone } from "date-fns-tz";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SetStateAction, useEffect, useState } from "react";
 
@@ -41,6 +42,7 @@ type Company = {
   address: string,
   city: string,
   province: string,
+  timezone: string,
 }
 
 type Location = {
@@ -213,9 +215,9 @@ export default function PharmacistShiftsList(){
         </div>
         )}
       </td>
-      <td className="table-cell whitespace-nowrap px-3 py-3">{new Intl.DateTimeFormat("en-CA", DateFormat).format(new Date(item.startTime))}</td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">{formatInTimeZone(item.startTime, item.company?.timezone, 'MMM dd, yyyy')}</td>
       <td className="table-cell whitespace-nowrap px-3 py-3">
-        {new Date(item.startTime).toLocaleTimeString("en-US", TimeFormat)}-{new Date(item.endTime).toLocaleTimeString("en-US", TimeFormat)} 
+        {formatInTimeZone(item.startTime, item.company?.timezone, "HH:mm")}-{formatInTimeZone(item.endTime, item.company?.timezone, "HH:mm")}
       </td>
       <td className="table-cell whitespace-nowrap px-3 py-3">${parseFloat(item.payRate).toFixed(2)}</td>
       <td className="hidden sm:table-cell whitespace-nowrap px-3 py-3">

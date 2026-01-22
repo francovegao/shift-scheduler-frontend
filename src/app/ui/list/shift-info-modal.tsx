@@ -1,33 +1,10 @@
 'use client';
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import {  takeShiftSchema } from "@/app/lib/formValidationSchemas";
-import z from "zod";
-import { useFormState } from "react-dom";
-import { takeShift } from "@/app/lib/actions";
-import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { Dispatch, SetStateAction} from "react";
 import { getFullAddress } from "@/app/lib/utils";
 import Status from "./status";
+import { formatInTimeZone } from "date-fns-tz";
 
-// Infer the input and output types from the schema
-type FormInput = z.input<typeof takeShiftSchema>;
-type FormOutput = z.output<typeof takeShiftSchema>;
-
-const DateFormat = {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
-  weekday: 'short',
- } as const;
-
- const TimeFormat = {
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,  
- } as const;
 
 export default function ShiftInfoModal({
   data, 
@@ -71,8 +48,8 @@ export default function ShiftInfoModal({
           <div>
             <h2 className="text-gray-400 font-medium mb-2">Shift Information</h2>
               <div className="">
-                <h3 className="font-semibold">{new Intl.DateTimeFormat("en-CA", DateFormat).format(new Date(data.startTime))}</h3>
-                <p className="text-sm text-gray-500">{new Date(data.startTime).toLocaleTimeString("en-US", TimeFormat)}-{new Date(data.endTime).toLocaleTimeString("en-US", TimeFormat)} </p>
+                <h3 className="font-semibold">{formatInTimeZone(data.startTime, data.company?.timezone, 'EEE MMM dd, yyyy')}</h3>
+                <p className="text-sm text-gray-500">{formatInTimeZone(data.startTime, data.company?.timezone, "HH:mm")}-{formatInTimeZone(data.endTime, data.company?.timezone, "HH:mm")} </p>
                 <p className="text-sm text-gray-500">${parseFloat(data.payRate).toFixed(2)} per hr</p>
                 <p className="text-sm text-gray-500">Status: <Status status={data.status} /></p>
                  {data.published === false && (

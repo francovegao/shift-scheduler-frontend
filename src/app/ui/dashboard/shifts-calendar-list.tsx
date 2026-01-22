@@ -6,6 +6,7 @@ import { useAuth } from "../context/auth-context";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import TakeShiftForm from "../forms/shifts/take-shift-form";
 import ShiftInfoModal from "../list/shift-info-modal";
+import { formatInTimeZone } from "date-fns-tz";
 
 export default function ShiftsCalendarList({
     dateParam,
@@ -76,17 +77,7 @@ export default function ShiftsCalendarList({
               </div>
               <div className="flex flex-col w-1/3">
                 <span className="text-gray-500 text-xs">
-                    {startTime.toLocaleTimeString("en-US", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: false,
-                    })}
-                    -
-                    {endTime.toLocaleTimeString("en-US", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: false,
-                    })}
+                  {formatInTimeZone(startTime, event.company.timezone, "HH:mm")}-{formatInTimeZone(endTime, event.company.timezone, "HH:mm")}
                 </span>
                 <span className="text-gray-500 text-xs">
                     ${event.payRate} /hr
