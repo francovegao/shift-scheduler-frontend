@@ -90,18 +90,71 @@ export const allowedCompaniesSchema = z.object({
 
 export type AllowedCompaniesSchema = z.infer<typeof allowedCompaniesSchema>;
 
-export const shiftSchema = z.object({
+export const singleShiftSchema = z.object({
+  repeatType: z.literal("NONE"),
+
   id: z.string().optional(),
   companyId: z.string().min(1,{message: "Company is required."}),
   locationId: z.string().optional(),  
   title: z.string().min(4,{message: "Title is required."}),
   description: z.string().optional(),
-  startTime: z.coerce.date({message: "Start date is required"}),
-  endTime: z.coerce.date({message: "End date is required"}),
+  startTime: z.coerce.string({message: "Start date is required"}),
+  endTime: z.coerce.string({message: "End date is required"}),
   payRate: z.string().min(1,{message: "Pay rate is required."}),
   status: z.enum(["open", "taken", "cancelled", "completed"]),
+  published: z.coerce.boolean({message: "Published is required."}),
   pharmacistId: z.string().optional(),
+
+  //extra fields not needed for single shift
+  startMinutes: z.any().optional(), 
+  endMinutes: z.any().optional(),
+  startDate: z.any().optional(), 
+  endDate: z.any().optional(),
+  daysOfWeek: z.any().optional(),
+  excludeWeekends: z.any().optional(),
 });
+
+export type SingleShiftSchema = z.infer<typeof singleShiftSchema>;
+
+export const seriesShiftSchema = z.object({
+  repeatType: z.enum(["DAILY", "WEEKLY"]),
+
+  id: z.string().optional(),
+  companyId: z.string().min(1,{message: "Company is required."}),
+  locationId: z.string().optional(),  
+  title: z.string().min(4,{message: "Title is required."}),
+  description: z.string().optional(),
+  payRate: z.string().min(1,{message: "Pay rate is required."}),
+  startMinutes: z.string().min(1,{message: "Start time is required."}),
+  endMinutes: z.string().min(1,{message: "End time is required."}),
+  daysOfWeek: z.array(z.coerce.number().int()).default([]),
+  startDate: z.coerce.date({message: "Start date is required"}),
+  endDate: z.coerce.date({message: "End date is required"}),
+  excludeWeekends: z.coerce.boolean().default(false),
+  published: z.coerce.boolean({message: "Published is required."}),
+
+  status: z.enum(["open", "taken", "cancelled", "completed"]),
+  pharmacistId: z.string().optional(),
+
+  //extra fields not needed for Shift Seried
+  startTime: z.any().optional(), 
+  endTime: z.any().optional(),
+}).superRefine((data, ctx) => {
+  if (data.repeatType === "WEEKLY" && (!data.daysOfWeek || data.daysOfWeek.length === 0)) {
+    ctx.addIssue({
+      path: ["daysOfWeek"],
+      message: "Select at least one day for weekly shifts",
+      code: "custom",
+    });
+  }
+});
+
+export type SeriesShiftSchema = z.infer<typeof seriesShiftSchema>;
+
+export const shiftSchema = z.discriminatedUnion("repeatType", [
+  singleShiftSchema,
+  seriesShiftSchema,
+]);
 
 export type ShiftSchema = z.infer<typeof shiftSchema>;
 

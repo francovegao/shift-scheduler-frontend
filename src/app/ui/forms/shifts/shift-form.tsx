@@ -7,11 +7,12 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {  shiftSchema } from "@/app/lib/formValidationSchemas";
 import z from "zod";
 import { useFormState } from "react-dom";
-import { createShift, updateShift } from "@/app/lib/actions";
+import { createShift, createShiftSeries, updateShift, updateShiftSeries } from "@/app/lib/actions";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/auth-context";
 import { getFullAddress } from "@/app/lib/utils";
 import { useSelectedCompany } from "@/app/lib/useSelectedCompany";
+import { formatInTimeZone } from 'date-fns-tz';
 
 // Infer the input and output types from the schema
 type FormInput = z.input<typeof shiftSchema>;
@@ -53,7 +54,25 @@ export default function ShiftForm({
         control,
       } = useForm<FormInput, any, FormOutput>({
         resolver: zodResolver(shiftSchema),
+        defaultValues: {
+          repeatType: "NONE",
+          status: "open",
+        },
       });
+
+      const repeatType = watch("repeatType");
+      const isRepetitive = repeatType !== "NONE";
+      const isWeekly = repeatType === "WEEKLY";
+
+      // Watch the value of the published field
+      const isPublished = watch("published", data ? data.published : true);
+
+      //Remove pharmacistId if published === False
+      useEffect(() => {
+         if (isPublished === false) {
+            setValue("pharmacistId", "");
+          }
+      }, [isPublished, setValue]);
 
        // Watch the value of the 'pharmacistId' field
       const watchedPharmacistId = useWatch({
@@ -63,16 +82,15 @@ export default function ShiftForm({
 
       // Use a useEffect hook to update the 'status' whenever 'watchedPharmacistId' changes
       useEffect(() => {
-        // Check if a pharmacist has been selected
-        const newStatus = watchedPharmacistId ? 'taken' : 'open';
-        
-        // Programmatically set the new value for the 'status' field
-        setValue('status', newStatus);
-      }, [watchedPharmacistId, setValue]);
-
+          const newStatus = watchedPharmacistId ? 'taken' : 'open';
+          
+          setValue('status', newStatus);        
+      }, [repeatType, watchedPharmacistId, setValue]);
 
       const [state, formAction] = useFormState(
-          type === "create" ? createShift.bind(null, token) : updateShift.bind(null, token),
+          type === "create" ?
+          (repeatType === "NONE" ? createShift.bind(null, token) : createShiftSeries.bind(null,token) ) : 
+          (repeatType === "NONE" ? updateShift.bind(null, token) : updateShiftSeries.bind(null, token)) ,
         {
           success: false,
           error: false,
@@ -89,6 +107,13 @@ export default function ShiftForm({
             payRate: "0.0",
           }
         }
+        const result = shiftSchema.safeParse(data);
+
+        if (!result.success) {
+          console.log("ZOD ERRORS", result.error.flatten());
+          return;
+        }
+
         formAction(finalData)
 
       });
@@ -101,16 +126,13 @@ export default function ShiftForm({
           window.location.reload();
         }
       }, [state, type, setOpen])
-      
-      const formatForDatetimeLocal = (isoString: string ) => {
+
+      const formatForDatetimeLocal = (isoString: string, timeZone: string) => {
         if (!isoString) return '';
-        const date = new Date(isoString);
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        return `${year}-${month}-${day}T${hours}:${minutes}`;
+        
+        // Directly format the UTC date into the string format required by the input
+        // for the specific timezone provided.
+        return formatInTimeZone(isoString, timeZone, "yyyy-MM-dd'T'HH:mm");
       };
         
       const {pharmacists, companies, locations } = relatedData;
@@ -329,7 +351,7 @@ export default function ShiftForm({
                   />
               ) : null}
 
-              {role === "admin" ||
+              {/* {role === "admin" ||
               role === "pharmacy_manager" ? (
                 <div className="flex flex-col gap-2 w-full md:w-1/4">
                   <label className="text-xs text-gray-500">Pharmacy</label>
@@ -352,7 +374,7 @@ export default function ShiftForm({
                     </p>
                   )}
                 </div>
-              ) : null}
+              ) : null} */}
 
               {role === "location_manager" ?  (
                   <InputField
@@ -364,6 +386,25 @@ export default function ShiftForm({
                     hidden
                   />
               ) : null}
+
+              {!data ? (
+                <div className="flex flex-col gap-2 w-full md:w-1/4">
+                  <label className="text-xs text-gray-500">Repetitive Shift?</label>
+                  <select
+                    {...register("repeatType")}
+                    className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm"
+                    defaultValue="NONE"
+                  >
+                    <option value="NONE">No (Single shift)</option>
+                    <option value="DAILY">Yes (Daily)</option>
+                    <option value="WEEKLY">Yes (Weekly)</option>
+                  </select>
+                </div>
+              ):(
+                <div className="flex flex-col gap-2 w-full md:w-1/4">
+             
+                </div>
+              )  }
 
 
               <InputField
@@ -379,22 +420,7 @@ export default function ShiftForm({
                 defaultValue={data?.description}
                 register={register}
                 error={errors?.description}
-              />
-                <InputField
-                label="Start Time"
-                name="startTime"
-                type="datetime-local"
-                defaultValue={formatForDatetimeLocal(data?.startTime)}
-                register={register}
-                error={errors?.startTime}
-              />
-                <InputField
-                label="End Time"
-                name="endTime"
-                type="datetime-local"
-                defaultValue={formatForDatetimeLocal(data?.endTime)}
-                register={register}
-                error={errors?.endTime}
+                containerClassName="w-full md:w-[70%]"
               />
               <InputField
                 label="Pay Rate"
@@ -403,11 +429,127 @@ export default function ShiftForm({
                 register={register}
                 error={errors?.payRate}
               />
+              {isRepetitive && (
+                <>
+                  <InputField
+                    label="Start Date"
+                    name="startDate"
+                    type="date"
+                    register={register}
+                    error={errors?.startDate}
+                  />
+
+                  <InputField
+                    label="End Date"
+                    name="endDate"
+                    type="date"
+                    register={register}
+                    error={errors?.endDate}
+                  />
+                  <InputField
+                    label="Start Time (Daily)"
+                    name="startMinutes"
+                    type="time"
+                    register={register}
+                    error={errors?.startMinutes}
+                  />
+
+                  <InputField
+                    label="End Time (Daily)"
+                    name="endMinutes"
+                    type="time"
+                    register={register}
+                    error={errors?.endMinutes}
+                  />
+
+                  <div className="flex items-center gap-2">
+                  <input type="checkbox" {...register("excludeWeekends")} defaultChecked={false}/>
+                  <label className="text-sm">Exclude weekends</label>
+                </div>
+
+                </>
+              )}
+
+              {!isRepetitive && (
+                <>
+                  <InputField
+                  label="Start Time"
+                  name="startTime"
+                  type="datetime-local"
+                  defaultValue={formatForDatetimeLocal(data?.startTime, data?.company.timezone)}
+                  register={register}
+                  error={errors?.startTime}
+                  containerClassName="w-full md:w-[48%]"
+                />
+                  <InputField
+                  label="End Time"
+                  name="endTime"
+                  type="datetime-local"
+                  defaultValue={formatForDatetimeLocal(data?.endTime, data?.company.timezone)}
+                  register={register}
+                  error={errors?.endTime}
+                  containerClassName="w-full md:w-[48%]"
+                />
+              </>
+              )}
+
+              {isWeekly && (
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs text-gray-500">Days of Week</label>
+                  <div className="flex gap-4 flex-wrap">
+                    {[
+                      { label: "Sun", value: 0 },
+                      { label: "Mon", value: 1 },
+                      { label: "Tue", value: 2 },
+                      { label: "Wed", value: 3 },
+                      { label: "Thu", value: 4 },
+                      { label: "Fri", value: 5 },
+                      { label: "Sat", value: 6 },
+                    ].map(day => (
+                      <label key={day.value} className="flex items-center gap-1">
+                        <input
+                          type="checkbox"
+                          value={day.value}
+                          {...register("daysOfWeek")}
+                        />
+                        {day.label}
+                      </label>
+                    ))}
+                  </div>
+                  {errors.daysOfWeek?.message && ( 
+                    <p className="text-xs text-red-400">
+                      {errors.daysOfWeek?.message.toString()}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div className="flex flex-col gap-2 w-full md:w-1/4">
+                <label className="text-xs text-gray-500">Published</label>
+                <select
+                    className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                    {...register("published", {
+                      setValueAs: value => value === 'true'
+                    })}
+                    defaultValue={data ? (data.published ? "true" : "false") : "true"}
+                  >
+                    <option value="true">Yes</option>
+                    <option value="false">No: Draft Shift, not visible to Relief Pharmacists</option>
+                  </select>
+                  {errors.published?.message && ( 
+                    <p className="text-xs text-red-400">
+                      {errors.published?.message.toString()}
+                    </p>
+                  )}
+              </div>
               <div className="flex flex-col gap-2 w-full md:w-1/4">
                 <label className="text-xs text-gray-500">Relief Pharmacist</label>
                 <select
-                  className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                  className={`ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full transition-colors ${
+                              !isPublished ? "bg-gray-200" : "bg-white"
+                            }`}
                   {...register("pharmacistId")}
+                  disabled={!isPublished}
                   defaultValue={data?.pharmacists}
                 >
                   <option value=""></option>
@@ -431,25 +573,25 @@ export default function ShiftForm({
                   </p>
                 )}
               </div>
-              <div className="flex flex-col gap-2 w-full md:w-1/4">
-                  <label className="text-xs text-gray-500">Status</label>
-                  <select 
-                    className=" bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                    {...register("status")}
-                    defaultValue={data?.status}
-                    disabled={true}
-                  >
-                    <option value="open">open</option>
-                    <option value="taken">taken</option>
-                    <option value="completed">completed</option>
-                    <option value="cancelled">cancelled</option>
-                  </select>
-                  {errors.status?.message && ( 
-                    <p className="text-xs text-red-400">
-                      {errors.status?.message.toString()}
-                    </p>
-                  )}
-              </div>
+                <div className="flex flex-col gap-2 w-full md:w-1/4">
+                    <label className="text-xs text-gray-500">Status</label>
+                    <select 
+                      className=" bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                      {...register("status")}
+                      defaultValue={data?.status}
+                      disabled={true}
+                    >
+                      <option value="open">open</option>
+                      <option value="taken">taken</option>
+                      <option value="completed">completed</option>
+                      <option value="cancelled">cancelled</option>
+                    </select>
+                    {errors.status?.message && ( 
+                      <p className="text-xs text-red-400">
+                        {errors.status?.message.toString()}
+                      </p>
+                    )}
+                </div>
             </div> 
             {state.error && <span className="text-red-500">Something went wrong!</span>}     
             <button className="bg-primary text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer">

@@ -3,13 +3,23 @@
 import { Calendar, momentLocalizer, SlotInfo, View, Views } from 'react-big-calendar'
 import moment from 'moment'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Status from '../list/status';
 import TakeShiftForm from '../forms/shifts/take-shift-form';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import ShiftInfoModal from '../list/shift-info-modal';
+import { toZonedTime  } from 'date-fns-tz';
+import { Event } from 'react-big-calendar';
 
 const localizer = momentLocalizer(moment)
+
+interface CalendarEvent extends Event {
+  title: string;
+  allDay: boolean;
+  start: Date;
+  end: Date;
+  shift: any;
+}
 
 export default function BigCalendar({
   data,
@@ -27,6 +37,25 @@ export default function BigCalendar({
 
     const [open, setOpen] = useState(false);
     const [selectedShift, setSelectedShift] = useState(null);
+    const [events, setEvents] = useState<CalendarEvent[]>([]);
+    
+    //Change events UTC time to desired Timezone (to avoid displaying events in user's local timezone)
+    useEffect(() => {
+      if(data){
+        const reformatted = data.map((event) => {
+          const startUtcDate = new Date(event.start);
+          const endUtcDate = new Date(event.end);
+          return {
+            ...event,
+            start: toZonedTime(startUtcDate, event.shift.company.timezone),
+            end: toZonedTime(endUtcDate, event.shift.company.timezone)
+          };
+        });
+        setEvents(reformatted);
+      }
+      }, [data]);
+
+
 
     const eventStyleGetter = (event: any) => {
         let className = "";
@@ -80,7 +109,7 @@ export default function BigCalendar({
 
             <Calendar
               localizer={localizer}
-              events={data}
+              events={events}
               components={{
                 month: {},
                 week: {event: CustomWeekEventComponent},

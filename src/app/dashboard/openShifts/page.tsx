@@ -15,6 +15,7 @@ import { SetStateAction, useEffect, useState } from "react";
 import FilterDate from "@/app/ui/list/filter-date";
 import FilterPayRate from "@/app/ui/list/filter-pay-rate";
 import PharmacistAccessGuard from "@/app/ui/authorization/pharmacists-access-guard";
+import { formatInTimeZone } from "date-fns-tz";
 
 type ShiftList = Shift & { company: Company }
                  & { location: Location } 
@@ -42,6 +43,7 @@ type Company = {
   address: string,
   city: string,
   province: string,
+  timezone: string,
 }
 
 type Location = {
@@ -231,9 +233,9 @@ export default function OpenShiftsList(){
         </div>
         )}
       </td>
-      <td className="table-cell whitespace-nowrap px-3 py-3">{new Intl.DateTimeFormat("en-CA", DateFormat).format(new Date(item.startTime))}</td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">{formatInTimeZone(item.startTime, item.company?.timezone, 'MMM dd, yyyy')}</td>
       <td className="table-cell whitespace-nowrap px-3 py-3">
-        {new Date(item.startTime).toLocaleTimeString("en-US", TimeFormat)}-{new Date(item.endTime).toLocaleTimeString("en-US", TimeFormat)} 
+        {formatInTimeZone(item.startTime, item.company?.timezone, "HH:mm")}-{formatInTimeZone(item.endTime, item.company?.timezone, "HH:mm")} 
       </td>
       <td className="table-cell whitespace-nowrap px-3 py-3">${parseFloat(item.payRate).toFixed(2)}</td>
       <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">
