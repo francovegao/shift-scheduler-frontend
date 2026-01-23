@@ -465,7 +465,7 @@ export default function ShiftForm({
                   name="startTime"
                   type="datetime-local"
                   // defaultValue={formatForDatetimeLocal(data?.startTime)}
-                  defaultValue={formatForDatetimeLocal(data?.startTime, data.company.timezone)}
+                  defaultValue={formatForDatetimeLocal(data?.startTime, data?.company.timezone)}
                   register={register}
                   error={errors?.startTime}
                 />
@@ -474,7 +474,7 @@ export default function ShiftForm({
                   name="endTime"
                   type="datetime-local"
                   //defaultValue={formatForDatetimeLocal(data?.endTime)}
-                  defaultValue={formatForDatetimeLocal(data?.endTime, data.company.timezone)}
+                  defaultValue={formatForDatetimeLocal(data?.endTime, data?.company.timezone)}
                   register={register}
                   error={errors?.endTime}
                 />
