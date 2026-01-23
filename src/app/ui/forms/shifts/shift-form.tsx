@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import { useAuth } from "../../context/auth-context";
 import { getFullAddress } from "@/app/lib/utils";
 import { useSelectedCompany } from "@/app/lib/useSelectedCompany";
+import { formatInTimeZone } from 'date-fns-tz';
 
 // Infer the input and output types from the schema
 type FormInput = z.input<typeof shiftSchema>;
@@ -125,16 +126,13 @@ export default function ShiftForm({
           window.location.reload();
         }
       }, [state, type, setOpen])
-      
-      const formatForDatetimeLocal = (isoString: string ) => {
+
+      const formatForDatetimeLocal = (isoString: string, timeZone: string) => {
         if (!isoString) return '';
-        const date = new Date(isoString);
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        return `${year}-${month}-${day}T${hours}:${minutes}`;
+        
+        // Directly format the UTC date into the string format required by the input
+        // for the specific timezone provided.
+        return formatInTimeZone(isoString, timeZone, "yyyy-MM-dd'T'HH:mm");
       };
         
       const {pharmacists, companies, locations } = relatedData;
@@ -466,7 +464,8 @@ export default function ShiftForm({
                   label="Start Time"
                   name="startTime"
                   type="datetime-local"
-                  defaultValue={formatForDatetimeLocal(data?.startTime)}
+                  // defaultValue={formatForDatetimeLocal(data?.startTime)}
+                  defaultValue={formatForDatetimeLocal(data?.startTime, data.company.timezone)}
                   register={register}
                   error={errors?.startTime}
                 />
@@ -474,7 +473,8 @@ export default function ShiftForm({
                   label="End Time"
                   name="endTime"
                   type="datetime-local"
-                  defaultValue={formatForDatetimeLocal(data?.endTime)}
+                  //defaultValue={formatForDatetimeLocal(data?.endTime)}
+                  defaultValue={formatForDatetimeLocal(data?.endTime, data.company.timezone)}
                   register={register}
                   error={errors?.endTime}
                 />
