@@ -387,7 +387,7 @@ export default function ShiftForm({
                   />
               ) : null}
 
-              {!data && (
+              {!data ? (
                 <div className="flex flex-col gap-2 w-full md:w-1/4">
                   <label className="text-xs text-gray-500">Repetitive Shift?</label>
                   <select
@@ -400,7 +400,11 @@ export default function ShiftForm({
                     <option value="WEEKLY">Yes (Weekly)</option>
                   </select>
                 </div>
-              )}
+              ):(
+                <div className="flex flex-col gap-2 w-full md:w-1/4">
+             
+                </div>
+              )  }
 
 
               <InputField
@@ -416,6 +420,14 @@ export default function ShiftForm({
                 defaultValue={data?.description}
                 register={register}
                 error={errors?.description}
+                containerClassName="w-full md:w-[70%]"
+              />
+              <InputField
+                label="Pay Rate"
+                name="payRate"
+                defaultValue={data?.payRate}
+                register={register}
+                error={errors?.payRate}
               />
               {isRepetitive && (
                 <>
@@ -464,19 +476,19 @@ export default function ShiftForm({
                   label="Start Time"
                   name="startTime"
                   type="datetime-local"
-                  // defaultValue={formatForDatetimeLocal(data?.startTime)}
                   defaultValue={formatForDatetimeLocal(data?.startTime, data?.company.timezone)}
                   register={register}
                   error={errors?.startTime}
+                  containerClassName="w-full md:w-[48%]"
                 />
                   <InputField
                   label="End Time"
                   name="endTime"
                   type="datetime-local"
-                  //defaultValue={formatForDatetimeLocal(data?.endTime)}
                   defaultValue={formatForDatetimeLocal(data?.endTime, data?.company.timezone)}
                   register={register}
                   error={errors?.endTime}
+                  containerClassName="w-full md:w-[48%]"
                 />
               </>
               )}
@@ -512,13 +524,6 @@ export default function ShiftForm({
                 </div>
               )}
 
-              <InputField
-                label="Pay Rate"
-                name="payRate"
-                defaultValue={data?.payRate}
-                register={register}
-                error={errors?.payRate}
-              />
               <div className="flex flex-col gap-2 w-full md:w-1/4">
                 <label className="text-xs text-gray-500">Published</label>
                 <select
