@@ -128,8 +128,8 @@ export const seriesShiftSchema = z.object({
   startMinutes: z.string().min(1,{message: "Start time is required."}),
   endMinutes: z.string().min(1,{message: "End time is required."}),
   daysOfWeek: z.array(z.coerce.number().int()).default([]),
-  startDate: z.coerce.string({message: "Start date is required"}),
-  endDate: z.coerce.string({message: "End date is required"}),
+  startDate: z.coerce.date({message: "Start date is required"}),
+  endDate: z.coerce.date({message: "End date is required"}),
   excludeWeekends: z.coerce.boolean().default(false),
   published: z.coerce.boolean({message: "Published is required."}),
 
