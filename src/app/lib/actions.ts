@@ -766,7 +766,7 @@ export const takeShift = async (token: string, currentState: CurrentState, data:
       pharmacistId: data.pharmacistId ? data.pharmacistId : null,
     }
 
-    const response = await fetch(`${CURRENT_URL}/shifts/${data.id}`, {
+    const response = await fetch(`${CURRENT_URL}/shifts/${data.id}/take`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
