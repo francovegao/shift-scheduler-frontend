@@ -46,6 +46,11 @@ export default function PharmacistForm({
         formState: { errors },
       } = useForm<FormInput, any, FormOutput>({
         resolver: zodResolver(pharmacistSchema),
+        defaultValues: {
+          ...data,
+          approved: data?.approved,
+          canViewAllCompanies: data?.canViewAllCompanies,
+        }
       });
 
       const [state, formAction] = useFormState(

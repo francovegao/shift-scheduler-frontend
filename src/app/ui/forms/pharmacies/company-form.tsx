@@ -37,6 +37,10 @@ export default function CompanyForm({
         formState: { errors },
       } = useForm<FormInput, any, FormOutput>({
         resolver: zodResolver(companySchema),
+        defaultValues: {
+          ...data,
+          approved: data?.approved,
+        }
       });
 
       const [state, formAction] = useFormState(
