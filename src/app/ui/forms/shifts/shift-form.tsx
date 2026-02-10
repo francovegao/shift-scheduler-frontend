@@ -13,6 +13,7 @@ import { useAuth } from "../../context/auth-context";
 import { getFullAddress } from "@/app/lib/utils";
 import { useSelectedCompany } from "@/app/lib/useSelectedCompany";
 import { formatInTimeZone } from 'date-fns-tz';
+import { format } from 'date-fns';
 
 // Infer the input and output types from the schema
 type FormInput = z.input<typeof shiftSchema>;
@@ -107,12 +108,19 @@ export default function ShiftForm({
             payRate: "0.0",
           }
         }
-        const result = shiftSchema.safeParse(data);
 
-        if (!result.success) {
-          console.log("ZOD ERRORS", result.error.flatten());
-          return;
+        if(data.title === ''){
+          finalData = {
+            ...data,
+            title: "----",
+          }
         }
+        // const result = shiftSchema.safeParse(data);
+
+        // if (!result.success) {
+        //   console.log("ZOD ERRORS", result.error.flatten());
+        //   return;
+        // }
 
         formAction(finalData)
 
@@ -143,6 +151,8 @@ export default function ShiftForm({
     const role = appUser.role;
     const companyId = appUser.companyId || undefined;
     const locationId = appUser.locationId || undefined;
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const now = format(new Date(), "yyyy-MM-dd'T'HH:mm");
     
     useEffect(() => {
       if (!relatedData) return;
@@ -414,7 +424,7 @@ export default function ShiftForm({
                 register={register}
                 error={errors?.title}
               />
-                <InputField
+              <InputField
                 label="Instructions/Notes"
                 name="description"
                 defaultValue={data?.description}
@@ -435,6 +445,7 @@ export default function ShiftForm({
                     label="Start Date"
                     name="startDate"
                     type="date"
+                    inputProps={{ min: today }}
                     register={register}
                     error={errors?.startDate}
                   />
@@ -443,6 +454,7 @@ export default function ShiftForm({
                     label="End Date"
                     name="endDate"
                     type="date"
+                    inputProps={{ min: today }}
                     register={register}
                     error={errors?.endDate}
                   />
@@ -476,6 +488,7 @@ export default function ShiftForm({
                   label="Start Time"
                   name="startTime"
                   type="datetime-local"
+                  inputProps={{ min: now }}
                   defaultValue={formatForDatetimeLocal(data?.startTime, data?.company.timezone)}
                   register={register}
                   error={errors?.startTime}
@@ -485,6 +498,7 @@ export default function ShiftForm({
                   label="End Time"
                   name="endTime"
                   type="datetime-local"
+                  inputProps={{ min: now }}
                   defaultValue={formatForDatetimeLocal(data?.endTime, data?.company.timezone)}
                   register={register}
                   error={errors?.endTime}

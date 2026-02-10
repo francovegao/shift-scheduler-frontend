@@ -273,7 +273,7 @@ export default function ShiftsList(){
           {(role === "admin" ||
             role === "pharmacy_manager" ||
             role === "location_manager" ) &&
-            ( item.status === 'open' ) &&  (
+            ( item.status === 'open' || item.status === 'taken'  ) &&  (
             <>
               <FormContainer table="shift" type="update" token={token} data={item} />
               <FormContainer table="shift" type="delete" token={token} id={item.id}/>

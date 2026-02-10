@@ -102,6 +102,13 @@ import { formatInTimeZone } from 'date-fns-tz';
                     <p className="text-sm">{item?.location?.name}</p>
                   </span>
                 )}
+                {item.pharmacist?.user && (
+                   <span>
+                    <p className="text-sm">
+                      {item.pharmacist?.user?.firstName} {item.pharmacist?.user?.lastName}
+                    </p>
+                  </span>
+                )}
                 <div className="mt-1">
                   <ApprovedStatus status={item.status} />
                   {item.published === false && (
