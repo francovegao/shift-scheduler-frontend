@@ -150,6 +150,44 @@ h1{
   background-color: rgb(239 68 68); 
 }
 
+.rbc-event.create-green {
+  background-color: rgb(104 163 67); 
+}
+
+.rbc-event.seton-yellow {
+  background-color: rgb(255 222 33); 
+  color: black !important;
+}
+
+.rbc-event.mahogany-blue {
+  background-color: rgb(178 255 255); 
+  color: black !important;
+}
+
+.rbc-event.grassroots-olivegreen {
+  background-color: rgb(99 107 47); 
+}
+
+.rbc-event.kingsland-pink {
+  background-color: rgb(255 70 162); 
+}
+
+.rbc-event.harmony-lightblue {
+  background-color: rgb(144 213 255); 
+  color: black !important;
+  
+}
+
+.rbc-event.trinityhills-purple {
+  background-color: rgb(224 176 255); 
+  color: black !important;
+}
+
+.rbc-event.pharm-gold {
+  background-color: rgb(239 191 4); 
+  color: black !important;
+}
+
 .rbc-background-event{
   z-index: 2;
   padding: 0px !important;

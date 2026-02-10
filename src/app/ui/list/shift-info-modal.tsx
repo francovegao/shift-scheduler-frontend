@@ -4,6 +4,7 @@ import { Dispatch, SetStateAction} from "react";
 import { getFullAddress } from "@/app/lib/utils";
 import Status from "./status";
 import { formatInTimeZone } from "date-fns-tz";
+import { CalendarIcon } from "@heroicons/react/24/outline";
 
 
 export default function ShiftInfoModal({
@@ -22,6 +23,25 @@ export default function ShiftInfoModal({
         return <p>Loading...</p>;
     }
         
+  function generateGCalLink(event: any): string | undefined {
+    const baseUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE";
+
+    const start =  formatInTimeZone(event.startTime, event.company?.timezone, "yyyyMMdd'T'HHmmssXXX");
+    const end = formatInTimeZone(event.endTime, event.company?.timezone, "yyyyMMdd'T'HHmmssXXX");
+    const appLink = `https://shifthappens.vercel.app/`;
+    const eventDetails = `Details: ${event.title || ""}: ${event.description || ""} \n\n<a href="${appLink}">Click here to view all details</a>`;
+    
+    const params = new URLSearchParams({
+      text: `Shift at ${event.company?.name}`,
+      dates: `${start}/${end}`,
+      details: eventDetails,
+      location: encodeURIComponent(getFullAddress(event.company?.address, event.company?.city, event.company?.province, null) || ""),
+    });
+
+    return `${baseUrl}&${params.toString()}`;
+  }
+  
+  
     return(
       <form className='p-4 flex flex-col gap-4 text-primary' onSubmit={onSubmit} >   
         <h1 className="text-xl font-semibold">Shift Info</h1>
@@ -80,15 +100,28 @@ export default function ShiftInfoModal({
           )}
         </div>
           {data.status === 'taken' && (
-          <div className="font-semibold text-complementary-one">To cancel this shift please contact:
-                <p className="text-sm text-gray-500">{data.company?.contactName}</p>
-                <p className="text-sm text-gray-500">{data.company?.contactPhone}</p>
-                <p className="text-sm text-gray-500">{data.company?.contactEmail}</p>
-          </div>
+            <div className="font-semibold text-complementary-one">To cancel this shift please contact:
+              <p className="text-sm text-gray-500">{data.company?.contactName}</p>
+              <p className="text-sm text-gray-500">{data.company?.contactPhone}</p>
+              <p className="text-sm text-gray-500">{data.company?.contactEmail}</p>
+            </div>
           )}
-        <button type="submit" className="bg-gray-500 text-white py-2 px-4 rounded-md border-none w-max self-center">
-          Close
-        </button>
+        <div className="flex justify-center items-center gap-4 w-full">
+          {data.status === 'taken' && (
+            <a 
+              href={generateGCalLink(data)} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 text-white rounded-md" style={{ backgroundColor: 'rgb(0, 135, 68)' }}
+            >
+              <CalendarIcon className="ml-1 w-4 text-white" />
+              Google Calendar
+            </a> 
+          )}
+          <button type="submit" className="bg-gray-500 text-white py-2 px-4 rounded-md border-none w-max self-center hover:bg-gray-600 cursor-pointer">
+            Close
+          </button>
+        </div>
       </form>
     );
 }

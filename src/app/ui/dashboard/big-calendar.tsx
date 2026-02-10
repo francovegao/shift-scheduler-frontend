@@ -60,31 +60,68 @@ export default function BigCalendar({
     const eventStyleGetter = (event: any) => {
         let className = "";
 
-        switch(event.shift.status){
-          case 'open':
-            className = "open-shift";
+        if(event.shift.status === 'completed' || event.shift.status === 'cancelled'){
+          switch(event.shift.status){
+            case 'open':
+              className = "open-shift";
+              break;
+            case 'taken':
+              className = "taken-shift";
+              break;
+            case 'completed':
+              className = "completed-shift";
+              break;
+            case 'cancelled':
+              className = "cancelled-shift";
+              break;
+            default:
+              className = "open-shift";
+              break;
+          }
+          return {
+            className: className,
+          };
+        }
+
+        switch(event.shift.company.name){
+          case 'Create Compounding':
+            className = "create-green";
             break;
-          case 'taken':
-            className = "taken-shift";
+          case 'Curis Seton':
+            className = "seton-yellow";
             break;
-          case 'completed':
-            className = "completed-shift";
+          case 'Curis Mahogany':
+            className = "mahogany-blue";
             break;
-          case 'cancelled':
-            className = "cancelled-shift";
+          case 'Curis Kingsland':
+            className = "kingsland-pink";
+            break;
+          case 'Curis Harmony':
+            className = "harmony-lightblue";
+            break;
+          case 'Curis Trinity Hills':
+            className = "trinityhills-purple";
+            break;
+          case 'Pharm Drugstore':
+            className = "pharm-gold";
             break;
           default:
-            className = "open-shift";
+            if (/Grassroots/.test(event.shift.company.name)) {
+              className = "grassroots-olivegreen";
+            } else if (event.shift.status === 'taken') {
+              className = "taken-shift";
+            } else {
+              className = "open-shift";
+            }
             break;
         }
 
-         return {
+        return {
           className: className,
         };
       };
 
     const handleSelectEvent = (event: {shift: any}) => {
-      console.log("here: "+action)
       if(action==='takeShift'){
         setSelectedShift(event?.shift);
         setOpen(true);

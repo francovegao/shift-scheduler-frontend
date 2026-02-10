@@ -121,9 +121,9 @@ export default function SinglePharmacistPage({
                     </div>
                 </div>
                 {/* SMALL CARDS */}
-                <div className="flex-1 flex gap-4 justify-between flex-wrap text-white">
+                <div className="flex-1 flex gap-2 space-around flex-wrap text-white">
                     {/* CARD */}
-                    <div className="bg-complementary-two p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+                    <div className="bg-complementary-two p-4 rounded-md flex gap-2 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <BuildingStorefrontIcon className="w-6 h-6" />
                         <div className="">
                             <h2 className="text-xl font-semibold">{counts?.totalPharmacies || "No data"}</h2>
@@ -131,7 +131,7 @@ export default function SinglePharmacistPage({
                         </div>
                     </div>
                     {/* CARD */}
-                    <div className="bg-primary p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+                    <div className="bg-primary p-4 rounded-md flex gap-2 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <ClockIcon className="w-6 h-6" />
                         <div className="">
                             <h2 className="text-xl font-semibold">{counts?.totalTaken || "No data"}</h2>
@@ -139,7 +139,7 @@ export default function SinglePharmacistPage({
                         </div>
                     </div>
                     {/* CARD */}
-                    <div className="bg-secondary p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+                    <div className="bg-secondary p-4 rounded-md flex gap-2 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <CheckCircleIcon className="w-6 h-6" />
                         <div className="">
                             <h2 className="text-xl font-semibold">{counts?.totalCompleted || "No data"}</h2>
@@ -147,7 +147,7 @@ export default function SinglePharmacistPage({
                         </div>
                     </div>
                     {/* CARD */}
-                    <div className="bg-complementary-one p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+                    <div className="bg-complementary-one p-4 rounded-md flex gap-2 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                         <XCircleIcon className="w-6 h-6" />
                         <div className="">
                             <h2 className="text-xl font-semibold">{counts?.totalCancelled || "No data"}</h2>
