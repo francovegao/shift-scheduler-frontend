@@ -35,7 +35,7 @@ export default function ShiftInfoModal({
       text: `Shift at ${event.company?.name}`,
       dates: `${start}/${end}`,
       details: eventDetails,
-      location: encodeURIComponent(getFullAddress(event.company?.address, event.company?.city, event.company?.province, null) || ""),
+      location: getFullAddress(event.company?.address, event.company?.city, event.company?.province, null) || "",
     });
 
     return `${baseUrl}&${params.toString()}`;
