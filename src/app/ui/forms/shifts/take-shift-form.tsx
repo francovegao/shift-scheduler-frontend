@@ -41,37 +41,37 @@ export default function TakeShiftForm({
   token: string;
   }){
 
-      const {
-          register,
-          handleSubmit,
-          formState: { errors },
-        } = useForm<FormInput, any, FormOutput>({
-          resolver: zodResolver(takeShiftSchema),
-        });
-      
-          const [state, formAction] = useFormState(
-              takeShift.bind(null, token),
-            {
-              success: false,
-              error: false,
-            }
-          );
-      
-          const onSubmit = handleSubmit((data) => {
-              formAction(data)
-            });
-      
-          useEffect(() => {
-            if (state.success) {
-              toast(`Shift taken!`, {toastId: 'unique-toast'});
-              setOpen(false);
-              window.location.reload();
-            }
-          }, [state, setOpen])
-      
-            if (!data) {
-              return <p>Loading...</p>;
-            }
+    const {
+      register,
+      handleSubmit,
+      formState: { errors },
+    } = useForm<FormInput, any, FormOutput>({
+      resolver: zodResolver(takeShiftSchema),
+    });
+    
+    const [state, formAction] = useFormState(
+        takeShift.bind(null, token),
+      {
+        success: false,
+        error: false,
+      }
+    );
+    
+    const onSubmit = handleSubmit((data) => {
+        formAction(data)
+      });
+
+    useEffect(() => {
+      if (state.success) {
+        toast(`Shift taken!`, {toastId: 'unique-toast'});
+        setOpen(false);
+        window.location.reload();
+      }
+    }, [state, setOpen])
+
+    if (!data) {
+      return <p>Loading...</p>;
+    }
         
     return(
       <form className='p-4 flex flex-col gap-4' onSubmit={onSubmit} >

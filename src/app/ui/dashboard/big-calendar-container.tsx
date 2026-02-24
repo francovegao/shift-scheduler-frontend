@@ -87,35 +87,44 @@ export default function BigCalendarContainer({
   if (token) fetchData();
   }, [type, token, currentCompanyId]);
 
-    if (loading || isFetching) return <div>Loading...</div>;
-    if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
+  if (loading || isFetching) return <div>Loading...</div>;
+  if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
 
-    const data = shifts.map((shift) => {
-      let title: string= "";
+  const role = appUser.role;
 
-      if(shift.pharmacistId &&
-         (type === 'dashboard_manager' || type === "single_company" || type === "single_location") ){
-        title = `${shift.pharmacist?.user?.firstName} ${shift.pharmacist?.user?.lastName}`;
-      }else{
-        title =
-            shift.location?.name
-            ? `${shift.location.name} - ${shift.company.name}`
-            : shift.company.name;
-      }
-        
+  const data = shifts.map((shift) => {
+    let title: string= "";
 
-        return {
-            title,
-            allDay: false,
-            start: new Date(shift.startTime),
-            end: new Date(shift.endTime),
-            shift: shift,
-        };
-    });
+    if(shift.pharmacistId &&
+        (type === 'dashboard_manager' || type === "single_company" || type === "single_location") ){
+      title = `${shift.pharmacist?.user?.firstName} ${shift.pharmacist?.user?.lastName}`;
+    }else{
+      title =
+          shift.location?.name
+          ? `${shift.location.name} - ${shift.company.name}`
+          : shift.company.name;
+    }
+      
+
+      return {
+          title,
+          allDay: false,
+          start: new Date(shift.startTime),
+          end: new Date(shift.endTime),
+          shift: shift,
+      };
+  });
 
     return(
         <div >
-            <BigCalendar data={data} token={token} />
+          { (role === "admin" ||
+              role === "pharmacy_manager" ||
+              role === "location_manager") && (
+            <BigCalendar data={data} token={token} action='createShift' />
+          )}
+          { (role === "relief_pharmacist") && (
+            <BigCalendar token={token} data={data}/>
+          )}
         </div>
     )
 }

@@ -40,17 +40,18 @@ const forms: {
     token: string,
     data?: any,
     relatedData?: any,
+    initialDate?: Date,
   ) => JSX.Element;
 } = {
   user: (setOpen, type, token, data, relatedData) => <UserForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData} />,
   pharmacist: (setOpen, type, token, data, relatedData) => <PharmacistForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData}/>,
   company: (setOpen, type, token, data, relatedData) => <CompanyForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData}/>,
   location: (setOpen, type, token, data, relatedData) => <LocationForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData}/>,
-  shift: (setOpen, type, token, data, relatedData) => <ShiftForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData}/>,
+  shift: (setOpen, type, token, data, relatedData, initialDate) => <ShiftForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData} initialDate={initialDate}/>,
 }
 
 export default function FormModal({ 
-  table, type, token, data, id, relatedData, }: 
+  table, type, token, data, id, initialDate, relatedData, }: 
   FormContainerProps & { relatedData?: any } ) 
 {
   const [open, setOpen] = useState(false);
@@ -85,7 +86,7 @@ export default function FormModal({
         {state.error && <span className="text-red-500 text-center">Something went wrong!</span>}
       </form>
     ) : type === "create" || type === "update" ? (
-      forms[table](setOpen, type, token, data, relatedData)
+      forms[table](setOpen, type, token, data, relatedData, initialDate)
     ) : (
       "Form not found!"
     );

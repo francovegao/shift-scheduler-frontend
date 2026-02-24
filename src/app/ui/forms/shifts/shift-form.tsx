@@ -13,7 +13,7 @@ import { useAuth } from "../../context/auth-context";
 import { getFullAddress } from "@/app/lib/utils";
 import { useSelectedCompany } from "@/app/lib/useSelectedCompany";
 import { formatInTimeZone } from 'date-fns-tz';
-import { format } from 'date-fns';
+import { addHours, format } from 'date-fns';
 
 // Infer the input and output types from the schema
 type FormInput = z.input<typeof shiftSchema>;
@@ -25,12 +25,14 @@ export default function ShiftForm({
     setOpen,
     token,
     relatedData,
+    initialDate,
     }:{
     type: "create" | "update";
     data?: any; 
     setOpen: Dispatch<SetStateAction<boolean>>;
     token: string;
     relatedData?: any;
+    initialDate?: Date;
     }){
 
       const { appUser, loading } = useAuth();
@@ -57,7 +59,8 @@ export default function ShiftForm({
         resolver: zodResolver(shiftSchema),
         defaultValues: {
           repeatType: "NONE",
-          status: "open",
+          pharmacistId: data?.pharmacistId || '',
+          status: data?.status || 'open',
         },
       });
 
@@ -489,7 +492,9 @@ export default function ShiftForm({
                   name="startTime"
                   type="datetime-local"
                   inputProps={{ min: now }}
-                  defaultValue={formatForDatetimeLocal(data?.startTime, data?.company.timezone)}
+                  defaultValue={initialDate 
+                    ? format(initialDate, "yyyy-MM-dd'T'HH:mm")
+                    : formatForDatetimeLocal(data?.startTime, data?.company.timezone)}
                   register={register}
                   error={errors?.startTime}
                   containerClassName="w-full md:w-[48%]"
@@ -499,7 +504,9 @@ export default function ShiftForm({
                   name="endTime"
                   type="datetime-local"
                   inputProps={{ min: now }}
-                  defaultValue={formatForDatetimeLocal(data?.endTime, data?.company.timezone)}
+                  defaultValue={initialDate 
+                    ? format(addHours(initialDate, 8), "yyyy-MM-dd'T'HH:mm")
+                    : formatForDatetimeLocal(data?.endTime, data?.company.timezone)}
                   register={register}
                   error={errors?.endTime}
                   containerClassName="w-full md:w-[48%]"
@@ -538,24 +545,29 @@ export default function ShiftForm({
                 </div>
               )}
 
-              <div className="flex flex-col gap-2 w-full md:w-1/4">
-                <label className="text-xs text-gray-500">Published</label>
-                <select
-                    className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                    {...register("published", {
-                      setValueAs: value => value === 'true'
-                    })}
-                    defaultValue={data ? (data.published ? "true" : "false") : "true"}
-                  >
-                    <option value="true">Yes</option>
-                    <option value="false">No: Draft Shift, not visible to Relief Pharmacists</option>
-                  </select>
-                  {errors.published?.message && ( 
-                    <p className="text-xs text-red-400">
-                      {errors.published?.message.toString()}
-                    </p>
-                  )}
-              </div>
+              {/* {(!data || data.status === "open") && ( */}
+                <div className="flex flex-col gap-2 w-full md:w-1/4">
+                  <label className="text-xs text-gray-500">Published</label>
+                  <select
+                      className={ (data && data.status !== "open") 
+                        ? "bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                        : "ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full" }
+                      {...register("published", {
+                        setValueAs: value => value === 'true'
+                      })}
+                      defaultValue={data ? (data.published ? "true" : "false") : "true"}
+                      disabled={(data && data?.status !== "open")}
+                    >
+                      <option value="true">Yes</option>
+                      <option value="false">No: Draft Shift, not visible to Relief Pharmacists</option>
+                    </select>
+                    {errors.published?.message && ( 
+                      <p className="text-xs text-red-400">
+                        {errors.published?.message.toString()}
+                      </p>
+                    )}
+                </div>
+              {/* ) } */}
               <div className="flex flex-col gap-2 w-full md:w-1/4">
                 <label className="text-xs text-gray-500">Relief Pharmacist</label>
                 <select
@@ -564,7 +576,7 @@ export default function ShiftForm({
                             }`}
                   {...register("pharmacistId")}
                   disabled={!isPublished}
-                  defaultValue={data?.pharmacists}
+                  defaultValue={data?.pharmacistId}
                 >
                   <option value=""></option>
                   {pharmacists
@@ -574,8 +586,7 @@ export default function ShiftForm({
                       <option
                         value={pharmacist.pharmacistProfile.id}
                         key={pharmacist.pharmacistProfile.id}
-                        selected={data && pharmacist.pharmacistProfile.id === data.pharmacistId}
-                      >
+                       >
                         {pharmacist?.firstName + " " + pharmacist?.lastName}
                       </option>
                     )
@@ -590,9 +601,9 @@ export default function ShiftForm({
                 <div className="flex flex-col gap-2 w-full md:w-1/4">
                     <label className="text-xs text-gray-500">Status</label>
                     <select 
-                      className=" bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                      className="bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
                       {...register("status")}
-                      defaultValue={data?.status}
+                      defaultValue={data?.status || "open"}
                       disabled={true}
                     >
                       <option value="open">open</option>

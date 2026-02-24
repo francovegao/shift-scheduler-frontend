@@ -10,6 +10,7 @@ export type FormContainerProps = {
   token: string,
   data?: any;
   id?: string;
+  initialDate?: Date;
 };
 
 
@@ -19,6 +20,7 @@ export default function FormContainer({
     token, 
     data, 
     id, 
+    initialDate,
 }: FormContainerProps) {
     const { appUser, loading } = useAuth();
     
@@ -102,6 +104,7 @@ export default function FormContainer({
                 data={data} 
                 id={id} 
                 relatedData={relatedData} 
+                initialDate={initialDate}
             />
         </div>
     )
