@@ -36,7 +36,7 @@ export default function ShiftForm({
     } = useForm<FormInput, any, FormOutput>({
         resolver: zodResolver(manualEmailSchema),
         defaultValues: {
-            usersIds: [],
+            userIds: [],
         },
     });
 
@@ -105,7 +105,7 @@ export default function ShiftForm({
         
         setSelectedOptions(nextSelected);
         
-        setValue("usersIds", nextSelected);
+        setValue("userIds", nextSelected);
     };
 
     if (!data) {
@@ -144,7 +144,7 @@ export default function ShiftForm({
                         type="checkbox"
                         value={pharmacist.pharmacistProfile.id}
                         checked={selectedOptions.includes(pharmacist.pharmacistProfile.id)}
-                        {...register("usersIds")}
+                        {...register("userIds")}
                         onChange={handleCheckboxChange}
                         className="form-checkbox h-5 w-5 text-indigo-600 transition duration-150 ease-in-out"
                         />
@@ -164,9 +164,9 @@ export default function ShiftForm({
                     {errors.id?.message.toString()}
                     </p>
                 )}
-                {errors.usersIds?.message && ( 
+                {errors.userIds?.message && ( 
                     <p className="text-xs text-red-400">
-                    {errors.usersIds?.message.toString()}
+                    {errors.userIds?.message.toString()}
                     </p>
                 )}
                 <button type="submit" className="bg-primary text-white py-2 px-4 rounded-md border-none w-max self-center hover:bg-primary-100 cursor-pointer">

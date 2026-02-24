@@ -822,7 +822,7 @@ export const sendOpenShiftNotificationEmail = async (token: string, currentState
     console.log('Sending Emails...');
 
     const body = {
-      usersIds: data.usersIds,
+      userIds: data.userIds,
     }
 
     const response = await fetch(`${CURRENT_URL}/shifts/${data.id}/notify-pharmacists`, {
