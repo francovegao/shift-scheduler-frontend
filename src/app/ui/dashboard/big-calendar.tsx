@@ -16,6 +16,7 @@ import FormContainer from '../list/form-container';
 import { format } from 'date-fns';
 import { useAuth } from '../context/auth-context';
 import { ShiftSchema } from '@/app/lib/formValidationSchemas';
+import SendEmailModal from '../list/email-modal';
 
 const localizer = momentLocalizer(moment)
 
@@ -161,7 +162,7 @@ export default function BigCalendar({
             <ColorCodes label="Create" color="green"/>
             <ColorCodes label="Seton" color="yellow"/>
             <ColorCodes label="Mahogany" color="blue"/>
-            <ColorCodes label="Grassroots" color="olivegreen"/>
+            {/* <ColorCodes label="Grassroots" color="olivegreen"/> */}
 
             <ColorCodes label="Kingsland" color="pink"/>
             <ColorCodes label="Harmony" color="lightblue"/>
@@ -215,17 +216,21 @@ export default function BigCalendar({
                   <div className='absolute top-4 right-4 cursor-pointer' onClick={()=>setOpen(false)}>
                     <XMarkIcon className='w-6' />
                   </div>
-                  { (role === "admin" ||
-                      role === "pharmacy_manager" ||
-                      role === "location_manager") &&
-                       (selectedShift.status === "open" ||
-                        selectedShift.status === "taken") && (
-                    <div className='absolute top-7 left-34 cursor-pointer'>
-                      <FormContainer table="shift" type="update" token={token} data={selectedShift} />
-                    </div>
-                  )}
-                  
-    
+                  <div className='absolute top-7 left-34 cursor-pointer flex items-center gap-2'>
+                    { (role === "admin") && ( selectedShift.status === 'open') && (
+                      <SendEmailModal type="open_shift" token={token} data={selectedShift} />
+                    )}
+                    { (role === "admin" ||
+                        role === "pharmacy_manager" ||
+                        role === "location_manager") &&
+                        (selectedShift.status === "open" ||
+                          selectedShift.status === "taken") && (
+                            <>
+                              <FormContainer table="shift" type="update" token={token} data={selectedShift} />
+                              <FormContainer table="shift" type="delete" token={token} id={selectedShift.id}/>
+                            </>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
