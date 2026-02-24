@@ -1,7 +1,7 @@
 import { BookOpenIcon, CheckIcon, ClockIcon, ExclamationTriangleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 
-export default function Status({ status }: { status: string }) {
+export default function StatusIcon({ status }: { status: string }) {
   return (
     <span
       className={clsx(
@@ -39,26 +39,22 @@ export default function Status({ status }: { status: string }) {
 
       {status === 'open' ? (
         <>
-          Open
-          <ClockIcon className="ml-1 w-4 text-white" />
+          <ClockIcon className=" w-4 text-white stroke-[2.5px]" />
         </>
       ) : null}
       {status === 'taken' ? (
         <>
-          Assigned
-          <BookOpenIcon className="ml-1 w-4 text-white" />
+          <BookOpenIcon className=" w-4 text-white stroke-[2.5px]" />
         </>
       ) : null}
       {status === 'cancelled' ? (
         <>
-          Cancelled
-          <XCircleIcon className="ml-1 w-4 text-white" />
+          <XCircleIcon className=" w-4 text-white stroke-[2.5px]" />
         </>
       ) : null}
       {status === 'completed' ? (
         <>
-          Completed
-          <CheckIcon className="ml-1 w-4 text-white" />
+          <CheckIcon className=" w-4 text-white stroke-[2.5px]" />
         </>
       ) : null}
     </span>

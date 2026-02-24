@@ -10,6 +10,18 @@ import Link from 'next/link';
 import { useSelectedCompany } from '@/app/lib/useSelectedCompany';
 import { formatInTimeZone } from 'date-fns-tz';
 
+const companyColors: Record<string, string> = {
+  "Create Compounding": "bg-[rgb(104,163,67)] text-white",
+  "Curis Seton": "bg-[rgb(255,222,33)] text-black",
+  "Curis Mahogany": "bg-[rgb(178,255,255)] text-black",
+  "Grassroots": "bg-[rgb(99,107,47)] text-white",
+  "Curis Kingsland": "bg-[rgb(255,70,162)] text-white",
+  "Curis Harmony": "bg-[rgb(144,213,255)] text-black",
+  "Curis Trinity Hills": "bg-[rgb(224,176,255)] text-black",
+  "Pharm Drugstore": "bg-[rgb(239,191,4)] text-black",
+  "Default": "bg-primary text-white"
+};
+
   export default function LatestShifts(){ 
     const { firebaseUser, appUser, loading } = useAuth();
     const [isFetching, setIsFetching] = useState(true);
@@ -80,11 +92,13 @@ import { formatInTimeZone } from 'date-fns-tz';
             </p>
           )}
 
-          {latestShifts.slice(0, 5).map((item) => (
+          {latestShifts.slice(0, 5).map((item) =>{
+            const compColors = companyColors[item?.company?.name] || companyColors.Default;
+          return (
             <div
               onClick={() => handleSelectEvent(item.id)}
               key={item.id}
-              className="flex flex-row items-center rounded-md justify-between p-4  transition text-white odd:bg-primary even:bg-secondary odd:hover:bg-primary-100 even:hover:bg-secondary-100"
+              className={`flex flex-row items-center rounded-md justify-between p-4  transition ${compColors}`}
             >
               <div className="flex flex-col">
                 {item.location ? (
@@ -146,7 +160,7 @@ import { formatInTimeZone } from 'date-fns-tz';
               )}
 
             </div>
-          ))}
+          )})}
         </div>
 
         <div className="flex items-center pb-3 pt-2 px-4 text-gray-500">

@@ -19,6 +19,7 @@ import TableSearch from "@/app/ui/list/table-search";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SetStateAction, useEffect, useState } from "react";
 import { formatInTimeZone } from "date-fns-tz";
+import SendEmailModal from "@/app/ui/list/email-modal";
 
 type ShiftList = Shift & { company: Company }
                  & { location: Location } 
@@ -270,6 +271,9 @@ export default function ShiftsList(){
       </td>     
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex justify-end gap-3">
+          { (role === "admin") && ( item.status === 'open') && (
+            <SendEmailModal type="open_shift" token={token} data={item} />
+          )}
           {(role === "admin" ||
             role === "pharmacy_manager" ||
             role === "location_manager" ) &&
@@ -316,6 +320,7 @@ export default function ShiftsList(){
             <FilterShiftStatus options={[
                 { value: 'open', label: 'Open' },
                 { value: 'taken', label: 'Scheduled' },
+                { value: 'openAndTaken', label: 'Open & Scheduled' },
                 { value: 'completed', label: 'Completed' },
                 { value: 'cancelled', label: 'Cancelled' },
               ]} />

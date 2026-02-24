@@ -10,6 +10,12 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import ShiftInfoModal from '../list/shift-info-modal';
 import { toZonedTime  } from 'date-fns-tz';
 import { Event } from 'react-big-calendar';
+import ColorCodes from './color-codes';
+import StatusIcon from './status-icon';
+import FormContainer from '../list/form-container';
+import { format } from 'date-fns';
+import { useAuth } from '../context/auth-context';
+import { ShiftSchema } from '@/app/lib/formValidationSchemas';
 
 const localizer = momentLocalizer(moment)
 
@@ -28,16 +34,20 @@ export default function BigCalendar({
   pharmacistId,
 }: {
   data: { title: string; allDay: boolean; start: Date; end: Date; shift: any;}[];
-  action?: "takeShift";
+  action?: "takeShift" | "createShift";
   token: string;
   pharmacistId?: string;
 }){
+  const { firebaseUser, appUser, loading } = useAuth();
     const [view, setView] = useState<View>(Views.WEEK);
     const [date, setDate] = useState(new Date());
 
     const [open, setOpen] = useState(false);
-    const [selectedShift, setSelectedShift] = useState(null);
+    const [selectedShift, setSelectedShift] = useState<ShiftSchema | null>(null);
     const [events, setEvents] = useState<CalendarEvent[]>([]);
+
+    const [selectedSlotStart, setSelecteSlotStart] = useState<Date | null>(null);
+    
     
     //Change events UTC time to desired Timezone (to avoid displaying events in user's local timezone)
     useEffect(() => {
@@ -125,23 +135,39 @@ export default function BigCalendar({
       if(action==='takeShift'){
         setSelectedShift(event?.shift);
         setOpen(true);
+        setSelecteSlotStart(null)
       }else{
         setSelectedShift(event?.shift);
         setOpen(true);
+        setSelecteSlotStart(null)
       }
     };
 
   function handleSelectSlot(slotInfo: SlotInfo): void {
-     console.log('Selected slot:', slotInfo);
+    if(action==="createShift"){
+      setOpen(true)
+      setSelectedShift(null)
+      setSelecteSlotStart(slotInfo.start)
+    }
   }
+
+  if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
+
+  const role = appUser.role;
 
     return(
         <div className="h-full bg-white p-4 rounded-md">
-          <span className='mx-1'><Status status="open"/></span>
-          <span className='mx-1'><Status status="taken"/></span>
-          <span className='mx-1'><Status status="completed"/></span>
-          <span className='mx-1'><Status status="cancelled"/></span>
+          <div className="h-full bg-white p-4 rounded-md grid grid-cols-4 gap-y-4 gap-x-2 items-center md:w-[80%] lg:w-[60%] 2xl:w-[50%]">
+            <ColorCodes label="Create" color="green"/>
+            <ColorCodes label="Seton" color="yellow"/>
+            <ColorCodes label="Mahogany" color="blue"/>
+            <ColorCodes label="Grassroots" color="olivegreen"/>
 
+            <ColorCodes label="Kingsland" color="pink"/>
+            <ColorCodes label="Harmony" color="lightblue"/>
+            <ColorCodes label="Trinity Hills" color="purple"/>
+            <ColorCodes label="Pharm" color="gold"/>
+          </div>
           <div className='mt-4'>
 
             <Calendar
@@ -164,6 +190,8 @@ export default function BigCalendar({
               }}
               eventPropGetter={eventStyleGetter}
               onSelectEvent={handleSelectEvent}
+              selectable
+              onSelectSlot={handleSelectSlot}
               popup
             />
 
@@ -183,10 +211,43 @@ export default function BigCalendar({
               <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
                 <div className='bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]'>
                   <ShiftInfoModal data={selectedShift} setOpen={setOpen}/>
+                  
                   <div className='absolute top-4 right-4 cursor-pointer' onClick={()=>setOpen(false)}>
                     <XMarkIcon className='w-6' />
                   </div>
+                  { (role === "admin" ||
+                      role === "pharmacy_manager" ||
+                      role === "location_manager") &&
+                       (selectedShift.status === "open" ||
+                        selectedShift.status === "taken") && (
+                    <div className='absolute top-7 left-34 cursor-pointer'>
+                      <FormContainer table="shift" type="update" token={token} data={selectedShift} />
+                    </div>
+                  )}
+                  
     
+                </div>
+              </div>
+            )}
+
+            { (open  && selectedSlotStart && action==="createShift") && (
+               <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
+                <div className='bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]'>
+                  <div className='p-4 flex flex-col gap-4' >
+                    <h1 className="text-xl font-semibold">Calendar slot selected</h1>
+                    <div className='p-4 flex flex-col gap-4 items-center text-center'> 
+                      <p className="font-medium"><span className='font-semibold'>Date:</span> {format(selectedSlotStart, "EEEE, MMMM do")}</p>
+                      <p className="font-medium"><span className='font-semibold'>Time:</span> {format(selectedSlotStart, "h:mmaaa").toLowerCase()}</p>
+                      <p className="text-sm text-gray-500">Click the button below to add a shift in this slot</p>
+                    </div> 
+                    <div className="mx-auto">
+                      <FormContainer table="shift" type="create" token={token} initialDate={selectedSlotStart} />
+                    </div>
+                  </div>
+                  <div className='absolute top-4 right-4 cursor-pointer' onClick={()=>setOpen(false)}>
+                    <XMarkIcon className='w-6' />
+                  </div>
+  
                 </div>
               </div>
             )}
@@ -203,6 +264,7 @@ const CustomDayEventComponent = ({ event }: any | undefined) => {
   return (
     <div>
       <p className='mb-2 font-semibold'>{title}</p>
+      <div className='mb-2'><Status status={shift.status} /></div>
       <p className='mb-2'>${parseFloat(shift?.payRate).toFixed(2)} /hr</p>
       {shift.status === 'open' && (
         <>
@@ -236,6 +298,7 @@ const CustomWeekEventComponent = ({ event }: any | undefined) => {
         </div>
          )}
       <p className='mb-2'>${parseFloat(shift?.payRate).toFixed(2)} /hr</p>
+      <div className='mb-2 ml-1'><StatusIcon status={shift.status} /></div>
     </div>
   );
 };

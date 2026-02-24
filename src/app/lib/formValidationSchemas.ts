@@ -166,3 +166,9 @@ export const takeShiftSchema = z.object({
 
 export type TakeShiftSchema = z.infer<typeof takeShiftSchema>;
 
+export const manualEmailSchema = z.object({
+    id: z.string({ message: "Shift ID is required!" }),
+    userIds: z.array(z.string()),
+});
+
+export type ManualEmailSchema = z.infer<typeof manualEmailSchema>;
