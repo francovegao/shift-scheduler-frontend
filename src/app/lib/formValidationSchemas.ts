@@ -172,3 +172,12 @@ export const manualEmailSchema = z.object({
 });
 
 export type ManualEmailSchema = z.infer<typeof manualEmailSchema>;
+
+export const cancelShiftRequestSchema = z.object({
+    id: z.string({ message: "Shift ID is required!" }),
+    pharmacistId: z.string().min(1,{message: "Pharmacist ID is required"}),
+    cancelReason: z.string().min(1,{message: "Cancel reason is required."}),
+    confirmed: z.coerce.boolean({message: "Confirmation is required."}),
+});
+
+export type CancelShiftRequestSchema = z.infer<typeof cancelShiftRequestSchema>;

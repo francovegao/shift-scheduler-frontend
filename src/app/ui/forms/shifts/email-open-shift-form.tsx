@@ -13,7 +13,7 @@ import { fetchPharmacists } from "@/app/lib/data";
 type FormInput = z.input<typeof manualEmailSchema>;
 type FormOutput = z.output<typeof manualEmailSchema>;
 
-export default function ShiftForm({ 
+export default function NotifyOpenShiftForm({ 
     type,
     data, 
     setOpen,
