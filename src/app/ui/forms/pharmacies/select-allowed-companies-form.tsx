@@ -159,34 +159,37 @@ export default function SelectAllowedCompaniesForm({
         
     return(
     <form onSubmit={onSubmit}>
-      <div className='p-4 flex flex-col gap-4'>
+      <div className='p-4 flex flex-col gap-4 max-w-full overflow-hidden'>
         <h2 className="text-md font-semibold mb-2">{config.title}</h2>
-        <p className="text-sm text-gray-500 mb-2">{config.description}</p>
+        <p className="text-sm text-gray-500 mb-2 w-full break-words whitespace-normal">{config.description}</p>
         <input  
             {...register("id")}
             hidden
           />
-        <ul className="space-y-2 max-h-95 overflow-y-auto border p-2 rounded-md">
+        <ul className="space-y-2 max-h-[400px] overflow-y-auto border p-2 rounded-md">
         {companies.map((company) => {
           const permissionIndex = currentPermissions.findIndex(p => p.companyId === company.id);
           const isSelected = permissionIndex !== -1;
 
           return (
-            <li key={company.id} className="flex items-center border-b border-gray-300">
-              {type!== "set_allowed_pay_rates" && (
-                <input
-                  type="checkbox"
-                  value={company.id}
-                  checked={isSelected}
-                  onChange={() => handleToggleCompany(company.id)}
-                  className="form-checkbox h-5 w-5 text-indigo-600 transition duration-150 ease-in-out"
-                />
-              )}
-              <label className="ml-2 text-gray-700">
-                <p className="font-semibold">{company?.name} : ({company?.legalName})</p>
-                <p className="text-xs">{getFullAddress(company?.address, company?.city, company?.province, company?.postalCode)}</p>
-              </label>
-
+            <li key={company.id} className="flex flex-col border-b border-gray-300 py-2">
+              {/* Top Row: Main Checkbox and Label */}
+              <div className="flex items-center">
+                {type!== "set_allowed_pay_rates" && (
+                  <input
+                    type="checkbox"
+                    value={company.id}
+                    checked={isSelected}
+                    onChange={() => handleToggleCompany(company.id)}
+                    className="form-checkbox h-5 w-5 flex-shrink-0 text-indigo-600 transition duration-150 ease-in-out"
+                  />
+                )}
+                <label className="ml-2 text-gray-700">
+                  <p className="font-semibold">{company?.name} : ({company?.legalName})</p>
+                  <p className="text-xs">{getFullAddress(company?.address, company?.city, company?.province, company?.postalCode)}</p>
+                </label>
+              </div>
+              {/* Bottom Row: Conditional Permission Checkbox */}
               {isSelected && type !== "set_allowed_companies" && (
                 <div className="ml-7 mt-1 flex items-center gap-2 bg-gray-50 p-1 rounded">
                   <input
@@ -207,7 +210,7 @@ export default function SelectAllowedCompaniesForm({
               Pharmacies Selected: {fields.length}
           </p>
         )}
-        <span className="text-sm font-medium text-gray-700">{config.footerNote}</span>
+        <span className="text-sm font-medium text-gray-700 w-full break-words whitespace-normal">{config.footerNote}</span>
         {errors.id?.message && ( 
             <p className="text-xs text-red-400">
               {errors.id?.message.toString()}
