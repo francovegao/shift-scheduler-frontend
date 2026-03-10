@@ -174,7 +174,6 @@ export default function PharmacistForm({
                     {...register("approved", {
                       setValueAs: value => value === 'true'
                     })}
-                    //defaultValue={data?.approved ? 'true' : 'false'}
                   >
                     <option value="true">Yes</option>
                     <option value="false">No</option>
@@ -192,7 +191,6 @@ export default function PharmacistForm({
                     {...register("canViewAllCompanies", {
                       setValueAs: value => value === 'true'
                     })}
-                    //defaultValue={data?.canViewAllCompanies ? 'true' : 'false'}
                   >
                     <option value="true">Yes</option>
                     <option value="false">No</option>
@@ -210,7 +208,6 @@ export default function PharmacistForm({
                     {...register("canViewPayRates", {
                       setValueAs: value => value === 'true'
                     })}
-                    //defaultValue={data?.canViewPayRates ? 'true' : 'false'}
                   >
                     <option value="true">Yes</option>
                     <option value="false">No</option>

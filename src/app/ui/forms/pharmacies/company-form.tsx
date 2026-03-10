@@ -39,7 +39,7 @@ export default function CompanyForm({
         resolver: zodResolver(companySchema),
         defaultValues: {
           ...data,
-          approved: data?.approved,
+          approved: data?.approved ? 'true' : 'false',
         }
       });
 
@@ -124,7 +124,6 @@ export default function CompanyForm({
                   {...register("approved", {
                     setValueAs: value => value === 'true'
                   })}
-                  defaultValue={data?.approved ? 'true' : 'false'}
                 >
                   <option value="true">Yes</option>
                   <option value="false">No</option>
