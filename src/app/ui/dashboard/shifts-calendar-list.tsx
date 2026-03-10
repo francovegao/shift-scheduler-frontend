@@ -7,6 +7,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import TakeShiftForm from "../forms/shifts/take-shift-form";
 import ShiftInfoModal from "../list/shift-info-modal";
 import { formatInTimeZone } from "date-fns-tz";
+import { formatPayRate } from "@/app/lib/utils";
 
 export default function ShiftsCalendarList({
     dateParam,
@@ -80,7 +81,7 @@ export default function ShiftsCalendarList({
                   {formatInTimeZone(startTime, event.company.timezone, "HH:mm")}-{formatInTimeZone(endTime, event.company.timezone, "HH:mm")}
                 </span>
                 <span className="text-gray-500 text-xs">
-                    ${event.payRate} /hr
+                    {formatPayRate(event.payRate)}{formatPayRate(event.payRate) !== "No Data" ? " /hr" : "" }
                 </span>
                                 {event.published === false && (
                     <span className="flex items-center justify-center rounded-2xl mt-1 py-1 px-3 text-xs bg-orange-500 text-white text-center text-wrap">

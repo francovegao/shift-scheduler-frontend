@@ -1,23 +1,28 @@
 'use client';
 
 import { Dispatch, SetStateAction} from "react";
-import { getFullAddress } from "@/app/lib/utils";
+import { formatPayRate, getFullAddress } from "@/app/lib/utils";
 import Status from "./status";
 import { formatInTimeZone } from "date-fns-tz";
 import { CalendarIcon } from "@heroicons/react/24/outline";
+import SendEmailModal from "./email-modal";
+import { useAuth } from "../context/auth-context";
 
 
 export default function ShiftInfoModal({
   data, 
   setOpen,
+  token,
 }: {
   data?: any;
   setOpen: Dispatch<SetStateAction<boolean>>;
+  token?: string;
   }){
+    const { appUser, loading } = useAuth();
 
-    const onSubmit = () => {
-        setOpen(false);
-    };
+    if(!appUser){
+      return <p>Please login...</p>
+    }
 
     if (!data) {
         return <p>Loading...</p>;
@@ -41,9 +46,11 @@ export default function ShiftInfoModal({
     return `${baseUrl}&${params.toString()}`;
   }
   
-  
+  const role = appUser.role;
+  const pharmacistId = appUser.pharmacistProfile?.id;
+
     return(
-      <form className='p-4 flex flex-col gap-4 text-primary' onSubmit={onSubmit} >   
+      <div className='p-4 flex flex-col gap-4 text-primary' >   
         <h1 className="text-xl font-semibold">Shift Info</h1>
         <div className="flex justify-around flex-wrap gap-4 mb-4">
           <div>
@@ -70,7 +77,7 @@ export default function ShiftInfoModal({
               <div className="">
                 <h3 className="font-semibold">{formatInTimeZone(data.startTime, data.company?.timezone, 'EEE MMM dd, yyyy')}</h3>
                 <p className="text-sm text-gray-500">{formatInTimeZone(data.startTime, data.company?.timezone, "HH:mm")}-{formatInTimeZone(data.endTime, data.company?.timezone, "HH:mm")} </p>
-                <p className="text-sm text-gray-500">${parseFloat(data.payRate).toFixed(2)} per hr</p>
+                <p className="text-sm text-gray-500">{formatPayRate(data.payRate)}{formatPayRate(data.payRate) !== "No Data" ? " per hr" : "" }</p>
                 <p className="text-sm text-gray-500">Status: <Status status={data.status} /></p>
                  {data.published === false && (
                     <span className="flex items-center justify-center rounded-2xl mt-1 py-1 px-3 text-xs bg-orange-500 text-white text-center text-wrap">
@@ -99,13 +106,22 @@ export default function ShiftInfoModal({
           </div>
           )}
         </div>
+        <div className="flex justify-around flex-wrap gap-4 mb-4">
           {data.status === 'taken' && (
-            <div className="font-semibold text-complementary-one">To cancel this shift please contact:
+            <div className="font-semibold">
+              <p className="text-complementary-one">To cancel this shift please contact:</p>
               <p className="text-sm text-gray-500">{data.company?.contactName}</p>
               <p className="text-sm text-gray-500">{data.company?.contactPhone}</p>
               <p className="text-sm text-gray-500">{data.company?.contactEmail}</p>
+              { !!(token && role === 'relief_pharmacist' && 
+                pharmacistId && data.company?.contactEmail) && (
+              <div className="mt-1">
+                <SendEmailModal type="request_cancellation" token={token} id={data.id} pharmacistId={pharmacistId}/>
+              </div>
+              )}
             </div>
           )}
+        </div>
         <div className="flex justify-center items-center gap-4 w-full">
           {data.status === 'taken' && (
             <a 
@@ -118,10 +134,13 @@ export default function ShiftInfoModal({
               Google Calendar
             </a> 
           )}
-          <button type="submit" className="bg-gray-500 text-white py-2 px-4 rounded-md border-none w-max self-center hover:bg-gray-600 cursor-pointer">
+          <button 
+          type="button"
+          onClick={() => setOpen(false)} 
+          className="bg-gray-500 text-white py-2 px-4 rounded-md border-none w-max self-center hover:bg-gray-600 cursor-pointer">
             Close
           </button>
         </div>
-      </form>
+      </div>
     );
 }

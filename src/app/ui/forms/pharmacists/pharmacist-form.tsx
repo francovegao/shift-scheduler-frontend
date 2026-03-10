@@ -3,10 +3,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../input-field";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useActionState, useEffect, useState } from "react";
 import { pharmacistSchema } from "@/app/lib/formValidationSchemas";
 import z from "zod";
-import { useFormState } from "react-dom";
 import { createPharmacist, updatePharmacist } from "@/app/lib/actions";
 import { toast } from "react-toastify";
 import SelectAllowedCompaniesForm from "../pharmacies/select-allowed-companies-form";
@@ -35,8 +34,9 @@ export default function PharmacistForm({
       const { appUser, loading } = useAuth();
 
       const [canViewAllPharmacies, setCanViewAllPharmacies] = useState(false);
-      const [showSelectCompaniesForm, setShowSelectCompaniesForm] = useState(false);
-
+      const [canViewAllPayRates, setCanViewAllPayRates] = useState(false);
+      const [showPharmacistPermissionsForm, setShowPharmacistPermissionsForm] = useState(false);
+      const [addPermissionsType, setAddPermissions] = useState<'set_pharmacist_permissions' | "set_allowed_companies" | "set_allowed_pay_rates">('set_pharmacist_permissions');
       const [createdPharmacistId, setCreatedPharmacistId] = useState('');
 
       const {
@@ -48,12 +48,13 @@ export default function PharmacistForm({
         resolver: zodResolver(pharmacistSchema),
         defaultValues: {
           ...data,
-          approved: data?.approved,
-          canViewAllCompanies: data?.canViewAllCompanies,
+          approved: data?.approved ? 'true' : 'false',
+          canViewAllCompanies: data?.canViewAllCompanies ? 'true' : 'false',
+          canViewPayRates: data?.canViewPayRates ? 'true' : 'false',
         }
       });
 
-      const [state, formAction] = useFormState(
+      const [state, formAction] = useActionState(
           type === "create" ? createPharmacist.bind(null, token) : updatePharmacist.bind(null, token),
         {
           success: false,
@@ -64,15 +65,17 @@ export default function PharmacistForm({
 
       const onSubmit = handleSubmit((data) => {
         setCanViewAllPharmacies(data.canViewAllCompanies)
+        setCanViewAllPayRates(data.canViewPayRates)
         formAction(data)
       });
 
       useEffect(() => {
         if (state.success) {
-          if(!canViewAllPharmacies && type==="create"){
+          if( (!canViewAllPharmacies || !canViewAllPayRates) && type==="create"){
             toast(`Pharmacist Profile has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
              setCreatedPharmacistId(state.responseData?.id);
-             setShowSelectCompaniesForm(true);
+             setShowPharmacistPermissionsForm(true);
+             setAddPermissions(determinePermission(canViewAllPharmacies, canViewAllPayRates));
           }else{
             toast(`Pharmacist Profile has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
             setOpen(false);
@@ -86,13 +89,11 @@ export default function PharmacistForm({
 
       const role = appUser.role;
 
-      //const {pharmacists} = relatedData;
-
     return(
       <div>
-      {showSelectCompaniesForm ? (
+      {showPharmacistPermissionsForm ? (
         <div className="flex flex-col items-center">
-          <SelectAllowedCompaniesForm setOpen={setOpen} token={token} pharmacistId={createdPharmacistId} data={data}/>
+          <SelectAllowedCompaniesForm type={addPermissionsType} setOpen={setOpen} token={token} pharmacistId={createdPharmacistId} data={data}/>
           <p className="font-semibold">Or add them later in the pharmacist profile page</p>
         </div>
       ) : (
@@ -173,7 +174,6 @@ export default function PharmacistForm({
                     {...register("approved", {
                       setValueAs: value => value === 'true'
                     })}
-                    defaultValue={data?.approved ? 'true' : 'false'}
                   >
                     <option value="true">Yes</option>
                     <option value="false">No</option>
@@ -191,7 +191,6 @@ export default function PharmacistForm({
                     {...register("canViewAllCompanies", {
                       setValueAs: value => value === 'true'
                     })}
-                    defaultValue={data?.canViewAllCompanies ? 'true' : 'false'}
                   >
                     <option value="true">Yes</option>
                     <option value="false">No</option>
@@ -199,6 +198,23 @@ export default function PharmacistForm({
                   {errors.canViewAllCompanies?.message && ( 
                     <p className="text-xs text-red-400">
                       {errors.canViewAllCompanies?.message.toString()}
+                    </p>
+                  )}
+              </div>
+              <div className="flex flex-col gap-2 w-full md:w-1/4">
+                  <label className="text-xs text-gray-500">Can View All Pay Rates?</label>
+                  <select
+                    className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                    {...register("canViewPayRates", {
+                      setValueAs: value => value === 'true'
+                    })}
+                  >
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                  </select>
+                  {errors.canViewPayRates?.message && ( 
+                    <p className="text-xs text-red-400">
+                      {errors.canViewPayRates?.message.toString()}
                     </p>
                   )}
               </div>
@@ -263,4 +279,14 @@ export default function PharmacistForm({
         )}
     </div>
     );
+}
+
+function determinePermission(canViewAllPharmacies: boolean, canViewAllPayRates: boolean): SetStateAction<"set_pharmacist_permissions" | "set_allowed_companies" | "set_allowed_pay_rates"> {
+  if (!canViewAllPharmacies && !canViewAllPayRates) {
+    return "set_pharmacist_permissions";
+  }
+  if (!canViewAllPharmacies && canViewAllPayRates) {
+    return "set_allowed_companies";
+  }
+  return "set_allowed_pay_rates";
 }

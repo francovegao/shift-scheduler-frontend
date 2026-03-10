@@ -1,6 +1,6 @@
 'use client';
 
-import { BuildingOffice2Icon, BuildingOfficeIcon, PencilIcon, PlusIcon, ShieldExclamationIcon, TrashIcon, UserIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { BuildingOffice2Icon, BuildingOfficeIcon, CurrencyDollarIcon, NoSymbolIcon, PencilIcon, PlusIcon, ShieldExclamationIcon, TrashIcon, UserIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import {useState } from 'react';
 import LinkManagerToCompanyForm from '../forms/pharmacies/link-manager-to-company-form';
@@ -13,7 +13,7 @@ import SelectManagedCompaniesForm from '../forms/pharmacies/select-managed-compa
 export default function RelatedDataModal({ 
   type, token, data, id 
 }:{ 
-  type: "link_company" | "link_location" | "link_pharmacist_profile" | "set_allowed_companies" | "set_managed_companies" | "update_password", 
+  type: "link_company" | "link_location" | "link_pharmacist_profile" | "set_pharmacist_permissions" | "set_allowed_companies" | "set_allowed_pay_rates" | "set_managed_companies" | "update_password", 
   token: string,
   data?: any;
   id?: string; 
@@ -35,9 +35,17 @@ export default function RelatedDataModal({
         <div>
         <PharmacistForm type="create" setOpen={setOpen} token={token} userId={id}/>
       </div>
+    ) : type === "set_pharmacist_permissions" && id ? (
+        <div>
+        <SelectAllowedCompaniesForm type={type} setOpen={setOpen} token={token} pharmacistId={id} data={data}/>
+      </div>
     ) : type === "set_allowed_companies" && id ? (
         <div>
-        <SelectAllowedCompaniesForm setOpen={setOpen} token={token} pharmacistId={id} data={data}/>
+        <SelectAllowedCompaniesForm type={type} setOpen={setOpen} token={token} pharmacistId={id} data={data}/>
+      </div>
+    ) : type === "set_allowed_pay_rates" && id ? (
+        <div>
+        <SelectAllowedCompaniesForm type={type} setOpen={setOpen} token={token} pharmacistId={id} data={data}/>
       </div>
     ) : type === "set_managed_companies" && id ? (
         <div>
@@ -82,10 +90,23 @@ export default function RelatedDataModal({
           </>
         )}
 
+        {type === 'set_pharmacist_permissions' && (
+          <>
+            <NoSymbolIcon className="w-4 h-4" />
+            <span>Set Pharmacist Permissions</span>
+          </>
+        )}
+
         {type === 'set_allowed_companies' && (
           <>
             <BuildingOffice2Icon className="w-4 h-4" />
             <span>Set Allowed Pharmacies</span>
+          </>
+        )}
+        {type === 'set_allowed_pay_rates' && (
+          <>
+            <CurrencyDollarIcon className="w-4 h-4" />
+            <span>Set Allowed Pay Rates</span>
           </>
         )}
         {type === 'set_managed_companies' && (

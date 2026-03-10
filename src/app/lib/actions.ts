@@ -1,4 +1,4 @@
-import { AllowedCompaniesSchema, CompanySchema, LinkManagerToCompanySchema, LocationSchema, ManualEmailSchema, PharmacistSchema, SeriesShiftSchema, ShiftSchema, SingleShiftSchema, TakeShiftSchema, UserSchema } from "./formValidationSchemas"
+import { AllowedCompaniesSchema, CancelShiftRequestSchema, CompanyPermissionsSchema, CompanySchema, LinkManagerToCompanySchema, LocationSchema, ManualEmailSchema, PharmacistSchema, ShiftSchema, TakeShiftSchema, UserSchema } from "./formValidationSchemas"
 import { timeToMinutes } from "./utils";
 
 const CURRENT_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -458,6 +458,7 @@ export const createPharmacist = async (token: string, currentState: CurrentState
       experienceYears: data.experienceYears,
       approved: data.approved,
       canViewAllCompanies: data.canViewAllCompanies,
+      canViewPayRates: data.canViewPayRates,
     }
 
     const response = await fetch(`${CURRENT_URL}/pharmacist-profiles`, {
@@ -501,6 +502,7 @@ export const updatePharmacist = async (token: string, currentState: CurrentState
       experienceYears: data.experienceYears,
       approved: data.approved,
       canViewAllCompanies: data.canViewAllCompanies,
+      canViewPayRates: data.canViewPayRates,
     }
 
     const response = await fetch(`${CURRENT_URL}/pharmacist-profiles/${data.id}`, {
@@ -526,12 +528,12 @@ export const updatePharmacist = async (token: string, currentState: CurrentState
   }
 }
 
-export const setPharmacistAllowedCompanies = async (token: string, currentState: CurrentState, data: AllowedCompaniesSchema)=>{
+export const setPharmacistAllowedCompanies = async (token: string, currentState: CurrentState, data: CompanyPermissionsSchema)=>{
    try {
     console.log('Updating pharmacist...');
 
     const body = {
-      allowedCompaniesIds: data.companiesArray,
+      companyPermissions: data.companyPermissions,
     }
 
     const response = await fetch(`${CURRENT_URL}/pharmacist-profiles/${data.id}`, {
@@ -826,6 +828,38 @@ export const sendOpenShiftNotificationEmail = async (token: string, currentState
     }
 
     const response = await fetch(`${CURRENT_URL}/shifts/${data.id}/notify-pharmacists`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+  
+    return {success: true, error: false};
+    //return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return {success: false, error: true};
+  }
+}
+
+export const sendCancelShiftRequestEmail = async (token: string, currentState: CurrentState, data: CancelShiftRequestSchema)=>{
+   try {
+    console.log('Sending Cancel Request...');
+
+    const body = {
+      cancelReason: data.cancelReason,
+      pharmacistProfileId: data.pharmacistId,
+    }
+
+    const response = await fetch(`${CURRENT_URL}/shifts/${data.id}/request-cancellation`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

@@ -9,7 +9,7 @@ import { useFormState } from "react-dom";
 import { takeShift } from "@/app/lib/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { getFullAddress } from "@/app/lib/utils";
+import { formatPayRate, getFullAddress } from "@/app/lib/utils";
 import { formatInTimeZone } from "date-fns-tz";
 
 // Infer the input and output types from the schema
@@ -131,7 +131,7 @@ export default function TakeShiftForm({
               <div className="">
                 <h3 className="font-semibold">{formatInTimeZone(data.startTime, data.company?.timezone, 'EEE MMM dd, yyyy')}</h3>
                 <p className="text-sm text-gray-500">{formatInTimeZone(data.startTime, data.company?.timezone, "HH:mm")}-{formatInTimeZone(data.endTime, data.company?.timezone, "HH:mm")} </p>
-                <p className="text-sm text-gray-500">${parseFloat(data.payRate).toFixed(2)} per hr</p>
+                <p className="text-sm text-gray-500">{formatPayRate(data.payRate)}{formatPayRate(data.payRate) !== "No Data" ? " per hr" : "" }</p>
               </div>
           </div>
           <div>

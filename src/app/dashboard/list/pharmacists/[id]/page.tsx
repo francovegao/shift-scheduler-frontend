@@ -13,6 +13,7 @@ import FormContainer from "@/app/ui/list/form-container";
 import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
 import { getFullAddress } from "@/app/lib/utils";
 import { notFound } from "next/navigation";
+import RelatedDataModal from "@/app/ui/list/related-data-modal";
 
 export default function SinglePharmacistPage({
     params,
@@ -69,6 +70,11 @@ export default function SinglePharmacistPage({
                 <div className="bg-primary py-6 px-4 rounded-md flex-1 flex gap-4 text-white">
                     <div className="w-1/3 flex flex-col justify-center items-center">
                         <UserCircleIcon className="w-36 h-36" />
+                        <div className="py-1 mb-2 text-gray-800">
+                            {pharmacist.pharmacistProfile?.canViewAllCompanies === false && (
+                                <RelatedDataModal type="set_allowed_companies" token={token} id={pharmacist?.pharmacistProfile?.id} data={pharmacist?.pharmacistProfile}/>
+                            )}
+                        </div>
                         {role === "admin" && (
                             <div className="grid grid-cols-2 gap-2">
                                 <div className="">

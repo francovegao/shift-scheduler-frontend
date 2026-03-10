@@ -16,7 +16,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { SetStateAction, useEffect, useState, use } from "react";
 
-type PharmacistList = User & { roles: Roles[] } & {pharmacistProfile?: PharmacistProfile} ;
+//type PharmacistList = User & { roles: Roles[] } & {pharmacistProfile?: PharmacistProfile} ;
+type PharmacistList = User & {pharmacistProfile?: PharmacistProfile} ;
 
 type User = {
     id: string,
@@ -26,12 +27,10 @@ type User = {
     phone?: string,
 } 
 
-//TODO: Update this definition (Roles is no longer a table)
-type Roles = {
-  id: string,
-  userId: string,
-  role: string,
+type CompanyPermissions = {
   companyId: string,
+  pharmacistId: string,
+  canViewPayRate: boolean,
 }
 
 type PharmacistProfile = {
@@ -47,7 +46,8 @@ type PharmacistProfile = {
     experienceYears?: number,
     approved: boolean,
     canViewAllCompanies: boolean,
-    allowedCompanies: string[],
+    canViewPayRates: boolean,
+    companyPermissions: CompanyPermissions[],
 }
 
 const columns = [
@@ -77,7 +77,7 @@ const columns = [
     className: "table-cell px-3 py-5 font-medium",
   },
   {
-    header: "All Pharmacies?",
+    header: "Permissions",
     accessor: "canViewAllCompanies",
     className: "table-cell px-3 py-5 font-medium",
   },
@@ -184,9 +184,13 @@ export default function PharmacistsList(){
       <td className="table-cell whitespace-nowrap px-3 py-3">
         {item.pharmacistProfile && (
           <>
-          <p>{item.pharmacistProfile?.canViewAllCompanies ? "Yes":"No"}</p>
+          <p><span className="font-semibold">All Pharmacies?</span> {item.pharmacistProfile?.canViewAllCompanies ? "Yes":"No"}</p>
           { !item.pharmacistProfile?.canViewAllCompanies && (
-            <p className="text-xs">Can see {item.pharmacistProfile?.allowedCompanies.length} pharmacies</p>
+            <p className="text-xs">Can see {item.pharmacistProfile?.companyPermissions.length} pharmacies</p>
+          )}
+          <p className="mt-2"><span className="font-semibold">All Pay Rates?</span> {item.pharmacistProfile?.canViewPayRates ? "Yes":"No"}</p>
+          { !item.pharmacistProfile?.canViewPayRates && (
+            <p className="text-xs">Can see {item.pharmacistProfile?.companyPermissions.filter(p => p.canViewPayRate).length} pharmacies' pay rates</p>
           )}
           </>
         )}
@@ -213,11 +217,18 @@ export default function PharmacistsList(){
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
         {item.pharmacistProfile ? (
         <div className="flex justify-end gap-3">
-          {item.pharmacistProfile?.canViewAllCompanies === false && (
-           <RelatedDataModal type="set_allowed_companies" token={token} id={item?.pharmacistProfile?.id} data={item?.pharmacistProfile}/>
-          )}
+          {(item.pharmacistProfile?.canViewAllCompanies === false && 
+           item.pharmacistProfile?.canViewPayRates === false) ? (
+            <RelatedDataModal type="set_pharmacist_permissions" token={token} id={item?.pharmacistProfile?.id} data={item?.pharmacistProfile}/>
+          ): (item.pharmacistProfile?.canViewAllCompanies === false && 
+           item.pharmacistProfile?.canViewPayRates === true) ? (
+            <RelatedDataModal type="set_allowed_companies" token={token} id={item?.pharmacistProfile?.id} data={item?.pharmacistProfile}/>
+          ): (item.pharmacistProfile?.canViewAllCompanies === true && 
+           item.pharmacistProfile?.canViewPayRates === false) ? (
+            <RelatedDataModal type="set_allowed_pay_rates" token={token} id={item?.pharmacistProfile?.id} data={item?.pharmacistProfile}/>
+          ):(<></>)}
           <Link 
-            href={`pharmacists/${item.id}`} //{`pharmacists/${item.pharmacistProfile?.id}`}
+            href={`pharmacists/${item.id}`}
             className="rounded-md border p-2 hover:bg-gray-100"
           >
             <EyeIcon className="w-5"  />
@@ -251,9 +262,7 @@ export default function PharmacistsList(){
                       { value: 'lastName:asc', label: 'Last Name ↑' },
                       { value: 'lastName:desc', label: 'Last Name ↓' },
                     ]} />
-                  {/* {role === "admin" && (
-                  <FormContainer table="pharmacist" type="create" token={token} />
-                  )} */}
+
               </div>
               {/* LIST */}
               <div style={{overflowX: 'scroll'}}>
