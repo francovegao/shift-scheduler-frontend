@@ -1,7 +1,7 @@
 "use client";
 
 import { fetchShifts } from "@/app/lib/data";
-import { getFullAddress } from "@/app/lib/utils";
+import { formatPayRate, getFullAddress } from "@/app/lib/utils";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import BigCalendar from "@/app/ui/dashboard/big-calendar";
@@ -237,7 +237,7 @@ export default function OpenShiftsList(){
       <td className="table-cell whitespace-nowrap px-3 py-3">
         {formatInTimeZone(item.startTime, item.company?.timezone, "HH:mm")}-{formatInTimeZone(item.endTime, item.company?.timezone, "HH:mm")} 
       </td>
-      <td className="table-cell whitespace-nowrap px-3 py-3">${parseFloat(item.payRate).toFixed(2)}</td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">{formatPayRate(item.payRate)}</td>
       <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">
         <ApprovedStatus status={item.status} />
       </td>

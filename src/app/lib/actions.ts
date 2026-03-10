@@ -1,4 +1,4 @@
-import { AllowedCompaniesSchema, CancelShiftRequestSchema, CompanySchema, LinkManagerToCompanySchema, LocationSchema, ManualEmailSchema, PharmacistSchema, SeriesShiftSchema, ShiftSchema, SingleShiftSchema, TakeShiftSchema, UserSchema } from "./formValidationSchemas"
+import { AllowedCompaniesSchema, CancelShiftRequestSchema, CompanyPermissionsSchema, CompanySchema, LinkManagerToCompanySchema, LocationSchema, ManualEmailSchema, PharmacistSchema, ShiftSchema, TakeShiftSchema, UserSchema } from "./formValidationSchemas"
 import { timeToMinutes } from "./utils";
 
 const CURRENT_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -458,6 +458,7 @@ export const createPharmacist = async (token: string, currentState: CurrentState
       experienceYears: data.experienceYears,
       approved: data.approved,
       canViewAllCompanies: data.canViewAllCompanies,
+      canViewPayRates: data.canViewPayRates,
     }
 
     const response = await fetch(`${CURRENT_URL}/pharmacist-profiles`, {
@@ -501,6 +502,7 @@ export const updatePharmacist = async (token: string, currentState: CurrentState
       experienceYears: data.experienceYears,
       approved: data.approved,
       canViewAllCompanies: data.canViewAllCompanies,
+      canViewPayRates: data.canViewPayRates,
     }
 
     const response = await fetch(`${CURRENT_URL}/pharmacist-profiles/${data.id}`, {
@@ -526,12 +528,12 @@ export const updatePharmacist = async (token: string, currentState: CurrentState
   }
 }
 
-export const setPharmacistAllowedCompanies = async (token: string, currentState: CurrentState, data: AllowedCompaniesSchema)=>{
+export const setPharmacistAllowedCompanies = async (token: string, currentState: CurrentState, data: CompanyPermissionsSchema)=>{
    try {
     console.log('Updating pharmacist...');
 
     const body = {
-      allowedCompaniesIds: data.companiesArray,
+      companyPermissions: data.companyPermissions,
     }
 
     const response = await fetch(`${CURRENT_URL}/pharmacist-profiles/${data.id}`, {

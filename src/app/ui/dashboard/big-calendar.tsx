@@ -17,6 +17,7 @@ import { format } from 'date-fns';
 import { useAuth } from '../context/auth-context';
 import { ShiftSchema } from '@/app/lib/formValidationSchemas';
 import SendEmailModal from '../list/email-modal';
+import { formatPayRate } from '@/app/lib/utils';
 
 const localizer = momentLocalizer(moment)
 
@@ -270,7 +271,7 @@ const CustomDayEventComponent = ({ event }: any | undefined) => {
     <div>
       <p className='mb-2 font-semibold'>{title}</p>
       <div className='mb-2'><Status status={shift.status} /></div>
-      <p className='mb-2'>${parseFloat(shift?.payRate).toFixed(2)} /hr</p>
+      <p className='mb-2'>{formatPayRate(shift.payRate)}{formatPayRate(shift.payRate) !== "No Data" ? " /hr" : "" }</p>
       {shift.status === 'open' && (
         <>
          <p>Info:</p>
@@ -302,7 +303,7 @@ const CustomWeekEventComponent = ({ event }: any | undefined) => {
          <p>{shift.company.name}</p>
         </div>
          )}
-      <p className='mb-2'>${parseFloat(shift?.payRate).toFixed(2)} /hr</p>
+      <p className='mb-2'>{formatPayRate(shift.payRate)}{formatPayRate(shift.payRate) !== "No Data" ? " /hr" : "" }</p>
       <div className='mb-2 ml-1'><StatusIcon status={shift.status} /></div>
     </div>
   );

@@ -114,7 +114,7 @@ export default function SinglePharmacistPage({
                             <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                 <MapPinIcon className="w-5"/>
                                 <span>{getFullAddress(pharmacist.pharmacistProfile.address, pharmacist.pharmacistProfile.city, pharmacist.pharmacistProfile.province, pharmacist.pharmacistProfile.postalCode)}</span>
-                            </div>t
+                            </div>
                             <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                 <EnvelopeIcon className="w-5"/>
                                 <span>{pharmacist.email || "Add an email"}</span>

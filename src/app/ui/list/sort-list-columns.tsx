@@ -40,7 +40,7 @@ import { SetStateAction} from "react";
                     (searchParams.get('sortOrder')?.toString()||'')}
       className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-8 text-sm outline-1 text-gray-500"
         >
-          <option value="" selected>Sort</option>
+          <option value="">Sort</option>
           {options.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
           ))}

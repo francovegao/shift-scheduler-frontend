@@ -77,18 +77,43 @@ export const pharmacistSchema = z.object({
     experienceYears: z.coerce.number().optional(),
     approved: z.coerce.boolean({message: "Status is required."}),
     canViewAllCompanies: z.coerce.boolean({message: "View all Pharmacies? is required."}),
+    canViewPayRates: z.coerce.boolean({message: "View all Pay Rates? is required."}),
 });
 
 export type PharmacistSchema = z.infer<typeof pharmacistSchema>;
 
 export const allowedCompaniesSchema = z.object({
     id: z.string({ message: "User ID is required!" }),
-    //companyId: z.string({ message: "Company ID is required!" }),
     companiesArray: z.array(z.string()),
-    //companiesArray: z.array(z.object({companyId: z.string({ message: "Company ID is required!" })})),
 });
 
 export type AllowedCompaniesSchema = z.infer<typeof allowedCompaniesSchema>;
+
+export const companyPermissionsSchema = z.object({
+    id: z.string({ message: "User ID is required!" }), //pharmacistID
+    companyPermissions: z.array(
+      z.object({
+          companyId: z.string(),
+          canViewPayRate: z.boolean().default(false),
+        })
+    ),
+ });
+
+export type CompanyPermissionsSchema = z.infer<typeof companyPermissionsSchema>;
+
+export const getCompanyPermissionsSchema = (type: string) => {
+  return z.object({
+    id: z.string({ message: "User ID is required!" }),
+    companyPermissions: z.array(
+      z.object({
+        companyId: z.string(),
+        canViewPayRate: z.boolean().default(() => {
+          return type === "set_allowed_companies";
+        }),
+      })
+    ),
+  });
+};
 
 export const singleShiftSchema = z.object({
   repeatType: z.literal("NONE"),

@@ -1,7 +1,7 @@
 'use client';
 
 import { Dispatch, SetStateAction} from "react";
-import { getFullAddress } from "@/app/lib/utils";
+import { formatPayRate, getFullAddress } from "@/app/lib/utils";
 import Status from "./status";
 import { formatInTimeZone } from "date-fns-tz";
 import { CalendarIcon } from "@heroicons/react/24/outline";
@@ -77,7 +77,7 @@ export default function ShiftInfoModal({
               <div className="">
                 <h3 className="font-semibold">{formatInTimeZone(data.startTime, data.company?.timezone, 'EEE MMM dd, yyyy')}</h3>
                 <p className="text-sm text-gray-500">{formatInTimeZone(data.startTime, data.company?.timezone, "HH:mm")}-{formatInTimeZone(data.endTime, data.company?.timezone, "HH:mm")} </p>
-                <p className="text-sm text-gray-500">${parseFloat(data.payRate).toFixed(2)} per hr</p>
+                <p className="text-sm text-gray-500">{formatPayRate(data.payRate)}{formatPayRate(data.payRate) !== "No Data" ? " per hr" : "" }</p>
                 <p className="text-sm text-gray-500">Status: <Status status={data.status} /></p>
                  {data.published === false && (
                     <span className="flex items-center justify-center rounded-2xl mt-1 py-1 px-3 text-xs bg-orange-500 text-white text-center text-wrap">

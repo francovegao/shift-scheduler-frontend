@@ -90,3 +90,8 @@ export const timeToMinutes = (timeStr: string): number => {
   const [hours, minutes] = timeStr.split(":").map(Number);
   return (hours * 60) + minutes;
 };
+
+export const formatPayRate = (value: any) => {
+  const num = parseFloat(value);
+  return isNaN(num) || num <= 0 ? "No Data" : `$${num.toFixed(2)}`;
+};
