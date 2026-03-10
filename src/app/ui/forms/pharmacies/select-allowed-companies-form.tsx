@@ -30,7 +30,7 @@ const FORM_CONFIG = {
   set_allowed_pay_rates: {
     title: "Manage Pay Rate Visibility",
     description: "Toggle whether the pharmacist can view pay rates for their assigned pharmacies.",
-    footerNote: "Note: You are only managing pay rate visibility here; pharmacy access remains unchanged.",
+    footerNote: "Only pay rates from the selected pharmacies will be visible to the pharmacist.",
     buttonText: "Update Pay Rate Access"
   }
 }
@@ -159,9 +159,9 @@ export default function SelectAllowedCompaniesForm({
         
     return(
     <form onSubmit={onSubmit}>
-      <div className='p-4 flex flex-col gap-4 max-w-full overflow-hidden'>
+      <div className='p-4 flex flex-col gap-4 w-full min-w-[400px] md:min-w-[500px] overflow-hidden'>
         <h2 className="text-md font-semibold mb-2">{config.title}</h2>
-        <p className="text-sm text-gray-500 mb-2 w-full break-words whitespace-normal">{config.description}</p>
+        {/* <p className="text-sm text-gray-500 mb-2 w-full break-words whitespace-normal">{config.description}</p> */}
         <input  
             {...register("id")}
             hidden
@@ -184,8 +184,8 @@ export default function SelectAllowedCompaniesForm({
                     className="form-checkbox h-5 w-5 flex-shrink-0 text-indigo-600 transition duration-150 ease-in-out"
                   />
                 )}
-                <label className="ml-2 text-gray-700">
-                  <p className="font-semibold">{company?.name} : ({company?.legalName})</p>
+                <label className="ml-2 text-gray-700 flex-1 min-w-0">
+                  <p className="font-semibold whitespace-nowrap">{company?.name} : ({company?.legalName})</p>
                   <p className="text-xs">{getFullAddress(company?.address, company?.city, company?.province, company?.postalCode)}</p>
                 </label>
               </div>
