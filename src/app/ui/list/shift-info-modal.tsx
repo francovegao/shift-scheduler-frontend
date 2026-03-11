@@ -10,12 +10,12 @@ import { useAuth } from "../context/auth-context";
 
 
 export default function ShiftInfoModal({
-  data, 
+  data,
   setOpen,
   token,
 }: {
   data?: any;
-  setOpen: Dispatch<SetStateAction<boolean>>;
+  setOpen: () => void;
   token?: string;
   }){
     const { appUser, loading } = useAuth();
@@ -27,7 +27,7 @@ export default function ShiftInfoModal({
     if (!data) {
         return <p>Loading...</p>;
     }
-        
+
   function generateGCalLink(event: any): string | undefined {
     const baseUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE";
 
@@ -35,7 +35,7 @@ export default function ShiftInfoModal({
     const end = formatInTimeZone(event.endTime, event.company?.timezone, "yyyyMMdd'T'HHmmssXXX");
     const appLink = `https://shifthappens.vercel.app/`;
     const eventDetails = `Details: ${event.title || ""}: ${event.description || ""} \n\n<a href="${appLink}">Click here to view all details</a>`;
-    
+
     const params = new URLSearchParams({
       text: `Shift at ${event.company?.name}`,
       dates: `${start}/${end}`,
@@ -45,12 +45,12 @@ export default function ShiftInfoModal({
 
     return `${baseUrl}&${params.toString()}`;
   }
-  
+
   const role = appUser.role;
   const pharmacistId = appUser.pharmacistProfile?.id;
 
     return(
-      <div className='p-4 flex flex-col gap-4 text-primary' >   
+      <div className='p-4 flex flex-col gap-4 text-primary' >
         <h1 className="text-xl font-semibold">Shift Info</h1>
         <div className="flex justify-around flex-wrap gap-4 mb-4">
           <div>
@@ -113,7 +113,7 @@ export default function ShiftInfoModal({
               <p className="text-sm text-gray-500">{data.company?.contactName}</p>
               <p className="text-sm text-gray-500">{data.company?.contactPhone}</p>
               <p className="text-sm text-gray-500">{data.company?.contactEmail}</p>
-              { !!(token && role === 'relief_pharmacist' && 
+              { !!(token && role === 'relief_pharmacist' &&
                 pharmacistId && data.company?.contactEmail) && (
               <div className="mt-1">
                 <SendEmailModal type="request_cancellation" token={token} id={data.id} pharmacistId={pharmacistId}/>
@@ -124,19 +124,22 @@ export default function ShiftInfoModal({
         </div>
         <div className="flex justify-center items-center gap-4 w-full">
           {data.status === 'taken' && (
-            <a 
-              href={generateGCalLink(data)} 
-              target="_blank" 
+            <a
+              href={generateGCalLink(data)}
+              target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 text-white rounded-md" style={{ backgroundColor: 'rgb(0, 135, 68)' }}
             >
               <CalendarIcon className="ml-1 w-4 text-white" />
               Google Calendar
-            </a> 
+            </a>
           )}
-          <button 
+          <button
           type="button"
-          onClick={() => setOpen(false)} 
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpen();
+          }}
           className="bg-gray-500 text-white py-2 px-4 rounded-md border-none w-max self-center hover:bg-gray-600 cursor-pointer">
             Close
           </button>

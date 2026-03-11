@@ -14,624 +14,716 @@ import { getFullAddress } from "@/app/lib/utils";
 import { useSelectedCompany } from "@/app/lib/useSelectedCompany";
 import { formatInTimeZone } from 'date-fns-tz';
 import { addHours, format } from 'date-fns';
+import React from "react";
 
 // Infer the input and output types from the schema
 type FormInput = z.input<typeof shiftSchema>;
 type FormOutput = z.output<typeof shiftSchema>;
 
-export default function ShiftForm({ 
-    type,
-    data, 
-    setOpen,
-    token,
-    relatedData,
-    initialDate,
-    }:{
-    type: "create" | "update";
-    data?: any; 
-    setOpen: Dispatch<SetStateAction<boolean>>;
-    token: string;
-    relatedData?: any;
-    initialDate?: Date;
-    }){
+export default function ShiftForm({
+  type,
+  data,
+  setOpen,
+  token,
+  relatedData,
+  initialDate,
+}:{
+  type: "create" | "update";
+  data?: any;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+  token: string;
+  relatedData?: any;
+  initialDate?: Date;
+}){
+  const { appUser, loading } = useAuth();
 
-      const { appUser, loading } = useAuth();
-      
-      const [step, setStep] = useState(data ? 2 : 1);
-      const [companyApproved, setCompanyApproved] = useState(true);
+  const [step, setStep] = useState(data ? 2 : 1);
+  const [companyApproved, setCompanyApproved] = useState(true);
 
-      const [pharmaciesList, setPharmaciesList] = useState<any>([]);
+  const [pharmaciesList, setPharmaciesList] = useState<any>([]);
 
-      const [selectedLocationId, setSelectedLocationId] = useState(data ? data.locationId : null);
-      const [selectedCompanyId, setSelectedCompanyId] = useState(data ? data.companyId : null);
-      const [selectedLocationName, setSelectedLocationName] = useState(data ? data.location?.name : null);
-      const [selectedCompanyName, setSelectedCompanyName] = useState(data ? data.company.name : null);
-      const currentCompanyId = useSelectedCompany((state) => state.currentCompanyId);
+  const [selectedLocationId, setSelectedLocationId] = useState(data ? data.locationId : null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState(data ? data.companyId : null);
+  const [selectedLocationName, setSelectedLocationName] = useState(data ? data.location?.name : null);
+  const [selectedCompanyName, setSelectedCompanyName] = useState(data ? data.company.name : null);
+  const currentCompanyId = useSelectedCompany((state) => state.currentCompanyId);
 
-      const {
-        register,
-        watch,
-        setValue,
-        handleSubmit,
-        formState: { errors },
-        control,
-      } = useForm<FormInput, any, FormOutput>({
-        resolver: zodResolver(shiftSchema),
-        defaultValues: {
-          repeatType: "NONE",
-          pharmacistId: data?.pharmacistId || '',
-          status: data?.status || 'open',
-        },
-      });
+  const [shiftSeriesSelectedOption, setShiftSeriesSelectedOption] = useState('current');
 
-      const repeatType = watch("repeatType");
-      const isRepetitive = repeatType !== "NONE";
-      const isWeekly = repeatType === "WEEKLY";
+  const {
+    register,
+    watch,
+    setValue,
+    handleSubmit,
+    formState: { errors },
+    control,
+  } = useForm<FormInput, any, FormOutput>({
+    resolver: zodResolver(shiftSchema),
+    defaultValues: {
+      repeatType: "NONE",
+      pharmacistId: data?.pharmacistId || '',
+      status: data?.status || 'open',
+    },
+  });
 
-      // Watch the value of the published field
-      const isPublished = watch("published", data ? data.published : true);
+  const repeatType = watch("repeatType");
+  const isRepetitive = repeatType !== "NONE";
+  const isWeekly = repeatType === "WEEKLY";
 
-      //Remove pharmacistId if published === False
-      useEffect(() => {
-         if (isPublished === false) {
-            setValue("pharmacistId", "");
-          }
-      }, [isPublished, setValue]);
+  // Watch the value of the published field
+  const isPublished = watch("published", data ? data.published : true);
 
-       // Watch the value of the 'pharmacistId' field
-      const watchedPharmacistId = useWatch({
-        control,
-        name: "pharmacistId",
-      });
-
-      // Use a useEffect hook to update the 'status' whenever 'watchedPharmacistId' changes
-      useEffect(() => {
-          const newStatus = watchedPharmacistId ? 'taken' : 'open';
-          
-          setValue('status', newStatus);        
-      }, [repeatType, watchedPharmacistId, setValue]);
-
-      const [state, formAction] = useFormState(
-          type === "create" ?
-          (repeatType === "NONE" ? createShift.bind(null, token) : createShiftSeries.bind(null,token) ) : 
-          (repeatType === "NONE" ? updateShift.bind(null, token) : updateShiftSeries.bind(null, token)) ,
-        {
-          success: false,
-          error: false,
-        }
-      );
-
-      const onSubmit = handleSubmit((data) => {
-        const pattern = /(?:N\/A|NA)/i;
-        let finalData = data;
-
-        if(pattern.test(data.payRate)){
-          finalData = {
-            ...data,
-            payRate: "0.0",
-          }
-        }
-
-        if(data.title === ''){
-          finalData = {
-            ...data,
-            title: "----",
-          }
-        }
-        // const result = shiftSchema.safeParse(data);
-
-        // if (!result.success) {
-        //   console.log("ZOD ERRORS", result.error.flatten());
-        //   return;
-        // }
-
-        formAction(finalData)
-
-      });
-
-
-      useEffect(() => {
-        if (state.success) {
-          toast(`Shift has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
-          setOpen(false);
-          window.location.reload();
-        }
-      }, [state, type, setOpen])
-
-      const formatForDatetimeLocal = (isoString: string, timeZone: string) => {
-        if (!isoString) return '';
-        
-        // Directly format the UTC date into the string format required by the input
-        // for the specific timezone provided.
-        return formatInTimeZone(isoString, timeZone, "yyyy-MM-dd'T'HH:mm");
-      };
-        
-      const {pharmacists, companies, locations } = relatedData;
-
-    if (loading) return <div>Loading...</div>;
-    if ( !appUser) return <div>Please sign in to continue</div>;
-
-    const role = appUser.role;
-    const companyId = appUser.companyId || undefined;
-    const locationId = appUser.locationId || undefined;
-    const today = format(new Date(), 'yyyy-MM-dd');
-    const now = format(new Date(), "yyyy-MM-dd'T'HH:mm");
-    
-    useEffect(() => {
-      if (!relatedData) return;
-
-      // Approval logic
-      if (role === "pharmacy_manager") {
-        setCompanyApproved(relatedData.companies?.[0]?.approved ?? false);
+  //Remove pharmacistId if published === False
+  useEffect(() => {
+      if (isPublished === false) {
+        setValue("pharmacistId", "");
       }
-    
-      // location_manager starts at step 2
-      if(role==="location_manager"){
-        setCompanyApproved(relatedData.companies?.[0]?.approved ?? false);
-        setStep(2)
-      }
+  }, [isPublished, setValue]);
 
-      // Build unified list
-      if(role==="admin" || role==="pharmacy_manager"){      
-        const unifiedList = [
-          ...relatedData.locations.map((loc: {
-            legalName: any; id: any; name: any; companyId: any; company: any; address: any; city: any; province: any; postalCode: any; 
-            }) => ({
-            type: "location",
-            id: loc.id,
-            name: loc.name,
-            legalName: loc.legalName,
-            companyId: loc.companyId,
-            company: loc.company,
-            address: loc.address,
-            city: loc.city,
-            province: loc.province,
-            postalCode: loc.postalCode,
-          })),
-          ...relatedData.companies.map((c: {
-            legalName: any; id: any; name: any; address: any; city: any; province: any; postalCode: any; 
-            }) => ({
-            type: "company",
-            id: c.id,
-            name: c.name,
-            legalName: c.legalName,
-            companyId: c.id,
-            //company: c,
-            address: c.address,
-            city: c.city,
-            province: c.province,
-            postalCode: c.postalCode,
-          }))
-        ]
-        setPharmaciesList(unifiedList);
-      }
+    // Watch the value of the 'pharmacistId' field
+  const watchedPharmacistId = useWatch({
+    control,
+    name: "pharmacistId",
+  });
 
-    }, [role, relatedData, data]);
+  // Use a useEffect hook to update the 'status' whenever 'watchedPharmacistId' changes
+  useEffect(() => {
+      const newStatus = watchedPharmacistId ? 'taken' : 'open';
 
-    
-    const handleOptionChange = (event: { target: { value: any; }; }) => {
-      const selected = JSON.parse(event.target.value);
-      
-      setSelectedCompanyId(selected.companyId);
-      setSelectedLocationId(selected.type === "location" ? selected.id : null);
+      setValue('status', newStatus);
+  }, [repeatType, watchedPharmacistId, setValue]);
 
-      setSelectedCompanyName(selected.company?.name || selected.name);
-      setSelectedLocationName(selected.type === "location" ? selected.name : null);
+  const [state, formAction] = useFormState(
+      type === "create" ?
+      (repeatType === "NONE" ? createShift.bind(null, token) : createShiftSeries.bind(null,token) ) :
+      ( (repeatType === "NONE" && shiftSeriesSelectedOption === "current") ? updateShift.bind(null, token) : updateShiftSeries.bind(null, token)) ,
+    {
+      success: false,
+      error: false,
+    }
+  );
 
-      setValue("companyId", selected.companyId);
-      setValue("locationId", selected.type === "location" ? selected.id : "");
+  const onSubmit = handleSubmit((formData) => {
+    const pattern = /(?:N\/A|NA)/i;
+    //let finalData = data;
+
+    const finalData = {
+      ...formData,
+      payRate: pattern.test(formData.payRate) ? "0.0" : formData.payRate,
+      title: formData.title === '' ? "----" : formData.title,
+
+      scope: shiftSeriesSelectedOption,
+      referenceShiftId: data?.id, // from initial data prop
+      shiftSeriesId: data?.seriesId, // from initial data prop
     };
 
-    //Render conditions
-    const showStep1ApprovalBlock =
-      !companyApproved &&
-      role === "pharmacy_manager" &&
-      step === 1;
+    // const result = shiftSchema.safeParse(data);
 
-    const showStep1Selection =
-      companyApproved &&
-      step === 1 &&
-      (role === "admin" || role === "pharmacy_manager");
+    // if (!result.success) {
+    //   console.log("ZOD ERRORS", result.error.flatten());
+    //   return;
+    // }
 
-    const showStep2ApprovalBlock =
-      !companyApproved &&
-      step === 2 &&
-      !data;
+    formAction(finalData)
 
-    const showStep2Form =
-      (companyApproved || data || role === "admin") &&
-      step === 2;
+  });
 
-    function RestrictedBlock() {
-      return (
-        <div className="flex flex-col items-center justify-center h-full p-10">
-          <h1 className="text-2xl font-semibold text-red-600">Action Restricted</h1>
-          <p className="mt-4 text-gray-700 text-center max-w-lg">
-            Your company is currently not approved to post shifts.
-            <br />
-            Please contact the administrator to obtain approval.
-          </p>
-        </div>
-      );
+
+  useEffect(() => {
+    if (state.success) {
+      toast(`Shift has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
+      setOpen(false);
+      window.location.reload();
+    }
+  }, [state, type, setOpen])
+
+  const formatForDatetimeLocal = (isoString: string, timeZone: string) => {
+    if (!isoString) return '';
+
+    // Directly format the UTC date into the string format required by the input
+    // for the specific timezone provided.
+    return formatInTimeZone(isoString, timeZone, "yyyy-MM-dd'T'HH:mm");
+  };
+
+  const formatForTimeLocal = (isoString: string, timeZone: string) => {
+    if (!isoString) return '';
+
+    return formatInTimeZone(isoString, timeZone, 'HH:mm');
+  };
+
+  const {pharmacists, companies, locations } = relatedData;
+
+  if (loading) return <div>Loading...</div>;
+  if ( !appUser) return <div>Please sign in to continue</div>;
+
+  const role = appUser.role;
+  const companyId = appUser.companyId || undefined;
+  const locationId = appUser.locationId || undefined;
+  const today = format(new Date(), 'yyyy-MM-dd');
+  const now = format(new Date(), "yyyy-MM-dd'T'HH:mm");
+
+  useEffect(() => {
+    if (!relatedData) return;
+
+    // Approval logic
+    if (role === "pharmacy_manager") {
+      setCompanyApproved(relatedData.companies?.[0]?.approved ?? false);
     }
 
-    return(
-        <form className="flex flex-col gap-8" onSubmit={onSubmit}>
-          <h1 className="text-xl font-semibold">{type === "create" ? "Create a new shift" : "Update shift"}</h1>
+    // location_manager starts at step 2
+    if(role==="location_manager"){
+      setCompanyApproved(relatedData.companies?.[0]?.approved ?? false);
+      setStep(2)
+    }
 
-          { showStep1ApprovalBlock && (
-            <RestrictedBlock />
-          )}
-      
-          { showStep1Selection && (
-            <>
-              <span className="text-sm text-gray-600 font-medium">
-                Select Pharmacy / Company
-              </span>
+    // Build unified list
+    if(role==="admin" || role==="pharmacy_manager"){
+      const unifiedList = [
+        ...relatedData.locations.map((loc: {
+          legalName: any; id: any; name: any; companyId: any; company: any; address: any; city: any; province: any; postalCode: any;
+          }) => ({
+          type: "location",
+          id: loc.id,
+          name: loc.name,
+          legalName: loc.legalName,
+          companyId: loc.companyId,
+          company: loc.company,
+          address: loc.address,
+          city: loc.city,
+          province: loc.province,
+          postalCode: loc.postalCode,
+        })),
+        ...relatedData.companies.map((c: {
+          legalName: any; id: any; name: any; address: any; city: any; province: any; postalCode: any;
+          }) => ({
+          type: "company",
+          id: c.id,
+          name: c.name,
+          legalName: c.legalName,
+          companyId: c.id,
+          //company: c,
+          address: c.address,
+          city: c.city,
+          province: c.province,
+          postalCode: c.postalCode,
+        }))
+      ]
+      setPharmaciesList(unifiedList);
+    }
 
-              <div className="flex flex-col gap-6">
+  }, [role, relatedData, data]);
 
-                <ul className="space-y-2 max-h-95 overflow-y-auto border p-2 rounded-md">
-                {pharmaciesList.map((pharmacy:any) => (
-                  <li key={pharmacy.id} className="flex items-center border-b border-gray-300">
-                    <input
-                      type="radio"
-                      value={JSON.stringify(pharmacy)}
-                      checked={
-                        selectedCompanyId === pharmacy.companyId &&
-                        selectedLocationId === (pharmacy.type === "location" ? pharmacy.id : null)
-                      }
-                      onChange={handleOptionChange}
-                      className="form-radio h-5 w-5 text-indigo-600 transition duration-150 ease-in-out"
-                    />
-                    <label className="ml-2 text-gray-700">
-                    <p className="font-semibold">{pharmacy?.name} - {pharmacy?.legalName}</p>
-                    {pharmacy.company && (
-                      <p className="text-xs font-medium">{pharmacy?.company?.name} - {pharmacy?.company?.legalName}</p>
-                    )}
-                    <p className="text-xs">{getFullAddress(pharmacy?.address, pharmacy?.city, pharmacy?.province, pharmacy?.postalCode)}</p>
-                  </label>
-                  </li>
-                ))}
-                </ul>
+  const handleOptionChange = (event: { target: { value: any; }; }) => {
+    const selected = JSON.parse(event.target.value);
 
-                <button
-                  type="button"
-                  onClick={() => setStep(2)}
-                  className="bg-primary text-white p-2 rounded-md mt-4 cursor-pointer hover:bg-primary-100"
-                >
-                  Next →
-                </button>
-              </div>
-            </>
-          )}
+    setSelectedCompanyId(selected.companyId);
+    setSelectedLocationId(selected.type === "location" ? selected.id : null);
+
+    setSelectedCompanyName(selected.company?.name || selected.name);
+    setSelectedLocationName(selected.type === "location" ? selected.name : null);
+
+    setValue("companyId", selected.companyId);
+    setValue("locationId", selected.type === "location" ? selected.id : "");
+  };
+
+  const handleShiftSeriesOptonChange = (event: { target: { value: SetStateAction<string>; }; }) => {
+    setShiftSeriesSelectedOption(event.target.value);
+  };
+
+  //Render conditions
+  const showStep1ApprovalBlock =
+    !companyApproved &&
+    role === "pharmacy_manager" &&
+    step === 1;
+
+  const showStep1Selection =
+    companyApproved &&
+    step === 1 &&
+    (role === "admin" || role === "pharmacy_manager");
+
+  const showStep2ApprovalBlock =
+    !companyApproved &&
+    step === 2 &&
+    !data;
+
+  const showStep2Form =
+    (companyApproved || data || role === "admin") &&
+    step === 2;
+
+  function RestrictedBlock() {
+    return (
+      <div className="flex flex-col items-center justify-center h-full p-10">
+        <h1 className="text-2xl font-semibold text-red-600">Action Restricted</h1>
+        <p className="mt-4 text-gray-700 text-center max-w-lg">
+          Your company is currently not approved to post shifts.
+          <br />
+          Please contact the administrator to obtain approval.
+        </p>
+      </div>
+    );
+  }
 
 
-          { showStep2ApprovalBlock && (
-            <RestrictedBlock />
-          )}
 
-          { showStep2Form && (
-            <>
+  return(
+      <form className="flex flex-col gap-8" onSubmit={onSubmit}>
+        <h1 className="text-xl font-semibold">{type === "create" ? "Create a new shift" : "Update shift"}</h1>
+
+        { showStep1ApprovalBlock && (
+          <RestrictedBlock />
+        )}
+
+        { showStep1Selection && (
+          <>
             <span className="text-sm text-gray-600 font-medium">
-              Shift Information
+              Select Pharmacy / Company
             </span>
-            <div className="flex justify-between flex-wrap gap-4">
-              {data && (
-                <InputField
-                    label="Id"
-                    name="id"
-                    defaultValue={data?.id}
-                    register={register}
-                    error={errors?.id}
-                    hidden
-                  />
-                )}
 
-              {role === "admin" || role==="pharmacy_manager" ? (
-                <div className="flex flex-col gap-2 w-full md:w-1/4">
-                  <label className="text-xs text-gray-500">Company</label>
+            <div className="flex flex-col gap-6">
+
+              <ul className="space-y-2 max-h-95 overflow-y-auto border p-2 rounded-md">
+              {pharmaciesList.map((pharmacy:any) => (
+                <li key={pharmacy.id} className="flex items-center border-b border-gray-300">
                   <input
-                    type="text"
-                    value={selectedCompanyName || ""}
-                    disabled
-                    className="bg-gray-100 p-2 rounded-md text-sm w-full"
+                    type="radio"
+                    value={JSON.stringify(pharmacy)}
+                    checked={
+                      selectedCompanyId === pharmacy.companyId &&
+                      selectedLocationId === (pharmacy.type === "location" ? pharmacy.id : null)
+                    }
+                    onChange={handleOptionChange}
+                    className="form-radio h-5 w-5 text-indigo-600 transition duration-150 ease-in-out"
                   />
-
-                  <input
-                    type="hidden"
-                    {...register("companyId")}
-                    value={selectedCompanyId ?? ""}
-                  />
-
-                  {errors.companyId?.message && (
-                    <p className="text-xs text-red-400">
-                      {errors.companyId.message.toString()}
-                    </p>
+                  <label className="ml-2 text-gray-700">
+                  <p className="font-semibold">{pharmacy?.name} - {pharmacy?.legalName}</p>
+                  {pharmacy.company && (
+                    <p className="text-xs font-medium">{pharmacy?.company?.name} - {pharmacy?.company?.legalName}</p>
                   )}
-                </div>
-                ):null}
+                  <p className="text-xs">{getFullAddress(pharmacy?.address, pharmacy?.city, pharmacy?.province, pharmacy?.postalCode)}</p>
+                </label>
+                </li>
+              ))}
+              </ul>
 
-              { (//role === "pharmacy_manager" ||
-                role === "location_manager") ? (
-                  <InputField
-                    label="Pharmacy"
-                    name="companyId"
-                    defaultValue={companyId}
-                    register={register} 
-                    error={errors?.companyId}
-                    hidden
-                  />
-              ) : null}
-
-              {/* {role === "admin" ||
-              role === "pharmacy_manager" ? (
-                <div className="flex flex-col gap-2 w-full md:w-1/4">
-                  <label className="text-xs text-gray-500">Pharmacy</label>
-                  <input
-                    type="text"
-                    value={selectedLocationName || ""}
-                    disabled
-                    className="bg-gray-100 p-2 rounded-md text-sm w-full"
-                  />
-
-                  <input
-                    type="hidden"
-                    {...register("locationId")}
-                    value={selectedLocationId ?? ""}
-                  />
-
-                  {errors.locationId?.message && (
-                    <p className="text-xs text-red-400">
-                      {errors.locationId.message.toString()}
-                    </p>
-                  )}
-                </div>
-              ) : null} */}
-
-              {role === "location_manager" ?  (
-                  <InputField
-                    label="Location"
-                    name="locationId"
-                    defaultValue={locationId}
-                    register={register} 
-                    error={errors?.locationId}
-                    hidden
-                  />
-              ) : null}
-
-              {!data ? (
-                <div className="flex flex-col gap-2 w-full md:w-1/4">
-                  <label className="text-xs text-gray-500">Repetitive Shift?</label>
-                  <select
-                    {...register("repeatType")}
-                    className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm"
-                    defaultValue="NONE"
-                  >
-                    <option value="NONE">No (Single shift)</option>
-                    <option value="DAILY">Yes (Daily)</option>
-                    <option value="WEEKLY">Yes (Weekly)</option>
-                  </select>
-                </div>
-              ):(
-                <div className="flex flex-col gap-2 w-full md:w-1/4">
-             
-                </div>
-              )  }
+              <button
+                type="button"
+                onClick={() => setStep(2)}
+                className="bg-primary text-white p-2 rounded-md mt-4 cursor-pointer hover:bg-primary-100"
+              >
+                Next →
+              </button>
+            </div>
+          </>
+        )}
 
 
+        { showStep2ApprovalBlock && (
+          <RestrictedBlock />
+        )}
+
+        { showStep2Form && (
+          <>
+          <span className="text-sm text-gray-600 font-medium">
+            Shift Information
+          </span>
+          <div className="flex justify-between flex-wrap gap-4">
+            {data && (
               <InputField
-                label="Title"
-                name="title"
-                defaultValue={data?.title}
-                register={register}
-                error={errors?.title}
-              />
-              <InputField
-                label="Instructions/Notes"
-                name="description"
-                defaultValue={data?.description}
-                register={register}
-                error={errors?.description}
-                containerClassName="w-full md:w-[70%]"
-              />
-              <InputField
-                label="Pay Rate"
-                name="payRate"
-                defaultValue={data?.payRate}
-                register={register}
-                error={errors?.payRate}
-              />
-              {isRepetitive && (
-                <>
-                  <InputField
-                    label="Start Date"
-                    name="startDate"
-                    type="date"
-                    inputProps={{ min: today }}
-                    register={register}
-                    error={errors?.startDate}
-                  />
-
-                  <InputField
-                    label="End Date"
-                    name="endDate"
-                    type="date"
-                    inputProps={{ min: today }}
-                    register={register}
-                    error={errors?.endDate}
-                  />
-                  <InputField
-                    label="Start Time (Daily)"
-                    name="startMinutes"
-                    type="time"
-                    register={register}
-                    error={errors?.startMinutes}
-                  />
-
-                  <InputField
-                    label="End Time (Daily)"
-                    name="endMinutes"
-                    type="time"
-                    register={register}
-                    error={errors?.endMinutes}
-                  />
-
-                  <div className="flex items-center gap-2">
-                  <input type="checkbox" {...register("excludeWeekends")} defaultChecked={false}/>
-                  <label className="text-sm">Exclude weekends</label>
-                </div>
-
-                </>
+                  label="Id"
+                  name="id"
+                  defaultValue={data?.id}
+                  register={register}
+                  error={errors?.id}
+                  hidden
+                />
               )}
 
-              {!isRepetitive && (
-                <>
+            {role === "admin" || role==="pharmacy_manager" ? (
+              <div className="flex flex-col gap-2 w-full md:w-1/4">
+                <label className="text-xs text-gray-500">Company</label>
+                <input
+                  type="text"
+                  value={selectedCompanyName || ""}
+                  disabled
+                  className="bg-gray-100 p-2 rounded-md text-sm w-full"
+                />
+
+                <input
+                  type="hidden"
+                  {...register("companyId")}
+                  value={selectedCompanyId ?? ""}
+                />
+
+                {errors.companyId?.message && (
+                  <p className="text-xs text-red-400">
+                    {errors.companyId.message.toString()}
+                  </p>
+                )}
+              </div>
+              ):null}
+
+            { (//role === "pharmacy_manager" ||
+              role === "location_manager") ? (
+                <InputField
+                  label="Pharmacy"
+                  name="companyId"
+                  defaultValue={companyId}
+                  register={register}
+                  error={errors?.companyId}
+                  hidden
+                />
+            ) : null}
+
+            {/* {role === "admin" ||
+            role === "pharmacy_manager" ? (
+              <div className="flex flex-col gap-2 w-full md:w-1/4">
+                <label className="text-xs text-gray-500">Pharmacy</label>
+                <input
+                  type="text"
+                  value={selectedLocationName || ""}
+                  disabled
+                  className="bg-gray-100 p-2 rounded-md text-sm w-full"
+                />
+
+                <input
+                  type="hidden"
+                  {...register("locationId")}
+                  value={selectedLocationId ?? ""}
+                />
+
+                {errors.locationId?.message && (
+                  <p className="text-xs text-red-400">
+                    {errors.locationId.message.toString()}
+                  </p>
+                )}
+              </div>
+            ) : null} */}
+
+            {role === "location_manager" ?  (
+                <InputField
+                  label="Location"
+                  name="locationId"
+                  defaultValue={locationId}
+                  register={register}
+                  error={errors?.locationId}
+                  hidden
+                />
+            ) : null}
+
+            {!data ? (
+              <div className="flex flex-col gap-2 w-full md:w-1/4">
+                <label className="text-xs text-gray-500">Repetitive Shift?</label>
+                <select
+                  {...register("repeatType")}
+                  className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm"
+                  defaultValue="NONE"
+                >
+                  <option value="NONE">No (Single shift)</option>
+                  <option value="DAILY">Yes (Daily)</option>
+                  <option value="WEEKLY">Yes (Weekly)</option>
+                </select>
+              </div>
+            ):(
+              <div className="flex flex-col gap-2 w-full md:w-1/4">
+
+              </div>
+            )  }
+
+
+            <InputField
+              label="Title"
+              name="title"
+              defaultValue={data?.title}
+              register={register}
+              error={errors?.title}
+            />
+            <InputField
+              label="Instructions/Notes"
+              name="description"
+              defaultValue={data?.description}
+              register={register}
+              error={errors?.description}
+              containerClassName="w-full md:w-[70%]"
+            />
+            <InputField
+              label="Pay Rate"
+              name="payRate"
+              defaultValue={data?.payRate}
+              register={register}
+              error={errors?.payRate}
+            />
+            {isRepetitive && (
+              <>
+                <InputField
+                  label="Start Date"
+                  name="startDate"
+                  type="date"
+                  defaultValue={initialDate
+                    ? format(initialDate, "yyyy-MM-dd")
+                    : ""}
+                  inputProps={{ min: today }}
+                  register={register}
+                  error={errors?.startDate}
+                />
+
+                <InputField
+                  label="End Date"
+                  name="endDate"
+                  type="date"
+                  inputProps={{ min: today }}
+                  register={register}
+                  error={errors?.endDate}
+                />
+                <InputField
+                  label="Start Time (Daily)"
+                  name="startMinutes"
+                  type="time"
+                  defaultValue={initialDate
+                      ? format(initialDate, "HH:mm")
+                      : ""}
+                  register={register}
+                  error={errors?.startMinutes}
+                />
+
+                <InputField
+                  label="End Time (Daily)"
+                  name="endMinutes"
+                  type="time"
+                  defaultValue={initialDate
+                      ? format(addHours(initialDate, 8), "HH:mm")
+                      : ""}
+                  register={register}
+                  error={errors?.endMinutes}
+                />
+
+                <div className="flex items-center gap-2">
+                <input type="checkbox" {...register("excludeWeekends")} defaultChecked={false}/>
+                <label className="text-sm">Exclude weekends</label>
+              </div>
+
+              </>
+            )}
+
+            {!isRepetitive && (
+              <>
+              {shiftSeriesSelectedOption === "current" ? (
+                <React.Fragment key="datetime-fields">
                   <InputField
                   label="Start Time"
                   name="startTime"
                   type="datetime-local"
                   inputProps={{ min: now }}
-                  defaultValue={initialDate 
+                  defaultValue={initialDate
                     ? format(initialDate, "yyyy-MM-dd'T'HH:mm")
                     : formatForDatetimeLocal(data?.startTime, data?.company.timezone)}
                   register={register}
                   error={errors?.startTime}
                   containerClassName="w-full md:w-[48%]"
-                />
+                  />
                   <InputField
                   label="End Time"
                   name="endTime"
                   type="datetime-local"
                   inputProps={{ min: now }}
-                  defaultValue={initialDate 
+                  defaultValue={initialDate
                     ? format(addHours(initialDate, 8), "yyyy-MM-dd'T'HH:mm")
                     : formatForDatetimeLocal(data?.endTime, data?.company.timezone)}
                   register={register}
                   error={errors?.endTime}
                   containerClassName="w-full md:w-[48%]"
-                />
-              </>
+                  />
+                </React.Fragment>
+              ) : (
+                <React.Fragment key="time-fields">
+                  <InputField
+                    key={`time-start-${shiftSeriesSelectedOption}`}
+                    label="Start Time (Daily)"
+                    name="startMinutes"
+                    type="time"
+                    defaultValue={data?.startTime
+                      ? formatForTimeLocal(data?.startTime, data?.company.timezone)
+                      : ""}
+                    register={register}
+                    error={errors?.startMinutes}
+                    containerClassName="w-full md:w-[48%]"
+                  />
+                  <InputField
+                    key={`time-end-${shiftSeriesSelectedOption}`}
+                    label="End Time (Daily)"
+                    name="endMinutes"
+                    type="time"
+                    defaultValue={data?.endTime
+                      ? formatForTimeLocal(data?.endTime, data?.company.timezone)
+                      : ""}
+                    register={register}
+                    error={errors?.endMinutes}
+                    containerClassName="w-full md:w-[48%]"
+                  />
+                </React.Fragment>
               )}
+            </>
+            )}
 
-              {isWeekly && (
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs text-gray-500">Days of Week</label>
-                  <div className="flex gap-4 flex-wrap">
-                    {[
-                      { label: "Sun", value: 0 },
-                      { label: "Mon", value: 1 },
-                      { label: "Tue", value: 2 },
-                      { label: "Wed", value: 3 },
-                      { label: "Thu", value: 4 },
-                      { label: "Fri", value: 5 },
-                      { label: "Sat", value: 6 },
-                    ].map(day => (
-                      <label key={day.value} className="flex items-center gap-1">
-                        <input
-                          type="checkbox"
-                          value={day.value}
-                          {...register("daysOfWeek")}
-                        />
-                        {day.label}
-                      </label>
-                    ))}
-                  </div>
-                  {errors.daysOfWeek?.message && ( 
-                    <p className="text-xs text-red-400">
-                      {errors.daysOfWeek?.message.toString()}
-                    </p>
-                  )}
+            {isWeekly && (
+              <div className="flex flex-col gap-2">
+                <label className="text-xs text-gray-500">Days of Week</label>
+                <div className="flex gap-4 flex-wrap">
+                  {[
+                    { label: "Sun", value: 0 },
+                    { label: "Mon", value: 1 },
+                    { label: "Tue", value: 2 },
+                    { label: "Wed", value: 3 },
+                    { label: "Thu", value: 4 },
+                    { label: "Fri", value: 5 },
+                    { label: "Sat", value: 6 },
+                  ].map(day => (
+                    <label key={day.value} className="flex items-center gap-1">
+                      <input
+                        type="checkbox"
+                        value={day.value}
+                        {...register("daysOfWeek")}
+                      />
+                      {day.label}
+                    </label>
+                  ))}
                 </div>
-              )}
-
-              {/* {(!data || data.status === "open") && ( */}
-                <div className="flex flex-col gap-2 w-full md:w-1/4">
-                  <label className="text-xs text-gray-500">Published</label>
-                  <select
-                      className={ (data && data.status !== "open") 
-                        ? "bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                        : "ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full" }
-                      {...register("published", {
-                        setValueAs: value => value === 'true'
-                      })}
-                      defaultValue={data ? (data.published ? "true" : "false") : "true"}
-                      disabled={(data && data?.status !== "open")}
-                    >
-                      <option value="true">Yes</option>
-                      <option value="false">No: Draft Shift, not visible to Relief Pharmacists</option>
-                    </select>
-                    {errors.published?.message && ( 
-                      <p className="text-xs text-red-400">
-                        {errors.published?.message.toString()}
-                      </p>
-                    )}
-                </div>
-              {/* ) } */}
-              <div className="flex flex-col gap-2 w-full md:w-1/4">
-                <label className="text-xs text-gray-500">Relief Pharmacist</label>
-                <select
-                  className={`ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full transition-colors ${
-                              !isPublished ? "bg-gray-200" : "bg-white"
-                            }`}
-                  {...register("pharmacistId")}
-                  disabled={!isPublished}
-                  defaultValue={data?.pharmacistId}
-                >
-                  <option value=""></option>
-                  {pharmacists
-                  .filter((pharmacist: { pharmacistProfile: any; }) => pharmacist && pharmacist.pharmacistProfile)
-                  .map(
-                    (pharmacist: { id: string; firstName: string; lastName: string; pharmacistProfile:{id:string} }) => (
-                      <option
-                        value={pharmacist.pharmacistProfile.id}
-                        key={pharmacist.pharmacistProfile.id}
-                       >
-                        {pharmacist?.firstName + " " + pharmacist?.lastName}
-                      </option>
-                    )
-                  )}
-                </select>
-                {errors.pharmacistId?.message && (
+                {errors.daysOfWeek?.message && (
                   <p className="text-xs text-red-400">
-                    {errors.pharmacistId.message.toString()}
+                    {errors.daysOfWeek?.message.toString()}
                   </p>
                 )}
               </div>
-                <div className="flex flex-col gap-2 w-full md:w-1/4">
-                    <label className="text-xs text-gray-500">Status</label>
-                    <select 
-                      className="bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                      {...register("status")}
-                      defaultValue={data?.status || "open"}
-                      disabled={true}
-                    >
-                      <option value="open">open</option>
-                      <option value="taken">taken</option>
-                      <option value="completed">completed</option>
-                      <option value="cancelled">cancelled</option>
-                    </select>
-                    {errors.status?.message && ( 
-                      <p className="text-xs text-red-400">
-                        {errors.status?.message.toString()}
-                      </p>
-                    )}
-                </div>
-            </div> 
-            {state.error && <span className="text-red-500">Something went wrong!</span>}     
-            <button className="bg-primary text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer">
-              {type === "create" ? "Create" : "Update"}
-            </button>
-            {(!data && role!=="location_manager") && (<button
-              type="button"
-              onClick={() => setStep(1)}
-              className="bg-complementary-one text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer"
-            >
-              ← Back
-            </button>
             )}
-          </>
+
+            {/* {(!data || data.status === "open") && ( */}
+              <div className="flex flex-col gap-2 w-full md:w-1/4">
+                <label className="text-xs text-gray-500">Published</label>
+                <select
+                    className={ (data && data.status !== "open")
+                      ? "bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                      : "ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full" }
+                    {...register("published", {
+                      setValueAs: value => value === 'true'
+                    })}
+                    defaultValue={data ? (data.published ? "true" : "false") : "true"}
+                    disabled={(data && data?.status !== "open")}
+                  >
+                    <option value="true">Yes</option>
+                    <option value="false">No: Draft Shift, not visible to Relief Pharmacists</option>
+                  </select>
+                  {errors.published?.message && (
+                    <p className="text-xs text-red-400">
+                      {errors.published?.message.toString()}
+                    </p>
+                  )}
+              </div>
+            {/* ) } */}
+            <div className="flex flex-col gap-2 w-full md:w-1/4">
+              <label className="text-xs text-gray-500">Relief Pharmacist</label>
+              <select
+                className={`ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full transition-colors ${
+                            !isPublished ? "bg-gray-200" : "bg-white"
+                          }`}
+                {...register("pharmacistId")}
+                disabled={!isPublished}
+                defaultValue={data?.pharmacistId}
+              >
+                <option value=""></option>
+                {pharmacists
+                .filter((pharmacist: { pharmacistProfile: any; }) => pharmacist && pharmacist.pharmacistProfile)
+                .map(
+                  (pharmacist: { id: string; firstName: string; lastName: string; pharmacistProfile:{id:string} }) => (
+                    <option
+                      value={pharmacist.pharmacistProfile.id}
+                      key={pharmacist.pharmacistProfile.id}
+                      >
+                      {pharmacist?.firstName + " " + pharmacist?.lastName}
+                    </option>
+                  )
+                )}
+              </select>
+              {errors.pharmacistId?.message && (
+                <p className="text-xs text-red-400">
+                  {errors.pharmacistId.message.toString()}
+                </p>
+              )}
+            </div>
+              <div className="flex flex-col gap-2 w-full md:w-1/4">
+                  <label className="text-xs text-gray-500">Status</label>
+                  <select
+                    className="bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                    {...register("status")}
+                    defaultValue={data?.status || "open"}
+                    disabled={true}
+                  >
+                    <option value="open">open</option>
+                    <option value="taken">taken</option>
+                    <option value="completed">completed</option>
+                    <option value="cancelled">cancelled</option>
+                  </select>
+                  {errors.status?.message && (
+                    <p className="text-xs text-red-400">
+                      {errors.status?.message.toString()}
+                    </p>
+                  )}
+              </div>
+              {(type === "update" && data && data?.seriesId ) && (
+                <div className="font-medium gap-2">
+                  <p>This shift belongs to a shift series</p>
+                  <p>Please select if you want to update:</p>
+                  <div className="p-4">
+                    <div>
+                    <input
+                      type="radio"
+                      id="current"
+                      name="scope"
+                      value="current"
+                      checked={shiftSeriesSelectedOption === 'current'}
+                      onChange={handleShiftSeriesOptonChange}
+                    />
+                    <label htmlFor="current" className="ml-1">This shift only</label>
+                  </div>
+                  <div>
+                    <input
+                      type="radio"
+                      id="future"
+                      name="scope"
+                      value="future"
+                      checked={shiftSeriesSelectedOption === 'future'}
+                      onChange={handleShiftSeriesOptonChange}
+                    />
+                    <label htmlFor="future" className="ml-1">This and future shifts</label>
+                  </div>
+                  <div>
+                    <input
+                      type="radio"
+                      id="all"
+                      name="scope"
+                      value="all"
+                      checked={shiftSeriesSelectedOption === 'all'}
+                      onChange={handleShiftSeriesOptonChange}
+                    />
+                    <label htmlFor="all" className="ml-1">All shifts in the series (except completed and cancelled shifts)</label>
+                  </div>
+                  </div>
+                  <p className="font-light text-complementary-one">Please note that assigned shifts could be updated with this action</p>
+                </div>
+              )}
+          </div>
+          {state.error && <span className="text-red-500">Something went wrong!</span>}
+          <button className="bg-primary text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer">
+            {type === "create" ? "Create" : "Update"}
+          </button>
+          {(!data && role!=="location_manager") && (<button
+            type="button"
+            onClick={() => setStep(1)}
+            className="bg-complementary-one text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer"
+          >
+            ← Back
+          </button>
           )}
-        </form>
-    );
+        </>
+        )}
+      </form>
+  );
 }

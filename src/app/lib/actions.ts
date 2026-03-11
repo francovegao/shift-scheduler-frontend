@@ -59,10 +59,10 @@ export const createUser = async (token: string, currentState: CurrentState,  dat
     const firebaseUser = await firebaseResponse.json();
     const firebaseUid = firebaseUser.uid;
     console.log("User registered");
-    
+
     //Prepare payload for API request
     const body = {
-      firebaseUid: firebaseUid, 
+      firebaseUid: firebaseUid,
       email: data.email,
       firstName: data.firstName,
       lastName: data.lastName,
@@ -85,7 +85,7 @@ export const createUser = async (token: string, currentState: CurrentState,  dat
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
 
-    //revalidatePath("/list/users");   
+    //revalidatePath("/list/users");
     return {success: true, error: false};
     //return response.json();
   } catch (error) {
@@ -119,7 +119,7 @@ export const updateUser = async (token: string, currentState: CurrentState, data
       const errorData = await response.json(); // If the API returns error details
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
-  
+
     return {success: true, error: false};
     //return response.json();
   } catch (error) {
@@ -150,7 +150,7 @@ export const setManagerAllowedCompanies = async (token: string, currentState: Cu
       const errorData = await response.json(); // If the API returns error details
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
-  
+
     return {success: true, error: false};
     //return response.json();
   } catch (error) {
@@ -182,7 +182,7 @@ export const linkManagerToCompany = async (token: string, currentState: CurrentS
       const errorData = await response.json(); // If the API returns error details
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
-  
+
     return {success: true, error: false};
     //return response.json();
   } catch (error) {
@@ -193,7 +193,7 @@ export const linkManagerToCompany = async (token: string, currentState: CurrentS
 
 export const deleteUser = async (token: string, currentState: CurrentState, data: FormData) => {
         const id = data.get("id") as string;
-    
+
     try {
         console.log('Deleting user...');
 
@@ -210,7 +210,7 @@ export const deleteUser = async (token: string, currentState: CurrentState, data
         const errorData = await response.json(); // If the API returns error details
         throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
         }
-    
+
         return {success: true, error: false};
         //return response.json();
     } catch (error) {
@@ -253,7 +253,7 @@ export const createCompany = async (token: string, currentState: CurrentState,  
       const errorData = await response.json(); // If the API returns error details
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
- 
+
     return {success: true, error: false};
     //return response.json();
   } catch (error) {
@@ -307,7 +307,7 @@ export const updateCompany = async (token: string, currentState: CurrentState, d
 
 export const deleteCompany = async (token: string, currentState: CurrentState, data: FormData) => {
         const id = data.get("id") as string;
-    
+
     try {
         console.log('Deleting company...');
 
@@ -324,7 +324,7 @@ export const deleteCompany = async (token: string, currentState: CurrentState, d
         const errorData = await response.json(); // If the API returns error details
         throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
         }
-    
+
         return {success: true, error: false};
         //return response.json();
     } catch (error) {
@@ -365,7 +365,7 @@ export const createLocation = async (token: string, currentState: CurrentState, 
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
 
-    //revalidatePath("/list/users");   
+    //revalidatePath("/list/users");
     return {success: true, error: false};
     //return response.json();
   } catch (error) {
@@ -405,7 +405,7 @@ export const updateLocation = async (token: string, currentState: CurrentState, 
       const errorData = await response.json(); // If the API returns error details
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
-  
+
     return {success: true, error: false};
     //return response.json();
   } catch (error) {
@@ -416,7 +416,7 @@ export const updateLocation = async (token: string, currentState: CurrentState, 
 
 export const deleteLocation = async (token: string, currentState: CurrentState, data: FormData) => {
         const id = data.get("id") as string;
-    
+
     try {
         console.log('Deleting location...');
 
@@ -433,7 +433,7 @@ export const deleteLocation = async (token: string, currentState: CurrentState, 
         const errorData = await response.json(); // If the API returns error details
         throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
         }
-    
+
         return {success: true, error: false};
         //return response.json();
     } catch (error) {
@@ -476,8 +476,8 @@ export const createPharmacist = async (token: string, currentState: CurrentState
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
 
-    const newPharmacistProfile = await response.json(); 
-  
+    const newPharmacistProfile = await response.json();
+
     return { success: true, error: false, responseData: newPharmacistProfile };
     //return response.json();
   } catch (error) {
@@ -519,7 +519,7 @@ export const updatePharmacist = async (token: string, currentState: CurrentState
       const errorData = await response.json(); // If the API returns error details
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
-  
+
     return {success: true, error: false, responseData: null};
     //return response.json();
   } catch (error) {
@@ -550,7 +550,7 @@ export const setPharmacistAllowedCompanies = async (token: string, currentState:
       const errorData = await response.json(); // If the API returns error details
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
-  
+
     return {success: true, error: false};
     //return response.json();
   } catch (error) {
@@ -561,7 +561,7 @@ export const setPharmacistAllowedCompanies = async (token: string, currentState:
 
 export const deletePharmacist = async (token: string, currentState: CurrentState, data: FormData) => {
         const id = data.get("id") as string;
-    
+
     try {
         console.log('Deleting pharmacist...');
 
@@ -578,7 +578,7 @@ export const deletePharmacist = async (token: string, currentState: CurrentState
         const errorData = await response.json(); // If the API returns error details
         throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
         }
-    
+
         return {success: true, error: false};
         //return response.json();
     } catch (error) {
@@ -619,7 +619,7 @@ export const createShift = async (token: string, currentState: CurrentState,  da
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
 
-    //revalidatePath("/list/users");   
+    //revalidatePath("/list/users");
     return {success: true, error: false};
     //return response.json();
   } catch (error) {
@@ -659,7 +659,7 @@ export const updateShift = async (token: string, currentState: CurrentState, dat
       const errorData = await response.json(); // If the API returns error details
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
-  
+
     return {success: true, error: false};
     //return response.json();
   } catch (error) {
@@ -706,7 +706,7 @@ export const createShiftSeries = async (token: string, currentState: CurrentStat
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
 
-    //revalidatePath("/list/users");   
+    //revalidatePath("/list/users");
     return {success: true, error: false};
     //return response.json();
   } catch (error) {
@@ -715,28 +715,33 @@ export const createShiftSeries = async (token: string, currentState: CurrentStat
   }
 }
 
-export const updateShiftSeries = async (token: string, currentState: CurrentState, data: ShiftSchema)=>{
+export const updateShiftSeries = async (
+  token: string,
+  currentState: CurrentState,
+  data: ShiftSchema & {shiftSeriesId: string, scope: string, referenceShiftId: string})=>{
    try {
     console.log('Updating shift series...');
 
     const body = {
-      companyId: data.companyId,
-      locationId: data.locationId ? data.locationId : null,
-      title: data.title,
-      description: data.description,
-      payRate: parseFloat(data.payRate),
-      startMinutes: timeToMinutes(data.startMinutes),
-      endMinutes: timeToMinutes(data.endMinutes),
-      repeatType: data.repeatType,
-      daysOfWeek: data.daysOfWeek,
-      startDate: data.startDate,
-      endDate: data.endDate,
-      excludeWeekends: data.excludeWeekends,
-      published: data.published,
-      //pharmacistId: data.pharmacistId ? data.pharmacistId : null,
+      shiftSeriesData: {
+        scope: data.scope,
+        referenceShiftId: data.referenceShiftId,
+      },
+      shiftData: {
+        companyId: data.companyId,
+        locationId: data.locationId || null,
+        title: data.title || "----",
+        description: data.description,
+        startTime: data.startMinutes,
+        endTime: data.endMinutes,
+        payRate: parseFloat(data.payRate),
+        status: data.status,
+        published: data.published,
+        pharmacistId: data.pharmacistId || null,
+      }
     }
 
-    const response = await fetch(`${CURRENT_URL}/shift-series/${data.id}`, {
+    const response = await fetch(`${CURRENT_URL}/shift-series/${data.shiftSeriesId}`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -750,7 +755,7 @@ export const updateShiftSeries = async (token: string, currentState: CurrentStat
       const errorData = await response.json(); // If the API returns error details
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
-  
+
     return {success: true, error: false};
     //return response.json();
   } catch (error) {
@@ -782,7 +787,7 @@ export const takeShift = async (token: string, currentState: CurrentState, data:
       const errorData = await response.json(); // If the API returns error details
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
-  
+
     return {success: true, error: false};
     //return response.json();
   } catch (error) {
@@ -792,8 +797,8 @@ export const takeShift = async (token: string, currentState: CurrentState, data:
 }
 
 export const deleteShift = async (token: string, currentState: CurrentState, data: FormData) => {
-        const id = data.get("id") as string;
-    
+    const id = data.get("id") as string;
+
     try {
         console.log('Deleting shift...');
 
@@ -802,7 +807,7 @@ export const deleteShift = async (token: string, currentState: CurrentState, dat
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
-            }
+            },
         });
 
         if (!response.ok) {
@@ -810,7 +815,41 @@ export const deleteShift = async (token: string, currentState: CurrentState, dat
         const errorData = await response.json(); // If the API returns error details
         throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
         }
-    
+
+        return {success: true, error: false};
+        //return response.json();
+    } catch (error) {
+        console.error('API Error:', error);
+        return {success: false, error: true};
+    }
+}
+
+export const deleteShiftSeries = async (token: string, currentState: CurrentState, data: FormData) => {
+    const id = data.get("shiftSeriesId") as string;
+
+    const body = {
+      scope: data.get("scope") as "current" | "future" | "all",
+      referenceShiftId: data.get("referenceShiftId") as string,
+    }
+
+    try {
+        console.log('Deleting shift series...');
+
+        const response = await fetch(`${CURRENT_URL}/shift-series/${id}`, {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+        });
+
+        if (!response.ok) {
+        // Handle HTTP errors (e.g., 404, 500)
+        const errorData = await response.json(); // If the API returns error details
+        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+        }
+
         return {success: true, error: false};
         //return response.json();
     } catch (error) {
@@ -841,7 +880,7 @@ export const sendOpenShiftNotificationEmail = async (token: string, currentState
       const errorData = await response.json(); // If the API returns error details
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
-  
+
     return {success: true, error: false};
     //return response.json();
   } catch (error) {
@@ -873,7 +912,7 @@ export const sendCancelShiftRequestEmail = async (token: string, currentState: C
       const errorData = await response.json(); // If the API returns error details
       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
     }
-  
+
     return {success: true, error: false};
     //return response.json();
   } catch (error) {
