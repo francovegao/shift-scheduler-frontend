@@ -92,8 +92,7 @@ export default function FormModal({
           <div className="font-medium gap-2">
             <input type="hidden" name="referenceShiftId" value={id} />
             <input type="hidden" name="shiftSeriesId" value={data?.seriesId} />
-            {data?.seriesId}
-            <p>This shift belongs to a shift series.</p>
+            <p>This shift belongs to a shift series</p>
             <p>Please select if you want to delete:</p>
             <div className="p-4">
               <div>
@@ -130,8 +129,7 @@ export default function FormModal({
               <label htmlFor="all" className="ml-1">All shifts in the series (except completed and cancelled shifts)</label>
             </div>
             </div>
-            <p className="font-light">Selected option: {shiftSeriesSelectedOption}</p>
-            <p className="font-light">Please note that assigned shifts could be deleted with this action.</p>
+            <p className="font-light text-complementary-one">Please note that assigned shifts could be deleted with this action.</p>
           </div>
         )}
         <span className="text-center font-medium">This action cannot be undone!</span>

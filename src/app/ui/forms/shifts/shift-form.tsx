@@ -669,8 +669,7 @@ export default function ShiftForm({
               </div>
               {(type === "update" && data && data?.seriesId ) && (
                 <div className="font-medium gap-2">
-                  {data?.seriesId}
-                  <p>This shift belongs to a shift series.</p>
+                  <p>This shift belongs to a shift series</p>
                   <p>Please select if you want to update:</p>
                   <div className="p-4">
                     <div>
@@ -707,8 +706,7 @@ export default function ShiftForm({
                     <label htmlFor="all" className="ml-1">All shifts in the series (except completed and cancelled shifts)</label>
                   </div>
                   </div>
-                  <p className="font-light">Selected option: {shiftSeriesSelectedOption}</p>
-                  <p className="font-light">Please note that assigned shifts could be deleted with this action.</p>
+                  <p className="font-light text-complementary-one">Please note that assigned shifts could be updated with this action</p>
                 </div>
               )}
           </div>
