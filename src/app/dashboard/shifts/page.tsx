@@ -22,7 +22,7 @@ import { formatInTimeZone } from "date-fns-tz";
 import SendEmailModal from "@/app/ui/list/email-modal";
 
 type ShiftList = Shift & { company: Company }
-                 & { location: Location } 
+                 & { location: Location }
                  & { pharmacist: Pharmacist & { user: User } };
 
 type Shift = {
@@ -171,7 +171,7 @@ export default function ShiftsList(){
                   queryParams[key] = value;
                 }
             }});
-        
+
             const currentPage = page ? parseInt(page) : 1;
             const search = query ?? '';
 
@@ -268,7 +268,7 @@ export default function ShiftsList(){
             <p className="text-xs text-gray-500">Publish Shift to make it visible</p>
           </div>
         )}
-      </td>     
+      </td>
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex justify-end gap-3">
           { (role === "admin") && ( item.status === 'open') && (
@@ -280,7 +280,7 @@ export default function ShiftsList(){
             ( item.status === 'open' || item.status === 'taken'  ) &&  (
             <>
               <FormContainer table="shift" type="update" token={token} data={item} />
-              <FormContainer table="shift" type="delete" token={token} id={item.id}/>
+              <FormContainer table="shift" type="delete" token={token} id={item.id} data={item}/>
             </>
           )
           }
@@ -344,9 +344,9 @@ export default function ShiftsList(){
             { (role === "relief_pharmacist") && (
               <BigCalendar token={token} data={data}/>
             )}
-            
+
         </div>
       </div>
     </AuthWrapper>
-  );   
+  );
 }

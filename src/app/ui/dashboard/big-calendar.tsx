@@ -49,8 +49,8 @@ export default function BigCalendar({
     const [events, setEvents] = useState<CalendarEvent[]>([]);
 
     const [selectedSlotStart, setSelecteSlotStart] = useState<Date | null>(null);
-    
-    
+
+
     //Change events UTC time to desired Timezone (to avoid displaying events in user's local timezone)
     useEffect(() => {
       if(data){
@@ -204,7 +204,7 @@ export default function BigCalendar({
                   <div className='absolute top-4 right-4 cursor-pointer' onClick={()=>setOpen(false)}>
                     <XMarkIcon className='w-6' />
                   </div>
-    
+
                 </div>
               </div>
             )}
@@ -213,7 +213,7 @@ export default function BigCalendar({
               <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
                 <div className='bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]'>
                   <ShiftInfoModal data={selectedShift} setOpen={setOpen} token={token} />
-                  
+
                   <div className='absolute top-4 right-4 cursor-pointer' onClick={()=>setOpen(false)}>
                     <XMarkIcon className='w-6' />
                   </div>
@@ -228,7 +228,7 @@ export default function BigCalendar({
                           selectedShift.status === "taken") && (
                             <>
                               <FormContainer table="shift" type="update" token={token} data={selectedShift} />
-                              <FormContainer table="shift" type="delete" token={token} id={selectedShift.id}/>
+                              <FormContainer table="shift" type="delete" token={token} id={selectedShift.id} data={selectedShift}/>
                             </>
                     )}
                   </div>
@@ -241,11 +241,11 @@ export default function BigCalendar({
                 <div className='bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]'>
                   <div className='p-4 flex flex-col gap-4' >
                     <h1 className="text-xl font-semibold">Calendar slot selected</h1>
-                    <div className='p-4 flex flex-col gap-4 items-center text-center'> 
+                    <div className='p-4 flex flex-col gap-4 items-center text-center'>
                       <p className="font-medium"><span className='font-semibold'>Date:</span> {format(selectedSlotStart, "EEEE, MMMM do")}</p>
                       <p className="font-medium"><span className='font-semibold'>Time:</span> {format(selectedSlotStart, "h:mmaaa").toLowerCase()}</p>
                       <p className="text-sm text-gray-500">Click the button below to add a shift in this slot</p>
-                    </div> 
+                    </div>
                     <div className="mx-auto">
                       <FormContainer table="shift" type="create" token={token} initialDate={selectedSlotStart} />
                     </div>
@@ -253,7 +253,7 @@ export default function BigCalendar({
                   <div className='absolute top-4 right-4 cursor-pointer' onClick={()=>setOpen(false)}>
                     <XMarkIcon className='w-6' />
                   </div>
-  
+
                 </div>
               </div>
             )}

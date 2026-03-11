@@ -6,7 +6,7 @@ import { Dispatch, JSX, SetStateAction, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useFormState } from "react-dom";
 import { toast } from 'react-toastify';
-import { deleteCompany, deleteLocation, deletePharmacist, deleteShift, deleteUser } from "@/app/lib/actions";
+import { deleteCompany, deleteLocation, deletePharmacist, deleteShift, deleteShiftSeries, deleteUser } from "@/app/lib/actions";
 import { FormContainerProps } from './form-container';
 
 const deleteActionMap = {
@@ -15,6 +15,7 @@ const deleteActionMap = {
   location: deleteLocation,
   pharmacist: deletePharmacist,
   shift: deleteShift,
+  shiftSeries: deleteShiftSeries,
 }
 
 const UserForm = dynamic(() => import("../forms/users/user-form"), {
@@ -35,8 +36,8 @@ const ShiftForm = dynamic(() => import("../forms/shifts/shift-form"), {
 
 const forms: {
   [key: string]: (
-    setOpen: Dispatch<SetStateAction<boolean>>, 
-    type: "create" | "update", 
+    setOpen: Dispatch<SetStateAction<boolean>>,
+    type: "create" | "update",
     token: string,
     data?: any,
     relatedData?: any,
@@ -50,15 +51,23 @@ const forms: {
   shift: (setOpen, type, token, data, relatedData, initialDate) => <ShiftForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData} initialDate={initialDate}/>,
 }
 
-export default function FormModal({ 
-  table, type, token, data, id, initialDate, relatedData, }: 
-  FormContainerProps & { relatedData?: any } ) 
+export default function FormModal({
+  table, type, token, data, id, initialDate, relatedData, }:
+  FormContainerProps & { relatedData?: any } )
 {
   const [open, setOpen] = useState(false);
 
   const Form = () => {
+    const [shiftSeriesSelectedOption, setShiftSeriesSelectedOption] = useState('current');
+
+    const handleOptionChange = (event: { target: { value: SetStateAction<string>; }; }) => {
+      setShiftSeriesSelectedOption(event.target.value);
+    };
+
+    const actionTable = shiftSeriesSelectedOption !== "current" ? "shiftSeries" : table;
+
     const [state, formAction] = useFormState(
-      deleteActionMap[table].bind(null, token),
+      deleteActionMap[actionTable].bind(null, token),
       {
         success: false,
         error: false,
@@ -78,6 +87,52 @@ export default function FormModal({
         <span className="text-center font-medium">Are you sure you want to delete this {table === "pharmacist" ? "pharmacist profile" : table}?</span>
         {table === "pharmacist" &&(
           <span className="text-center font-medium">This will delete the selected pharmacist profile, but not the user.</span>
+        )}
+        { (table === "shift" && data?.seriesId ) && (
+          <div className="font-medium gap-2">
+            <input type="hidden" name="referenceShiftId" value={id} />
+            <input type="hidden" name="shiftSeriesId" value={data?.seriesId} />
+            {data?.seriesId}
+            <p>This shift belongs to a shift series.</p>
+            <p>Please select if you want to delete:</p>
+            <div className="p-4">
+              <div>
+              <input
+                type="radio"
+                id="current"
+                name="scope"
+                value="current"
+                checked={shiftSeriesSelectedOption === 'current'}
+                onChange={handleOptionChange}
+              />
+              <label htmlFor="current" className="ml-1">This shift only</label>
+            </div>
+            <div>
+              <input
+                type="radio"
+                id="future"
+                name="scope"
+                value="future"
+                checked={shiftSeriesSelectedOption === 'future'}
+                onChange={handleOptionChange}
+              />
+              <label htmlFor="future" className="ml-1">This and future shifts</label>
+            </div>
+            <div>
+              <input
+                type="radio"
+                id="all"
+                name="scope"
+                value="all"
+                checked={shiftSeriesSelectedOption === 'all'}
+                onChange={handleOptionChange}
+              />
+              <label htmlFor="all" className="ml-1">All shifts in the series (except completed and cancelled shifts)</label>
+            </div>
+            </div>
+            <p className="font-light">Selected option: {shiftSeriesSelectedOption}</p>
+            <p className="font-light">Please note that assigned shifts could be deleted with this action.</p>
+          </div>
         )}
         <span className="text-center font-medium">This action cannot be undone!</span>
         <button type="submit" className="bg-complementary-one text-white p-2 rounded-md hover:bg-complementary-one-100 cursor-pointer">
@@ -122,7 +177,7 @@ export default function FormModal({
             </>
           ) : null}
         </button>
-        
+
         {open && (
           <div className="w-screen h-screen fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center overflow-hidden">
             <div className="bg-white p-4 pb-10 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] max-h-[calc(100dvh-40px)] overflow-y-auto">
