@@ -16,6 +16,7 @@ const deleteActionMap = {
   pharmacist: deletePharmacist,
   shift: deleteShift,
   shiftSeries: deleteShiftSeries,
+  file: deleteShift,
 }
 
 const UserForm = dynamic(() => import("../forms/users/user-form"), {

@@ -1,4 +1,4 @@
-import { AllowedCompaniesSchema, CancelShiftRequestSchema, CompanyPermissionsSchema, CompanySchema, LinkManagerToCompanySchema, LocationSchema, ManualEmailSchema, PharmacistSchema, ShiftSchema, TakeShiftSchema, UserSchema } from "./formValidationSchemas"
+import { AllowedCompaniesSchema, CancelShiftRequestSchema, CompanyPermissionsSchema, CompanySchema, FileSchema, LinkManagerToCompanySchema, LocationSchema, ManualEmailSchema, PharmacistSchema, ShiftSchema, TakeShiftSchema, UserSchema } from "./formValidationSchemas"
 import { timeToMinutes } from "./utils";
 
 const CURRENT_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -918,5 +918,191 @@ export const sendCancelShiftRequestEmail = async (token: string, currentState: C
   } catch (error) {
     console.error('API Error:', error);
     return {success: false, error: true};
+  }
+}
+
+export const createFileRecord = async (token: string, currentState: CurrentState,  data: FileSchema)=>{
+   try {
+    console.log('Creating file record...');
+
+    const body = {
+      userId: data.userId ? data.userId : null,
+      companyId: data.companyId ? data.companyId : null,
+      fileName: data.fileName,
+      fileUrl: data.fileUrl,
+      mimeType: data.mimeType ? data.mimeType : null,
+      size: data.size ? data.size : null,
+      type: data.type,
+    }
+
+    const response = await fetch(`${CURRENT_URL}/files`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json();
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return {success: true, error: false};
+  } catch (error) {
+    console.error('API Error:', error);
+    return {success: false, error: true};
+  }
+}
+
+export const updateFileRecord = async (token: string, currentState: CurrentState,  data: FileSchema)=>{
+   try {
+    console.log('Updating file record...');
+
+    const body = {
+      userId: data.userId ? data.userId : null,
+      companyId: data.companyId ? data.companyId : null,
+      fileName: data.fileName,
+      fileUrl: data.fileUrl,
+      mimeType: data.mimeType ? data.mimeType : null,
+      size: data.size ? data.size : null,
+      type: data.type,
+    }
+
+    const response = await fetch(`${CURRENT_URL}/files/${data.id}`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json();
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return {success: true, error: false};
+  } catch (error) {
+    console.error('API Error:', error);
+    return {success: false, error: true};
+  }
+}
+
+export const deleteFileRecord = async (token: string, currentState: CurrentState, data: FormData) => {
+  const id = data.get("id") as string;
+
+  try {
+      console.log('Deleting file...');
+
+      const response = await fetch(`${CURRENT_URL}/files/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        }
+      });
+
+      if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json();
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      }
+
+      return {success: true, error: false};
+  } catch (error) {
+    console.error('API Error:', error);
+    return {success: false, error: true};
+  }
+}
+
+export const getSignedUrl = async (token: string, fileName: string, fileType: string) => {
+
+  try {
+    console.log('Getting signed upload URL...');
+
+    const body = {
+      fileName: fileName,
+      contentType: fileType,
+    }
+
+    const response = await fetch(`${CURRENT_URL}/uploads/signed-url`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json();
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    throw error;
+  }
+}
+
+export const uploadFile = async (url: string, file: File) => {
+  const MAX_SIZE_BYTES = 5 * 1024 * 1024;
+
+  try {
+    console.log('Uploading File...');
+
+    const response = await fetch(`${url}`, {
+      method: 'PUT',
+      headers: {
+        "Content-Type": file.type,
+        "x-goog-content-length-range": `0,${MAX_SIZE_BYTES}`,
+      },
+      body: file,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("GCS Error Detail:", errorText);
+      throw new Error(`Upload failed with status ${response.status}`);
+    }
+
+    return {success: true, error: false};
+  } catch (error) {
+    console.error('API Error:', error);
+    return {success: false, error: true};
+  }
+}
+
+export const getDownloadUrl = async (token: string, fileId: string) => {
+
+  try {
+    console.log('Getting signed download URL...');
+
+    const response = await fetch(`${CURRENT_URL}/uploads/signed-url/${fileId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json();
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+
+    const data = await response.json();
+    return data.url;
+  } catch (error) {
+    console.error('API Error:', error);
+    throw error;
   }
 }

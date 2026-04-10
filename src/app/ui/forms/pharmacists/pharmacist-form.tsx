@@ -15,16 +15,16 @@ import { useAuth } from "../../context/auth-context";
 type FormInput = z.input<typeof pharmacistSchema>;
 type FormOutput = z.output<typeof pharmacistSchema>;
 
-export default function PharmacistForm({ 
+export default function PharmacistForm({
     type,
-    data, 
+    data,
     setOpen,
     token,
     relatedData,
     userId,
     }:{
     type: "create" | "update";
-    data?: any; 
+    data?: any;
     setOpen: Dispatch<SetStateAction<boolean>>;
     token: string;
     relatedData?: any;
@@ -129,7 +129,7 @@ export default function PharmacistForm({
               hidden
             />
             )}
-          
+
           <span className="text-xs text-gray-400 font-medium">
             Pharmacist Information
           </span>
@@ -142,7 +142,7 @@ export default function PharmacistForm({
               error={errors?.licenseNumber}
             />
               <InputField
-              label="E-Transer Email"
+              label="E-Transfer Email"
               name="email"
               type="email"
               defaultValue={data?.email}
@@ -178,7 +178,7 @@ export default function PharmacistForm({
                     <option value="true">Yes</option>
                     <option value="false">No</option>
                   </select>
-                  {errors.approved?.message && ( 
+                  {errors.approved?.message && (
                     <p className="text-xs text-red-400">
                       {errors.approved?.message.toString()}
                     </p>
@@ -195,7 +195,7 @@ export default function PharmacistForm({
                     <option value="true">Yes</option>
                     <option value="false">No</option>
                   </select>
-                  {errors.canViewAllCompanies?.message && ( 
+                  {errors.canViewAllCompanies?.message && (
                     <p className="text-xs text-red-400">
                       {errors.canViewAllCompanies?.message.toString()}
                     </p>
@@ -212,7 +212,7 @@ export default function PharmacistForm({
                     <option value="true">Yes</option>
                     <option value="false">No</option>
                   </select>
-                  {errors.canViewPayRates?.message && ( 
+                  {errors.canViewPayRates?.message && (
                     <p className="text-xs text-red-400">
                       {errors.canViewPayRates?.message.toString()}
                     </p>
@@ -257,7 +257,7 @@ export default function PharmacistForm({
                   <option value="QC">QC</option>
                   <option value="SK">SK</option>
                 </select>
-                {errors.province?.message && ( 
+                {errors.province?.message && (
                   <p className="text-xs text-red-400">
                     {errors.province?.message.toString()}
                   </p>
