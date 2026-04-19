@@ -9,6 +9,7 @@ import CompanyManagerProfileInfo from "@/app/ui/profile/company-manager-info";
 import LocationManagerProfileInfo from "@/app/ui/profile/location-manager-info";
 import ReliefPharmacistProfileInfo from "@/app/ui/profile/pharmacist-info";
 import PharmacistResume from "@/app/ui/profile/pharmacist-resume";
+import ProfilePicture from "@/app/ui/profile/profile-picture";
 import { SetStateAction, useEffect, useState } from "react";
 
 type User = {
@@ -102,6 +103,9 @@ export default function ProfilePage() {
         )}
         {role === "relief_pharmacist" && (
           <PharmacistResume user={user} token={token} />
+        )}
+        {role === "relief_pharmacist" && (
+          <ProfilePicture user={user} token={token} />
         )}
         {role === "location_manager" && (
           <LocationManagerProfileInfo

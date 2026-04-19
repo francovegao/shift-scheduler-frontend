@@ -6,7 +6,7 @@ import {
   updateFileRecord,
   uploadFile,
 } from "@/app/lib/actions";
-import { fileSchema, FileSchema } from "@/app/lib/formValidationSchemas";
+import { fileSchema } from "@/app/lib/formValidationSchemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dispatch,
@@ -43,6 +43,7 @@ export default function FileForm({
   const [file, setFile] = useState<File | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const MAX_SIZE_BYTES = 10 * 1024 * 1024;
 
   const handleFileChange = (selectedFile: File | null) => {
     setFile(selectedFile);
@@ -89,16 +90,19 @@ export default function FileForm({
     setErrorMessage(null);
 
     if (!file) {
-      setErrorMessage("Select a pdf document to upload");
+      setErrorMessage(
+        `Select a ${fileType === "profilePicture" ? "profile picture" : fileType} document to upload`,
+      );
       return;
     }
 
-    const MAX_SIZE_BYTES = 5 * 1024 * 1024; //5MB
-
     if (file.size > MAX_SIZE_BYTES) {
-      toast(`File is too large! Maximum size is 5MB.`, {
-        toastId: "unique-toast",
-      });
+      toast(
+        `File is too large! Maximum size is ${(MAX_SIZE_BYTES / (1024 * 1024)).toFixed(2)} MB`,
+        {
+          toastId: "unique-toast",
+        },
+      );
       return;
     }
 
@@ -109,7 +113,7 @@ export default function FileForm({
     try {
       cleanFileName = `${file.name.replace(/[^a-z0-9.]/gi, "_").toLowerCase()}`;
 
-      const res = await getSignedUrl(token, cleanFileName, file.type);
+      const res = await getSignedUrl(token, cleanFileName, file.type, fileType);
 
       if (!res || !res.url) {
         throw new Error("Failed to get signed URL");
@@ -118,7 +122,7 @@ export default function FileForm({
       cleanFileName = res.fileName;
       publicUrl = res.publicUrl;
 
-      const uploadRes = await uploadFile(res.url, file);
+      const uploadRes = await uploadFile(res.url, file, fileType);
 
       if (!uploadRes.success) {
         throw new Error("Upload failed");
@@ -147,9 +151,12 @@ export default function FileForm({
 
   useEffect(() => {
     if (state.success) {
-      toast(`File has been ${type === "upload" ? "uploaded" : "replaced"}!`, {
-        toastId: "unique-toast",
-      });
+      toast(
+        `${fileType === "profilePicture" ? "Profile picture" : fileType} has been ${type === "upload" ? "uploaded" : "replaced"}!`,
+        {
+          toastId: "unique-toast",
+        },
+      );
       setOpen(false);
       window.location.reload();
     }
@@ -158,7 +165,9 @@ export default function FileForm({
   return (
     <form className="flex flex-col gap-8 text-black" onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold">
-        {type === "upload" ? `Upload ${fileType}` : `Replace ${fileType}`}
+        {type === "upload"
+          ? `Upload ${fileType === "profilePicture" ? "profile picture" : fileType}`
+          : `Replace ${fileType === "profilePicture" ? "profile picture" : fileType}`}
       </h1>
       {data ? (
         <span className="text-xs text-gray-400 font-medium">
@@ -180,9 +189,11 @@ export default function FileForm({
           />
         )}
         <FileUploader
-          label={`Upload ${fileType} (max. 10 mb)`}
+          fileType={fileType}
+          label={`Upload ${fileType === "profilePicture" ? "profile picture" : fileType} (max. ${(MAX_SIZE_BYTES / (1024 * 1024)).toFixed(2)} MB)`}
           value={file || null}
           onChange={(file) => handleFileChange(file)}
+          maxSize={MAX_SIZE_BYTES}
         />
         {errors.fileName?.message && (
           <p className="text-xs text-red-400">
@@ -198,7 +209,9 @@ export default function FileForm({
       )}
       {!loading && (
         <button className="bg-primary text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer">
-          {type === "upload" ? `Upload ${fileType}` : `Replace ${fileType}`}
+          {type === "upload"
+            ? `Upload ${fileType === "profilePicture" ? "profile picture" : fileType}`
+            : `Replace ${fileType === "profilePicture" ? "profile picture" : fileType}`}
         </button>
       )}
     </form>

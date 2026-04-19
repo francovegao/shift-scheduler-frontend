@@ -58,20 +58,22 @@ export default function PharmacistResume({
 
         {/*Information */}
         <div className="flex justify-between flex-wrap p-4 gap-4 bg-white rounded-md shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+          <div className="grid grid-cols-1 gap-4 w-full">
             <div className="flex flex-col">
               <label className="text-gray-500">Uploaded Resume:</label>
               {resume ? (
-                <div className="flex items-center gap-2">
-                  <span className="font-medium italic">
-                    {getDisplayFileName(resume.fileName)}
-                  </span>
-                  <button
-                    onClick={() => openFile(resume.id)}
-                    className="text-blue-500 hover:underline cursor-pointer"
-                  >
-                    [View]
-                  </button>
+                <div className="flex items-center gap-4">
+                  <div className="min-w-0">
+                    <span className="text-md font-medium italic text-gray-700 block truncate">
+                      {getDisplayFileName(resume.fileName)}
+                    </span>
+                    <button
+                      onClick={() => openFile(resume.id)}
+                      className="text-xs text-blue-500 hover:underline cursor-pointer"
+                    >
+                      View Resume
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">Not uploaded yet</div>

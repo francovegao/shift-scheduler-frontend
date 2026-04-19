@@ -23,6 +23,7 @@ import { notFound } from "next/navigation";
 import RelatedDataModal from "@/app/ui/list/related-data-modal";
 import ApprovedStatus from "@/app/ui/list/status";
 import { getDownloadUrl } from "@/app/lib/actions";
+import Image from "next/image";
 
 export default function SinglePharmacistPage({
   params,
@@ -85,6 +86,9 @@ export default function SinglePharmacistPage({
   const resume = pharmacist?.files.find(
     (file: { type: string }) => file.type === "resume",
   );
+  const profilePicture = pharmacist?.files.find(
+    (file: { type: string }) => file.type === "profilePicture",
+  );
 
   return (
     <div className="flex-1 p-4 flex flex-col gap-4 xl:flex-row">
@@ -95,7 +99,19 @@ export default function SinglePharmacistPage({
           {/* USER INFO CARD */}
           <div className="bg-primary py-6 px-4 rounded-md flex-1 flex gap-4 text-white">
             <div className="w-1/3 flex flex-col justify-center items-center">
-              <UserCircleIcon className="w-36 h-36" />
+              {profilePicture ? (
+                <div className="relative w-32 h-32 rounded-full overflow-hidden border border-black-100">
+                  <Image
+                    src={profilePicture.fileUrl}
+                    alt="Profile picture"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <UserCircleIcon className="w-36 h-36" />
+              )}
+
               <div className="py-1 mb-2 text-gray-800">
                 {pharmacist.pharmacistProfile?.canViewAllCompanies === false &&
                 pharmacist.pharmacistProfile?.canViewPayRates === false ? (
@@ -311,7 +327,7 @@ export default function SinglePharmacistPage({
                     onClick={() => openFile(resume.id)}
                     className="text-blue-500 hover:underline cursor-pointer"
                   >
-                    [View]
+                    View
                   </button>
                 </div>
               ) : (
@@ -324,7 +340,7 @@ export default function SinglePharmacistPage({
               className="text-blue-500 hover:underline cursor-pointer"
               href={`/dashboard/shifts?pharmacistId=${pharmacist.pharmacistProfile.id}`}
             >
-              View All
+              View All Shifts
             </Link>
           </div>
         </div>
