@@ -57,7 +57,7 @@ export const getFullAddress = (
   address: string | null | undefined,
   city: string | null | undefined,
   province: string | null | undefined,
-  postalCode: string | null | undefined, 
+  postalCode: string | null | undefined,
 ) => {
 
   if (!address && !city && !province && !postalCode) {
@@ -95,3 +95,8 @@ export const formatPayRate = (value: any) => {
   const num = parseFloat(value);
   return isNaN(num) || num <= 0 ? "No Data" : `$${num.toFixed(2)}`;
 };
+
+export function getDisplayFileName(fileName: string): string {
+  const [uuid, ...rest] = fileName.split('_');
+  return rest.join('_');
+}

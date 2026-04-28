@@ -9,6 +9,16 @@ const nextConfig: NextConfig = {
     messagingSenderId: process.env.messagingSenderId,
     appId: process.env.appId,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "storage.googleapis.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

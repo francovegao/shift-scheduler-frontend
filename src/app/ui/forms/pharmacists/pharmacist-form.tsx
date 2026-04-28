@@ -1,9 +1,15 @@
-'use client';
+"use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../input-field";
-import { Dispatch, SetStateAction, useActionState, useEffect, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useActionState,
+  useEffect,
+  useState,
+} from "react";
 import { pharmacistSchema } from "@/app/lib/formValidationSchemas";
 import z from "zod";
 import { createPharmacist, updatePharmacist } from "@/app/lib/actions";
@@ -15,91 +21,117 @@ import { useAuth } from "../../context/auth-context";
 type FormInput = z.input<typeof pharmacistSchema>;
 type FormOutput = z.output<typeof pharmacistSchema>;
 
-export default function PharmacistForm({ 
-    type,
-    data, 
-    setOpen,
-    token,
-    relatedData,
-    userId,
-    }:{
-    type: "create" | "update";
-    data?: any; 
-    setOpen: Dispatch<SetStateAction<boolean>>;
-    token: string;
-    relatedData?: any;
-    userId?: string;
-    }){
+export default function PharmacistForm({
+  type,
+  data,
+  setOpen,
+  token,
+  relatedData,
+  userId,
+}: {
+  type: "create" | "update";
+  data?: any;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+  token: string;
+  relatedData?: any;
+  userId?: string;
+}) {
+  const { appUser, loading } = useAuth();
 
-      const { appUser, loading } = useAuth();
+  const [canViewAllPharmacies, setCanViewAllPharmacies] = useState(false);
+  const [canViewAllPayRates, setCanViewAllPayRates] = useState(false);
+  const [showPharmacistPermissionsForm, setShowPharmacistPermissionsForm] =
+    useState(false);
+  const [addPermissionsType, setAddPermissions] = useState<
+    | "set_pharmacist_permissions"
+    | "set_allowed_companies"
+    | "set_allowed_pay_rates"
+  >("set_pharmacist_permissions");
+  const [createdPharmacistId, setCreatedPharmacistId] = useState("");
 
-      const [canViewAllPharmacies, setCanViewAllPharmacies] = useState(false);
-      const [canViewAllPayRates, setCanViewAllPayRates] = useState(false);
-      const [showPharmacistPermissionsForm, setShowPharmacistPermissionsForm] = useState(false);
-      const [addPermissionsType, setAddPermissions] = useState<'set_pharmacist_permissions' | "set_allowed_companies" | "set_allowed_pay_rates">('set_pharmacist_permissions');
-      const [createdPharmacistId, setCreatedPharmacistId] = useState('');
+  const {
+    register,
+    watch,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormInput, any, FormOutput>({
+    resolver: zodResolver(pharmacistSchema),
+    defaultValues: {
+      ...data,
+      approved: data?.approved ?? false,
+      canViewAllCompanies: data?.canViewAllCompanies ?? false,
+      canViewPayRates: data?.canViewPayRates ?? false,
+    },
+  });
 
-      const {
-        register,
-        watch,
-        handleSubmit,
-        formState: { errors },
-      } = useForm<FormInput, any, FormOutput>({
-        resolver: zodResolver(pharmacistSchema),
-        defaultValues: {
-          ...data,
-          approved: data?.approved ? 'true' : 'false',
-          canViewAllCompanies: data?.canViewAllCompanies ? 'true' : 'false',
-          canViewPayRates: data?.canViewPayRates ? 'true' : 'false',
-        }
-      });
+  const [state, formAction] = useActionState(
+    type === "create"
+      ? createPharmacist.bind(null, token)
+      : updatePharmacist.bind(null, token),
+    {
+      success: false,
+      error: false,
+      responseData: null,
+    },
+  );
 
-      const [state, formAction] = useActionState(
-          type === "create" ? createPharmacist.bind(null, token) : updatePharmacist.bind(null, token),
-        {
-          success: false,
-          error: false,
-          responseData: null
-        }
-      );
+  const onSubmit = handleSubmit((data) => {
+    setCanViewAllPharmacies(data.canViewAllCompanies);
+    setCanViewAllPayRates(data.canViewPayRates);
+    formAction(data);
+  });
 
-      const onSubmit = handleSubmit((data) => {
-        setCanViewAllPharmacies(data.canViewAllCompanies)
-        setCanViewAllPayRates(data.canViewPayRates)
-        formAction(data)
-      });
+  useEffect(() => {
+    if (state.success) {
+      if ((!canViewAllPharmacies || !canViewAllPayRates) && type === "create") {
+        toast(
+          `Pharmacist Profile has been ${type === "create" ? "created" : "updated"}!`,
+          { toastId: "unique-toast" },
+        );
+        setCreatedPharmacistId(state.responseData?.id);
+        setShowPharmacistPermissionsForm(true);
+        setAddPermissions(
+          determinePermission(canViewAllPharmacies, canViewAllPayRates),
+        );
+      } else {
+        toast(
+          `Pharmacist Profile has been ${type === "create" ? "created" : "updated"}!`,
+          { toastId: "unique-toast" },
+        );
+        setOpen(false);
+        window.location.reload();
+      }
+    }
+  }, [state, type, setOpen]);
 
-      useEffect(() => {
-        if (state.success) {
-          if( (!canViewAllPharmacies || !canViewAllPayRates) && type==="create"){
-            toast(`Pharmacist Profile has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
-             setCreatedPharmacistId(state.responseData?.id);
-             setShowPharmacistPermissionsForm(true);
-             setAddPermissions(determinePermission(canViewAllPharmacies, canViewAllPayRates));
-          }else{
-            toast(`Pharmacist Profile has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
-            setOpen(false);
-            window.location.reload();
-          }
-        }
-      }, [state, type, setOpen])
+  if (loading) return <div>Loading...</div>;
+  if (!appUser) return <div>Please sign in to continue</div>;
 
-      if (loading) return <div>Loading...</div>;
-      if ( !appUser) return <div>Please sign in to continue</div>;
+  const role = appUser.role;
 
-      const role = appUser.role;
-
-    return(
-      <div>
+  return (
+    <div>
       {showPharmacistPermissionsForm ? (
         <div className="flex flex-col items-center">
-          <SelectAllowedCompaniesForm type={addPermissionsType} setOpen={setOpen} token={token} pharmacistId={createdPharmacistId} data={data}/>
-          <p className="font-semibold">Or add them later in the pharmacist profile page</p>
+          <SelectAllowedCompaniesForm
+            type={addPermissionsType}
+            setOpen={setOpen}
+            token={token}
+            pharmacistId={createdPharmacistId}
+            data={data}
+          />
+          <p className="font-semibold">
+            Or add them later in the pharmacist profile page
+          </p>
         </div>
       ) : (
         <form className="flex flex-col gap-8 text-black" onSubmit={onSubmit}>
-          <h1 className="text-xl font-semibold">{type === "create" ? "Create a New Pharmacist Profile" : "Update Pharmacist Profile"}</h1>
-            {data && (
+          <h1 className="text-xl font-semibold">
+            {type === "create"
+              ? "Create a New Pharmacist Profile"
+              : "Update Pharmacist Profile"}
+          </h1>
+          {data && (
             <InputField
               label="Pharmacist Profile Id"
               name="id"
@@ -108,8 +140,8 @@ export default function PharmacistForm({
               error={errors?.id}
               hidden
             />
-            )}
-            {userId && (
+          )}
+          {userId && (
             <InputField
               label="User Id"
               name="userId"
@@ -118,8 +150,8 @@ export default function PharmacistForm({
               error={errors?.userId}
               hidden
             />
-            )}
-            {data && (
+          )}
+          {data && (
             <InputField
               label="User Id from Data"
               name="userId"
@@ -128,8 +160,8 @@ export default function PharmacistForm({
               error={errors?.userId}
               hidden
             />
-            )}
-          
+          )}
+
           <span className="text-xs text-gray-400 font-medium">
             Pharmacist Information
           </span>
@@ -141,15 +173,15 @@ export default function PharmacistForm({
               register={register}
               error={errors?.licenseNumber}
             />
-              <InputField
-              label="E-Transer Email"
+            <InputField
+              label="E-Transfer Email"
               name="email"
               type="email"
               defaultValue={data?.email}
               register={register}
               error={errors?.email}
             />
-              <InputField
+            <InputField
               label="Bio"
               name="bio"
               type="text"
@@ -165,63 +197,73 @@ export default function PharmacistForm({
               register={register}
               error={errors?.experienceYears}
             />
-            {role=== 'admin' && (
-            <>
-              <div className="flex flex-col gap-2 w-full md:w-1/4">
+            {role === "admin" ? (
+              <>
+                <div className="flex flex-col gap-2 w-full md:w-1/4">
                   <label className="text-xs text-gray-500">Approved</label>
                   <select
                     className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
                     {...register("approved", {
-                      setValueAs: value => value === 'true'
+                      setValueAs: (value) => value === "true" || value === true,
                     })}
                   >
                     <option value="true">Yes</option>
                     <option value="false">No</option>
                   </select>
-                  {errors.approved?.message && ( 
+                  {errors.approved?.message && (
                     <p className="text-xs text-red-400">
                       {errors.approved?.message.toString()}
                     </p>
                   )}
-              </div>
+                </div>
                 <div className="flex flex-col gap-2 w-full md:w-1/4">
-                  <label className="text-xs text-gray-500">Can View All Pharmacies?</label>
+                  <label className="text-xs text-gray-500">
+                    Can View All Pharmacies?
+                  </label>
                   <select
                     className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
                     {...register("canViewAllCompanies", {
-                      setValueAs: value => value === 'true'
+                      setValueAs: (value) => value === "true" || value === true,
                     })}
                   >
                     <option value="true">Yes</option>
                     <option value="false">No</option>
                   </select>
-                  {errors.canViewAllCompanies?.message && ( 
+                  {errors.canViewAllCompanies?.message && (
                     <p className="text-xs text-red-400">
                       {errors.canViewAllCompanies?.message.toString()}
                     </p>
                   )}
-              </div>
-              <div className="flex flex-col gap-2 w-full md:w-1/4">
-                  <label className="text-xs text-gray-500">Can View All Pay Rates?</label>
+                </div>
+                <div className="flex flex-col gap-2 w-full md:w-1/4">
+                  <label className="text-xs text-gray-500">
+                    Can View All Pay Rates?
+                  </label>
                   <select
                     className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
                     {...register("canViewPayRates", {
-                      setValueAs: value => value === 'true'
+                      setValueAs: (value) => value === "true" || value === true,
                     })}
                   >
                     <option value="true">Yes</option>
                     <option value="false">No</option>
                   </select>
-                  {errors.canViewPayRates?.message && ( 
+                  {errors.canViewPayRates?.message && (
                     <p className="text-xs text-red-400">
                       {errors.canViewPayRates?.message.toString()}
                     </p>
                   )}
-              </div>
-            </>
+                </div>
+              </>
+            ) : (
+              <>
+                <input type="hidden" {...register("approved")} />
+                <input type="hidden" {...register("canViewAllCompanies")} />
+                <input type="hidden" {...register("canViewPayRates")} />
+              </>
             )}
-           </div>
-           <span className="text-xs text-gray-400 font-medium">
+          </div>
+          <span className="text-xs text-gray-400 font-medium">
             Personal Information
           </span>
           <div className="flex justify-between flex-wrap gap-4">
@@ -232,7 +274,7 @@ export default function PharmacistForm({
               register={register}
               error={errors?.address}
             />
-              <InputField
+            <InputField
               label="City"
               name="city"
               defaultValue={data?.city}
@@ -240,28 +282,28 @@ export default function PharmacistForm({
               error={errors?.city}
             />
             <div className="flex flex-col gap-2 w-full md:w-1/4">
-                <label className="text-xs text-gray-500">Province</label>
-                <select
-                  className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                  {...register("province")}
-                  defaultValue={data?.province}
-                >
-                  <option value="AB">AB</option>
-                  <option value="BC">BC</option>
-                  <option value="MB">MB</option>
-                  <option value="NB">NB</option>
-                  <option value="NL">NL</option>
-                  <option value="NS">NS</option>
-                  <option value="ON">ON</option>
-                  <option value="PE">PE</option>
-                  <option value="QC">QC</option>
-                  <option value="SK">SK</option>
-                </select>
-                {errors.province?.message && ( 
-                  <p className="text-xs text-red-400">
-                    {errors.province?.message.toString()}
-                  </p>
-                )}
+              <label className="text-xs text-gray-500">Province</label>
+              <select
+                className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                {...register("province")}
+                defaultValue={data?.province}
+              >
+                <option value="AB">AB</option>
+                <option value="BC">BC</option>
+                <option value="MB">MB</option>
+                <option value="NB">NB</option>
+                <option value="NL">NL</option>
+                <option value="NS">NS</option>
+                <option value="ON">ON</option>
+                <option value="PE">PE</option>
+                <option value="QC">QC</option>
+                <option value="SK">SK</option>
+              </select>
+              {errors.province?.message && (
+                <p className="text-xs text-red-400">
+                  {errors.province?.message.toString()}
+                </p>
+              )}
             </div>
             <InputField
               label="Postal Code"
@@ -270,18 +312,27 @@ export default function PharmacistForm({
               register={register}
               error={errors?.postalCode}
             />
-           </div>
-           {state.error && <span className="text-red-500">Something went wrong!</span>}
+          </div>
+          {state.error && (
+            <span className="text-red-500">Something went wrong!</span>
+          )}
           <button className="bg-primary text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer">
             {type === "create" ? "Create" : "Update"}
           </button>
         </form>
-        )}
+      )}
     </div>
-    );
+  );
 }
 
-function determinePermission(canViewAllPharmacies: boolean, canViewAllPayRates: boolean): SetStateAction<"set_pharmacist_permissions" | "set_allowed_companies" | "set_allowed_pay_rates"> {
+function determinePermission(
+  canViewAllPharmacies: boolean,
+  canViewAllPayRates: boolean,
+): SetStateAction<
+  | "set_pharmacist_permissions"
+  | "set_allowed_companies"
+  | "set_allowed_pay_rates"
+> {
   if (!canViewAllPharmacies && !canViewAllPayRates) {
     return "set_pharmacist_permissions";
   }

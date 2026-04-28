@@ -5,7 +5,7 @@ import { useAuth } from "../context/auth-context";
 import { useSelectedCompany } from "@/app/lib/useSelectedCompany";
 
 export type FormContainerProps = {
-  table: "shift" | "user" | "pharmacist" | "company" | "location" | "shiftSeries";
+  table: "shift" | "user" | "pharmacist" | "company" | "location" | "shiftSeries" | "file";
   type: "create" | "update" | "delete";
   token: string,
   data?: any;

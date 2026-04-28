@@ -1,4 +1,17 @@
-import { AllowedCompaniesSchema, CancelShiftRequestSchema, CompanyPermissionsSchema, CompanySchema, LinkManagerToCompanySchema, LocationSchema, ManualEmailSchema, PharmacistSchema, ShiftSchema, TakeShiftSchema, UserSchema } from "./formValidationSchemas"
+import {
+  AllowedCompaniesSchema,
+  CancelShiftRequestSchema,
+  CompanyPermissionsSchema,
+  CompanySchema,
+  FileSchema,
+  LinkManagerToCompanySchema,
+  LocationSchema,
+  ManualEmailSchema,
+  PharmacistSchema,
+  ShiftSchema,
+  TakeShiftSchema,
+  UserSchema,
+} from "./formValidationSchemas";
 import { timeToMinutes } from "./utils";
 
 const CURRENT_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -7,53 +20,65 @@ if (!CURRENT_URL) {
   throw new Error("NEXT_PUBLIC_API_URL is not defined");
 }
 
-type CurrentState = {success: boolean; error: boolean }
+type CurrentState = { success: boolean; error: boolean };
 
-export async function markAsReadNotification(id: string, dataToSend: object, token: string) {
+export async function markAsReadNotification(
+  id: string,
+  dataToSend: object,
+  token: string,
+) {
   try {
-    console.log('Marking notification as read...');
+    console.log("Marking notification as read...");
 
     const url = new URL(`${CURRENT_URL}/notifications/${id}`);
 
-    const response =await fetch(url.toString(), {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataToSend),
-      });
+    const response = await fetch(url.toString(), {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(dataToSend),
+    });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
     return response.json();
   } catch (error) {
-    console.error('API Error:', error);
+    console.error("API Error:", error);
     return null;
   }
 }
 
-export const createUser = async (token: string, currentState: CurrentState,  data: UserSchema)=>{
-   try {
-    console.log('Creating new user...');
+export const createUser = async (
+  token: string,
+  currentState: CurrentState,
+  data: UserSchema,
+) => {
+  try {
+    console.log("Creating new user...");
 
     //Send data to register user in Firebase
     const firebaseResponse = await fetch(`${CURRENT_URL}/users/firebase`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({email: data.email, password: data.password}),
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: data.email, password: data.password }),
     });
 
     if (!firebaseResponse.ok) {
       const errorData = await firebaseResponse.json();
-      throw new Error(`Firebase error! ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `Firebase error! ${errorData.message || "Unknown error"}`,
+      );
     }
 
     const firebaseUser = await firebaseResponse.json();
@@ -68,383 +93,449 @@ export const createUser = async (token: string, currentState: CurrentState,  dat
       lastName: data.lastName,
       phone: data.phone,
       role: data.role,
-    }
+    };
 
     const response = await fetch(`${CURRENT_URL}/users`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
     //revalidatePath("/list/users");
-    return {success: true, error: false};
+    return { success: true, error: false };
     //return response.json();
   } catch (error) {
-    console.error('An error occurred during user creation:', error);
-    return {success: false, error: true};
+    console.error("An error occurred during user creation:", error);
+    return { success: false, error: true };
   }
-}
+};
 
-export const updateUser = async (token: string, currentState: CurrentState, data: UserSchema)=>{
-   try {
-    console.log('Updating user...');
+export const updateUser = async (
+  token: string,
+  currentState: CurrentState,
+  data: UserSchema,
+) => {
+  try {
+    console.log("Updating user...");
 
     const body = {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phone: data.phone,
-        role: data.role,
-    }
+      firstName: data.firstName,
+      lastName: data.lastName,
+      phone: data.phone,
+      role: data.role,
+    };
 
     const response = await fetch(`${CURRENT_URL}/users/${data.id}`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
-    return {success: true, error: false};
+    return { success: true, error: false };
     //return response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    return {success: false, error: true};
+    console.error("API Error:", error);
+    return { success: false, error: true };
   }
-}
+};
 
-export const setManagerAllowedCompanies = async (token: string, currentState: CurrentState, data: AllowedCompaniesSchema)=>{
-   try {
-    console.log('Updating user...');
+export const setManagerAllowedCompanies = async (
+  token: string,
+  currentState: CurrentState,
+  data: AllowedCompaniesSchema,
+) => {
+  try {
+    console.log("Updating user...");
 
     const body = {
       allowedCompaniesIds: data.companiesArray,
-    }
+    };
 
     const response = await fetch(`${CURRENT_URL}/users/${data.id}`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
-    return {success: true, error: false};
+    return { success: true, error: false };
     //return response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    return {success: false, error: true};
+    console.error("API Error:", error);
+    return { success: false, error: true };
   }
-}
+};
 
-export const linkManagerToCompany = async (token: string, currentState: CurrentState, data: LinkManagerToCompanySchema)=>{
-   try {
-    console.log('Updating user...');
+export const linkManagerToCompany = async (
+  token: string,
+  currentState: CurrentState,
+  data: LinkManagerToCompanySchema,
+) => {
+  try {
+    console.log("Updating user...");
 
     const body = {
-        companyId: data.companyId,
-        locationId: data.locationId ? data.locationId : null,
-    }
+      companyId: data.companyId,
+      locationId: data.locationId ? data.locationId : null,
+    };
 
     const response = await fetch(`${CURRENT_URL}/users/${data.id}`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
-    return {success: true, error: false};
+    return { success: true, error: false };
     //return response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    return {success: false, error: true};
+    console.error("API Error:", error);
+    return { success: false, error: true };
   }
-}
+};
 
-export const deleteUser = async (token: string, currentState: CurrentState, data: FormData) => {
-        const id = data.get("id") as string;
+export const deleteUser = async (
+  token: string,
+  currentState: CurrentState,
+  data: FormData,
+) => {
+  const id = data.get("id") as string;
 
-    try {
-        console.log('Deleting user...');
+  try {
+    console.log("Deleting user...");
 
-        const response = await fetch(`${CURRENT_URL}/users/${id}`, {
-            method: 'DELETE',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            }
-        });
+    const response = await fetch(`${CURRENT_URL}/users/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
-        if (!response.ok) {
-        // Handle HTTP errors (e.g., 404, 500)
-        const errorData = await response.json(); // If the API returns error details
-        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
-        }
-
-        return {success: true, error: false};
-        //return response.json();
-    } catch (error) {
-        console.error('API Error:', error);
-        return {success: false, error: true};
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
-}
 
-export const createCompany = async (token: string, currentState: CurrentState,  data: CompanySchema)=>{
-   try {
-    console.log('Creating new company...');
+    return { success: true, error: false };
+    //return response.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const createCompany = async (
+  token: string,
+  currentState: CurrentState,
+  data: CompanySchema,
+) => {
+  try {
+    console.log("Creating new company...");
 
     const body = {
-        approved: data.approved,
-        name: data.name,
-        legalName: data.legalName,
-        GSTNumber: data.GSTNumber,
-        email: data.email,
-        phone: data.phone,
-        address: data.address,
-        city: data.city,
-        province: data.province,
-        postalCode: data.postalCode,
-        contactName: data.contactName,
-        contactEmail: data.contactEmail,
-        contactPhone: data.contactPhone,
-    }
+      approved: data.approved,
+      name: data.name,
+      legalName: data.legalName,
+      GSTNumber: data.GSTNumber,
+      email: data.email,
+      phone: data.phone,
+      address: data.address,
+      city: data.city,
+      province: data.province,
+      postalCode: data.postalCode,
+      contactName: data.contactName,
+      contactEmail: data.contactEmail,
+      contactPhone: data.contactPhone,
+    };
 
     const response = await fetch(`${CURRENT_URL}/companies`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
-    return {success: true, error: false};
+    return { success: true, error: false };
     //return response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    return {success: false, error: true};
+    console.error("API Error:", error);
+    return { success: false, error: true };
   }
-}
+};
 
-export const updateCompany = async (token: string, currentState: CurrentState, data: CompanySchema)=>{
-   try {
-    console.log('Updating company...');
+export const updateCompany = async (
+  token: string,
+  currentState: CurrentState,
+  data: CompanySchema,
+) => {
+  try {
+    console.log("Updating company...");
 
     const body = {
-        approved: data.approved,
-        name: data.name,
-        legalName: data.legalName,
-        GSTNumber: data.GSTNumber,
-        email: data.email,
-        phone: data.phone,
-        address: data.address,
-        city: data.city,
-        province: data.province,
-        postalCode: data.postalCode,
-        contactName: data.contactName,
-        contactEmail: data.contactEmail,
-        contactPhone: data.contactPhone,
-    }
+      approved: data.approved,
+      name: data.name,
+      legalName: data.legalName,
+      GSTNumber: data.GSTNumber,
+      email: data.email,
+      phone: data.phone,
+      address: data.address,
+      city: data.city,
+      province: data.province,
+      postalCode: data.postalCode,
+      contactName: data.contactName,
+      contactEmail: data.contactEmail,
+      contactPhone: data.contactPhone,
+    };
 
     const response = await fetch(`${CURRENT_URL}/companies/${data.id}`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
-    return {success: true, error: false};
+    return { success: true, error: false };
     //return response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    return {success: false, error: true};
+    console.error("API Error:", error);
+    return { success: false, error: true };
   }
-}
+};
 
-export const deleteCompany = async (token: string, currentState: CurrentState, data: FormData) => {
-        const id = data.get("id") as string;
+export const deleteCompany = async (
+  token: string,
+  currentState: CurrentState,
+  data: FormData,
+) => {
+  const id = data.get("id") as string;
 
-    try {
-        console.log('Deleting company...');
+  try {
+    console.log("Deleting company...");
 
-        const response = await fetch(`${CURRENT_URL}/companies/${id}`, {
-            method: 'DELETE',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            }
-        });
-
-        if (!response.ok) {
-        // Handle HTTP errors (e.g., 404, 500)
-        const errorData = await response.json(); // If the API returns error details
-        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
-        }
-
-        return {success: true, error: false};
-        //return response.json();
-    } catch (error) {
-        console.error('API Error:', error);
-        return {success: false, error: true};
-    }
-}
-
-export const createLocation = async (token: string, currentState: CurrentState,  data: LocationSchema)=>{
-   try {
-    console.log('Creating new location...');
-
-    const body = {
-        name: data.name,
-        legalName: data.legalName,
-        GSTNumber: data.GSTNumber,
-        email: data.email,
-        phone: data.phone,
-        address: data.address,
-        city: data.city,
-        province: data.province,
-        postalCode: data.postalCode,
-        companyId: data.companyId,
-    }
-
-    const response = await fetch(`${CURRENT_URL}/locations`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+    const response = await fetch(`${CURRENT_URL}/companies/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    return { success: true, error: false };
+    //return response.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const createLocation = async (
+  token: string,
+  currentState: CurrentState,
+  data: LocationSchema,
+) => {
+  try {
+    console.log("Creating new location...");
+
+    const body = {
+      name: data.name,
+      legalName: data.legalName,
+      GSTNumber: data.GSTNumber,
+      email: data.email,
+      phone: data.phone,
+      address: data.address,
+      city: data.city,
+      province: data.province,
+      postalCode: data.postalCode,
+      companyId: data.companyId,
+    };
+
+    const response = await fetch(`${CURRENT_URL}/locations`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
     //revalidatePath("/list/users");
-    return {success: true, error: false};
+    return { success: true, error: false };
     //return response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    return {success: false, error: true};
+    console.error("API Error:", error);
+    return { success: false, error: true };
   }
-}
+};
 
-export const updateLocation = async (token: string, currentState: CurrentState, data: LocationSchema)=>{
-   try {
-    console.log('Updating location...');
+export const updateLocation = async (
+  token: string,
+  currentState: CurrentState,
+  data: LocationSchema,
+) => {
+  try {
+    console.log("Updating location...");
 
     const body = {
-        name: data.name,
-        legalName: data.legalName,
-        GSTNumber: data.GSTNumber,
-        email: data.email,
-        phone: data.phone,
-        address: data.address,
-        city: data.city,
-        province: data.province,
-        postalCode: data.postalCode,
-        companyId: data.companyId,
-    }
+      name: data.name,
+      legalName: data.legalName,
+      GSTNumber: data.GSTNumber,
+      email: data.email,
+      phone: data.phone,
+      address: data.address,
+      city: data.city,
+      province: data.province,
+      postalCode: data.postalCode,
+      companyId: data.companyId,
+    };
 
     const response = await fetch(`${CURRENT_URL}/locations/${data.id}`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
-    return {success: true, error: false};
+    return { success: true, error: false };
     //return response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    return {success: false, error: true};
+    console.error("API Error:", error);
+    return { success: false, error: true };
   }
-}
+};
 
-export const deleteLocation = async (token: string, currentState: CurrentState, data: FormData) => {
-        const id = data.get("id") as string;
+export const deleteLocation = async (
+  token: string,
+  currentState: CurrentState,
+  data: FormData,
+) => {
+  const id = data.get("id") as string;
 
-    try {
-        console.log('Deleting location...');
+  try {
+    console.log("Deleting location...");
 
-        const response = await fetch(`${CURRENT_URL}/locations/${id}`, {
-            method: 'DELETE',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            }
-        });
+    const response = await fetch(`${CURRENT_URL}/locations/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
-        if (!response.ok) {
-        // Handle HTTP errors (e.g., 404, 500)
-        const errorData = await response.json(); // If the API returns error details
-        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
-        }
-
-        return {success: true, error: false};
-        //return response.json();
-    } catch (error) {
-        console.error('API Error:', error);
-        return {success: false, error: true};
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
-}
 
-export const createPharmacist = async (token: string, currentState: CurrentState,  data: PharmacistSchema)=>{
-   try {
-    console.log('Creating new pharmacist...');
+    return { success: true, error: false };
+    //return response.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const createPharmacist = async (
+  token: string,
+  currentState: CurrentState,
+  data: PharmacistSchema,
+) => {
+  try {
+    console.log("Creating new pharmacist...");
 
     const body = {
       userId: data.userId,
@@ -459,21 +550,23 @@ export const createPharmacist = async (token: string, currentState: CurrentState
       approved: data.approved,
       canViewAllCompanies: data.canViewAllCompanies,
       canViewPayRates: data.canViewPayRates,
-    }
+    };
 
     const response = await fetch(`${CURRENT_URL}/pharmacist-profiles`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
     const newPharmacistProfile = await response.json();
@@ -481,14 +574,18 @@ export const createPharmacist = async (token: string, currentState: CurrentState
     return { success: true, error: false, responseData: newPharmacistProfile };
     //return response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    return {success: false, error: true, responseData: null};
+    console.error("API Error:", error);
+    return { success: false, error: true, responseData: null };
   }
-}
+};
 
-export const updatePharmacist = async (token: string, currentState: CurrentState, data: PharmacistSchema)=>{
-   try {
-    console.log('Updating pharmacist...');
+export const updatePharmacist = async (
+  token: string,
+  currentState: CurrentState,
+  data: PharmacistSchema,
+) => {
+  try {
+    console.log("Updating pharmacist...");
 
     const body = {
       userId: data.userId,
@@ -503,93 +600,117 @@ export const updatePharmacist = async (token: string, currentState: CurrentState
       approved: data.approved,
       canViewAllCompanies: data.canViewAllCompanies,
       canViewPayRates: data.canViewPayRates,
-    }
+    };
 
-    const response = await fetch(`${CURRENT_URL}/pharmacist-profiles/${data.id}`, {
-        method: 'PATCH',
+    const response = await fetch(
+      `${CURRENT_URL}/pharmacist-profiles/${data.id}`,
+      {
+        method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
-    });
+      },
+    );
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
-    return {success: true, error: false, responseData: null};
+    return { success: true, error: false, responseData: null };
     //return response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    return {success: false, error: true, responseData: null};
+    console.error("API Error:", error);
+    return { success: false, error: true, responseData: null };
   }
-}
+};
 
-export const setPharmacistAllowedCompanies = async (token: string, currentState: CurrentState, data: CompanyPermissionsSchema)=>{
-   try {
-    console.log('Updating pharmacist...');
+export const setPharmacistAllowedCompanies = async (
+  token: string,
+  currentState: CurrentState,
+  data: CompanyPermissionsSchema,
+) => {
+  try {
+    console.log("Updating pharmacist...");
 
     const body = {
       companyPermissions: data.companyPermissions,
-    }
+    };
 
-    const response = await fetch(`${CURRENT_URL}/pharmacist-profiles/${data.id}`, {
-        method: 'PATCH',
+    const response = await fetch(
+      `${CURRENT_URL}/pharmacist-profiles/${data.id}`,
+      {
+        method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
+      },
+    );
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    return { success: true, error: false };
+    //return response.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const deletePharmacist = async (
+  token: string,
+  currentState: CurrentState,
+  data: FormData,
+) => {
+  const id = data.get("id") as string;
+
+  try {
+    console.log("Deleting pharmacist...");
+
+    const response = await fetch(`${CURRENT_URL}/pharmacist-profiles/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
-    return {success: true, error: false};
+    return { success: true, error: false };
     //return response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    return {success: false, error: true};
+    console.error("API Error:", error);
+    return { success: false, error: true };
   }
-}
+};
 
-export const deletePharmacist = async (token: string, currentState: CurrentState, data: FormData) => {
-        const id = data.get("id") as string;
-
-    try {
-        console.log('Deleting pharmacist...');
-
-        const response = await fetch(`${CURRENT_URL}/pharmacist-profiles/${id}`, {
-            method: 'DELETE',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            }
-        });
-
-        if (!response.ok) {
-        // Handle HTTP errors (e.g., 404, 500)
-        const errorData = await response.json(); // If the API returns error details
-        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
-        }
-
-        return {success: true, error: false};
-        //return response.json();
-    } catch (error) {
-        console.error('API Error:', error);
-        return {success: false, error: true};
-    }
-}
-
-export const createShift = async (token: string, currentState: CurrentState,  data: ShiftSchema)=>{
-   try {
-    console.log('Creating new shift...');
+export const createShift = async (
+  token: string,
+  currentState: CurrentState,
+  data: ShiftSchema,
+) => {
+  try {
+    console.log("Creating new shift...");
 
     const body = {
       companyId: data.companyId,
@@ -602,35 +723,41 @@ export const createShift = async (token: string, currentState: CurrentState,  da
       status: data.status,
       published: data.published,
       pharmacistId: data.pharmacistId ? data.pharmacistId : null,
-    }
+    };
 
     const response = await fetch(`${CURRENT_URL}/shifts`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
     //revalidatePath("/list/users");
-    return {success: true, error: false};
+    return { success: true, error: false };
     //return response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    return {success: false, error: true};
+    console.error("API Error:", error);
+    return { success: false, error: true };
   }
-}
+};
 
-export const updateShift = async (token: string, currentState: CurrentState, data: ShiftSchema)=>{
-   try {
-    console.log('Updating shift...');
+export const updateShift = async (
+  token: string,
+  currentState: CurrentState,
+  data: ShiftSchema,
+) => {
+  try {
+    console.log("Updating shift...");
 
     const body = {
       companyId: data.companyId,
@@ -643,35 +770,41 @@ export const updateShift = async (token: string, currentState: CurrentState, dat
       status: data.status,
       published: data.published,
       pharmacistId: data.pharmacistId ? data.pharmacistId : null,
-    }
+    };
 
     const response = await fetch(`${CURRENT_URL}/shifts/${data.id}`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
-    return {success: true, error: false};
+    return { success: true, error: false };
     //return response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    return {success: false, error: true};
+    console.error("API Error:", error);
+    return { success: false, error: true };
   }
-}
+};
 
-export const createShiftSeries = async (token: string, currentState: CurrentState,  data: ShiftSchema)=>{
-   try {
-    console.log(data)
-    console.log('Creating new shift series...');
+export const createShiftSeries = async (
+  token: string,
+  currentState: CurrentState,
+  data: ShiftSchema,
+) => {
+  try {
+    console.log(data);
+    console.log("Creating new shift series...");
 
     const body = {
       companyId: data.companyId,
@@ -689,38 +822,45 @@ export const createShiftSeries = async (token: string, currentState: CurrentStat
       published: data.published,
       status: data.status,
       pharmacistId: data.pharmacistId ? data.pharmacistId : null,
-    }
+    };
 
     const response = await fetch(`${CURRENT_URL}/shift-series`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
     //revalidatePath("/list/users");
-    return {success: true, error: false};
+    return { success: true, error: false };
     //return response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    return {success: false, error: true};
+    console.error("API Error:", error);
+    return { success: false, error: true };
   }
-}
+};
 
 export const updateShiftSeries = async (
   token: string,
   currentState: CurrentState,
-  data: ShiftSchema & {shiftSeriesId: string, scope: string, referenceShiftId: string})=>{
-   try {
-    console.log('Updating shift series...');
+  data: ShiftSchema & {
+    shiftSeriesId: string;
+    scope: string;
+    referenceShiftId: string;
+  },
+) => {
+  try {
+    console.log("Updating shift series...");
 
     const body = {
       shiftSeriesData: {
@@ -738,185 +878,446 @@ export const updateShiftSeries = async (
         status: data.status,
         published: data.published,
         pharmacistId: data.pharmacistId || null,
-      }
-    }
+      },
+    };
 
-    const response = await fetch(`${CURRENT_URL}/shift-series/${data.shiftSeriesId}`, {
-        method: 'PATCH',
+    const response = await fetch(
+      `${CURRENT_URL}/shift-series/${data.shiftSeriesId}`,
+      {
+        method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
-    });
+      },
+    );
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
-    return {success: true, error: false};
+    return { success: true, error: false };
     //return response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    return {success: false, error: true};
+    console.error("API Error:", error);
+    return { success: false, error: true };
   }
-}
+};
 
-export const takeShift = async (token: string, currentState: CurrentState, data: TakeShiftSchema)=>{
-   try {
-    console.log('Taking shift...');
+export const takeShift = async (
+  token: string,
+  currentState: CurrentState,
+  data: TakeShiftSchema,
+) => {
+  try {
+    console.log("Taking shift...");
 
     const body = {
       status: data.status,
       pharmacistId: data.pharmacistId ? data.pharmacistId : null,
-    }
+    };
 
     const response = await fetch(`${CURRENT_URL}/shifts/${data.id}/take`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
-    return {success: true, error: false};
+    return { success: true, error: false };
     //return response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    return {success: false, error: true};
+    console.error("API Error:", error);
+    return { success: false, error: true };
   }
-}
+};
 
-export const deleteShift = async (token: string, currentState: CurrentState, data: FormData) => {
-    const id = data.get("id") as string;
+export const deleteShift = async (
+  token: string,
+  currentState: CurrentState,
+  data: FormData,
+) => {
+  const id = data.get("id") as string;
 
-    try {
-        console.log('Deleting shift...');
+  try {
+    console.log("Deleting shift...");
 
-        const response = await fetch(`${CURRENT_URL}/shifts/${id}`, {
-            method: 'DELETE',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-        });
+    const response = await fetch(`${CURRENT_URL}/shifts/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
-        if (!response.ok) {
-        // Handle HTTP errors (e.g., 404, 500)
-        const errorData = await response.json(); // If the API returns error details
-        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
-        }
-
-        return {success: true, error: false};
-        //return response.json();
-    } catch (error) {
-        console.error('API Error:', error);
-        return {success: false, error: true};
-    }
-}
-
-export const deleteShiftSeries = async (token: string, currentState: CurrentState, data: FormData) => {
-    const id = data.get("shiftSeriesId") as string;
-
-    const body = {
-      scope: data.get("scope") as "current" | "future" | "all",
-      referenceShiftId: data.get("referenceShiftId") as string,
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
-    try {
-        console.log('Deleting shift series...');
+    return { success: true, error: false };
+    //return response.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
 
-        const response = await fetch(`${CURRENT_URL}/shift-series/${id}`, {
-            method: 'DELETE',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body),
-        });
+export const deleteShiftSeries = async (
+  token: string,
+  currentState: CurrentState,
+  data: FormData,
+) => {
+  const id = data.get("shiftSeriesId") as string;
 
-        if (!response.ok) {
-        // Handle HTTP errors (e.g., 404, 500)
-        const errorData = await response.json(); // If the API returns error details
-        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
-        }
+  const body = {
+    scope: data.get("scope") as "current" | "future" | "all",
+    referenceShiftId: data.get("referenceShiftId") as string,
+  };
 
-        return {success: true, error: false};
-        //return response.json();
-    } catch (error) {
-        console.error('API Error:', error);
-        return {success: false, error: true};
+  try {
+    console.log("Deleting shift series...");
+
+    const response = await fetch(`${CURRENT_URL}/shift-series/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
-}
 
-export const sendOpenShiftNotificationEmail = async (token: string, currentState: CurrentState, data: ManualEmailSchema)=>{
-   try {
-    console.log('Sending Emails...');
+    return { success: true, error: false };
+    //return response.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const sendOpenShiftNotificationEmail = async (
+  token: string,
+  currentState: CurrentState,
+  data: ManualEmailSchema,
+) => {
+  try {
+    console.log("Sending Emails...");
 
     const body = {
       userIds: data.userIds,
-    }
+    };
 
-    const response = await fetch(`${CURRENT_URL}/shifts/${data.id}/notify-pharmacists`, {
-        method: 'POST',
+    const response = await fetch(
+      `${CURRENT_URL}/shifts/${data.id}/notify-pharmacists`,
+      {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
-    });
+      },
+    );
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
-    return {success: true, error: false};
+    return { success: true, error: false };
     //return response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    return {success: false, error: true};
+    console.error("API Error:", error);
+    return { success: false, error: true };
   }
-}
+};
 
-export const sendCancelShiftRequestEmail = async (token: string, currentState: CurrentState, data: CancelShiftRequestSchema)=>{
-   try {
-    console.log('Sending Cancel Request...');
+export const sendCancelShiftRequestEmail = async (
+  token: string,
+  currentState: CurrentState,
+  data: CancelShiftRequestSchema,
+) => {
+  try {
+    console.log("Sending Cancel Request...");
 
     const body = {
       cancelReason: data.cancelReason,
       pharmacistProfileId: data.pharmacistId,
-    }
+    };
 
-    const response = await fetch(`${CURRENT_URL}/shifts/${data.id}/request-cancellation`, {
-        method: 'POST',
+    const response = await fetch(
+      `${CURRENT_URL}/shifts/${data.id}/request-cancellation`,
+      {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
-    });
+      },
+    );
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
     }
 
-    return {success: true, error: false};
+    return { success: true, error: false };
     //return response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    return {success: false, error: true};
+    console.error("API Error:", error);
+    return { success: false, error: true };
   }
-}
+};
+
+export const createFileRecord = async (
+  token: string,
+  currentState: CurrentState,
+  data: FileSchema,
+) => {
+  try {
+    console.log("Creating file record...");
+
+    const body = {
+      userId: data.userId ? data.userId : null,
+      companyId: data.companyId ? data.companyId : null,
+      fileName: data.fileName,
+      fileUrl: data.fileUrl,
+      mimeType: data.mimeType ? data.mimeType : null,
+      size: data.size ? data.size : null,
+      type: data.type,
+    };
+
+    const response = await fetch(`${CURRENT_URL}/files`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json();
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    return { success: true, error: false };
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const updateFileRecord = async (
+  token: string,
+  currentState: CurrentState,
+  data: FileSchema,
+) => {
+  try {
+    console.log("Updating file record...");
+
+    const body = {
+      userId: data.userId ? data.userId : null,
+      companyId: data.companyId ? data.companyId : null,
+      fileName: data.fileName,
+      fileUrl: data.fileUrl,
+      mimeType: data.mimeType ? data.mimeType : null,
+      size: data.size ? data.size : null,
+      type: data.type,
+    };
+
+    const response = await fetch(`${CURRENT_URL}/files/${data.id}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json();
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    return { success: true, error: false };
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const deleteFileRecord = async (
+  token: string,
+  currentState: CurrentState,
+  data: FormData,
+) => {
+  const id = data.get("id") as string;
+
+  try {
+    console.log("Deleting file...");
+
+    const response = await fetch(`${CURRENT_URL}/files/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json();
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    return { success: true, error: false };
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const getSignedUrl = async (
+  token: string,
+  fileName: string,
+  userFileType: string,
+  expectedFileType: "resume" | "logo" | "profilePicture",
+) => {
+  try {
+    console.log("Getting signed upload URL...");
+
+    const body = {
+      fileName: fileName,
+      contentType: userFileType,
+      expectedFileType: expectedFileType,
+    };
+
+    const response = await fetch(`${CURRENT_URL}/uploads/signed-url`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json();
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error;
+  }
+};
+
+export const uploadFile = async (
+  url: string,
+  file: File,
+  expectedFileType: "resume" | "logo" | "profilePicture",
+) => {
+  const MAX_SIZE_BYTES =
+    expectedFileType === "resume" ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
+
+  try {
+    console.log("Uploading File...");
+
+    const response = await fetch(`${url}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": file.type,
+        "x-goog-content-length-range": `0,${MAX_SIZE_BYTES}`,
+      },
+      body: file,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("GCS Error Detail:", errorText);
+      throw new Error(`Upload failed with status ${response.status}`);
+    }
+
+    return { success: true, error: false };
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const getDownloadUrl = async (token: string, fileId: string) => {
+  try {
+    console.log("Getting signed download URL...");
+
+    const response = await fetch(
+      `${CURRENT_URL}/uploads/signed-url/${fileId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json();
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    const data = await response.json();
+    return data.url;
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error;
+  }
+};

@@ -8,7 +8,7 @@ export const userSchema = z.object({
     lastName: z.string().min(1,{message: "Last name is required."}),
     phone: z.string().optional(),
     role: z.string().min(1,{message: "Role is required."}),
-    //files: z.instanceof(File),  //TODO: Update to work for files 
+    //files: z.instanceof(File),  //TODO: Update to work for files
 });
 
 export type UserSchema = z.infer<typeof userSchema>;
@@ -120,7 +120,7 @@ export const singleShiftSchema = z.object({
 
   id: z.string().optional(),
   companyId: z.string().min(1,{message: "Company is required."}),
-  locationId: z.string().optional(),  
+  locationId: z.string().optional(),
   title: z.string(),
   description: z.string().optional(),
   startTime: z.coerce.string({message: "Start date is required"}),
@@ -131,9 +131,9 @@ export const singleShiftSchema = z.object({
   pharmacistId: z.string().optional(),
 
   //extra fields not needed for single shift
-  startMinutes: z.any().optional(), 
+  startMinutes: z.any().optional(),
   endMinutes: z.any().optional(),
-  startDate: z.any().optional(), 
+  startDate: z.any().optional(),
   endDate: z.any().optional(),
   daysOfWeek: z.any().optional(),
   excludeWeekends: z.any().optional(),
@@ -146,7 +146,7 @@ export const seriesShiftSchema = z.object({
 
   id: z.string().optional(),
   companyId: z.string().min(1,{message: "Company is required."}),
-  locationId: z.string().optional(),  
+  locationId: z.string().optional(),
   title: z.string(),
   description: z.string().optional(),
   payRate: z.string().min(1,{message: "Pay rate is required."}),
@@ -162,7 +162,7 @@ export const seriesShiftSchema = z.object({
   pharmacistId: z.string().optional(),
 
   //extra fields not needed for Shift Seried
-  startTime: z.any().optional(), 
+  startTime: z.any().optional(),
   endTime: z.any().optional(),
 }).superRefine((data, ctx) => {
   if (data.repeatType === "WEEKLY" && (!data.daysOfWeek || data.daysOfWeek.length === 0)) {
@@ -206,3 +206,16 @@ export const cancelShiftRequestSchema = z.object({
 });
 
 export type CancelShiftRequestSchema = z.infer<typeof cancelShiftRequestSchema>;
+
+export const fileSchema = z.object({
+    id: z.string().optional(),
+    userId: z.string().optional(),
+    companyId: z.string().optional(),
+    fileName: z.string().min(3,{message: "Please select a file to upload."}),
+    fileUrl: z.string().min(3,{message: "File URL is required."}),
+    mimeType: z.string().optional(),
+    size: z.coerce.number().optional(),
+    type: z.enum(["resume", "logo", "document", "profilePicture"]),
+});
+
+export type FileSchema = z.infer<typeof fileSchema>;
