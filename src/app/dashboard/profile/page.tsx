@@ -75,6 +75,7 @@ export default function ProfilePage() {
     return <div>Please sign in to continue</div>;
 
   const role = appUser.role;
+  const hasPharmacistProfile = appUser.pharmacistProfile;
 
   return (
     <AuthWrapper
@@ -95,7 +96,7 @@ export default function ProfilePage() {
             token={token}
           />
         )}
-        {role === "relief_pharmacist" && (
+        {role === "relief_pharmacist" && hasPharmacistProfile && (
           <ReliefPharmacistProfileInfo
             pharmacistProfile={user?.pharmacistProfile}
             token={token}
@@ -115,14 +116,11 @@ export default function ProfilePage() {
           />
         )}
 
-        <div className="p-2">
+        {/* <div className="p-2">
           <div className="flex flex-col gap-2 text-black">
-            {/*Title and Edit Button */}
             <div className="flex items-center justify-start gap-4">
               <h1 className="text-xl font-semibold">User Files</h1>
             </div>
-
-            {/*Information */}
             <div className="flex justify-between flex-wrap p-4 gap-4 bg-white rounded-md shadow-sm">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
                 <div className="flex flex-col">
@@ -136,7 +134,7 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         <div className="p-2">
           <div className="flex flex-col gap-2 text-black">
