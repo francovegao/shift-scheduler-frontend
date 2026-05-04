@@ -4,6 +4,7 @@ import {
   BellIcon,
   BuildingOfficeIcon,
   ChevronDownIcon,
+  ExclamationTriangleIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
@@ -111,6 +112,24 @@ export default function NavBar() {
     (file: { type: string }) => file.type === "profilePicture",
   );
 
+  const hasResume = user?.files?.find(
+    (file: { type: string }) => file.type === "resume",
+  );
+
+  const getMissingInfoMessage = () => {
+    if (appUser?.role !== "relief_pharmacist") return null;
+    if (profilePicture && hasResume) return null;
+
+    if (!profilePicture && !hasResume)
+      return "Please complete your profile. Missing profile picture and resume.";
+    if (!profilePicture)
+      return "Please complete your profile. Missing profile picture.";
+    if (!hasResume) return "Please complete your profile. Missing resume.";
+    return null;
+  };
+
+  const missingInfoMessage = getMissingInfoMessage();
+
   const companyLogo =
     currentCompanyId !== user.companyId
       ? (
@@ -184,28 +203,35 @@ export default function NavBar() {
 
         <Menu
           button={
-            <div className="flex items-center gap-1 cursor-pointer hover:bg-sky-100 hover:text-primary rounded-md p-1">
-              {profilePicture ? (
-                <div className="relative w-7 h-7 rounded-full overflow-hidden border border-gray-200 shadow-sm">
-                  <Image
-                    src={profilePicture.fileUrl}
-                    alt="Profile picture"
-                    fill
-                    sizes="64px"
-                    className="object-cover"
-                  />
+            <div className="flex flex-col items-center gap-1 cursor-pointer hover:bg-sky-100 hover:text-primary rounded-md p-1">
+              <div className="flex items-center gap-2">
+                {profilePicture ? (
+                  <div className="relative w-7 h-7 rounded-full overflow-hidden border border-gray-200 shadow-sm">
+                    <Image
+                      src={profilePicture.fileUrl}
+                      alt="Profile picture"
+                      fill
+                      sizes="64px"
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <UserCircleIcon className="w-7 h-7" />
+                )}
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium">
+                    {appUser.firstName} {appUser.lastName}
+                  </span>
+                  <span className="text-[10px] text-gray-500 text-right">
+                    {displayRole(appUser.role)}
+                  </span>
                 </div>
-              ) : (
-                <UserCircleIcon className="w-7 h-7" />
-              )}
-              <div className="flex flex-col">
-                <span className="text-xs font-medium">
-                  {appUser.firstName} {appUser.lastName}
-                </span>
-                <span className="text-[10px] text-gray-500 text-right">
-                  {displayRole(appUser.role)}
-                </span>
               </div>
+              {missingInfoMessage && (
+                <p className="text-[10px] text-red-500 text-center leading-tight mt-1 max-w-[150px]">
+                  {missingInfoMessage}
+                </p>
+              )}
             </div>
           }
         >
@@ -213,14 +239,17 @@ export default function NavBar() {
             href="/"
             className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
           >
-            Home
+            <span>Home</span>
           </Link>
 
           <Link
             href="/dashboard/profile"
-            className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+            className="flex items-center justify-between w-full gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100"
           >
-            Profile
+            <span>Profile</span>
+            {missingInfoMessage && (
+              <ExclamationTriangleIcon className="w-5 h-5 text-red-500" />
+            )}
           </Link>
         </Menu>
 
