@@ -1,10 +1,19 @@
 "use client";
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import Status from '../list/status';
-import { useAuth } from '../context/auth-context';
-import { SetStateAction, useEffect, useState } from 'react';
-import { fetchWeekCounts } from '@/app/lib/data';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import Status from "../list/status";
+import { useAuth } from "../context/auth-context";
+import { SetStateAction, useEffect, useState } from "react";
+import { fetchWeekCounts } from "@/app/lib/data";
 
 type WeekType = "current" | "last" | "beforeLast" | "next" | "afterNext";
 
@@ -24,57 +33,56 @@ export const WeeklyShiftsChart = () => {
 
   const [selectedWeek, setSelectedWeek] = useState<WeekType>("current");
 
-
   // Get token
-    useEffect(() => {
-        if (firebaseUser) {
-        firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
-            setToken(idToken);
-        });
-        }
-    }, [firebaseUser]);
-  
-    // Fetch counts when token is ready
-    useEffect(() => {
-    const getCounts = async () => {
-        setIsFetching(true);
-        try {
-          const countsResponse = await fetchWeekCounts(selectedWeek, token);
-          setWeekData(countsResponse.data ?? null);
-        } catch (err) {
-          console.error("Failed to fetch counts", err);
-        } finally {
-          setIsFetching(false);
-        }
-    };
-    if (token){ getCounts() };
-    }, [token, selectedWeek ]);
-  
-    if (loading || isFetching) return <div>Loading...</div>;
-    if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
-
-    const formatDay = (dateStr: string) => {
-      const [year, month, day] = dateStr.split("-").map(Number);
-
-      const date = new Date(year, month - 1, day);
-      return date.toLocaleDateString("en-US", {
-        weekday: "short",
-        day: "numeric",
+  useEffect(() => {
+    if (firebaseUser) {
+      firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
+        setToken(idToken);
       });
+    }
+  }, [firebaseUser]);
+
+  // Fetch counts when token is ready
+  useEffect(() => {
+    const getCounts = async () => {
+      setIsFetching(true);
+      try {
+        const countsResponse = await fetchWeekCounts(selectedWeek, token);
+        setWeekData(countsResponse.data ?? null);
+      } catch (err) {
+        console.error("Failed to fetch counts", err);
+      } finally {
+        setIsFetching(false);
+      }
     };
+    if (token) {
+      getCounts();
+    }
+  }, [token, selectedWeek]);
 
-    const data: any[] | undefined = []
-    weekData.forEach((dayCount)=>{
-      data.push({
-        date: dayCount.date,
-        open: dayCount.open,
-        taken: dayCount.taken,
-        cancelled: dayCount.cancelled,
-        completed: dayCount.completed,
-      })
-    })
+  if (loading || isFetching) return <div>Loading...</div>;
+  if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
 
+  const formatDay = (dateStr: string) => {
+    const [year, month, day] = dateStr.split("-").map(Number);
 
+    const date = new Date(year, month - 1, day);
+    return date.toLocaleDateString("en-US", {
+      weekday: "short",
+      day: "numeric",
+    });
+  };
+
+  const data: any[] | undefined = [];
+  weekData.forEach((dayCount) => {
+    data.push({
+      date: dayCount.date,
+      open: dayCount.open,
+      taken: dayCount.taken,
+      cancelled: dayCount.cancelled,
+      completed: dayCount.completed,
+    });
+  });
 
   return (
     <div className="bg-white p-4 rounded-md min-h-[320px] @container flex flex-col">
@@ -100,7 +108,7 @@ export const WeeklyShiftsChart = () => {
         ))}
       </div>
       {/* CHART */}
-      <div className='w-full h-[250px]'>
+      <div className="w-full h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data}
@@ -113,25 +121,26 @@ export const WeeklyShiftsChart = () => {
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
             <XAxis
-              dataKey="date"   
+              dataKey="date"
               tickFormatter={formatDay}
-              tick={{ fontSize: 12 }} />
-            <YAxis allowDecimals={false} />
+              tick={{ fontSize: 12 }}
+            />
+            <YAxis allowDecimals={false} width={30} tick={{ fontSize: 12 }} />
             <Tooltip />
-            <Bar dataKey="open" stackId="a" fill="#64748B"  />
-            <Bar dataKey="taken" stackId="a" fill="#3b82f6"  />
-            <Bar dataKey="completed" stackId="a" fill="#48BB78"  />
-            <Bar dataKey="cancelled" stackId="a" fill="#ef4444"  />
+            <Bar dataKey="open" stackId="a" fill="#64748B" />
+            <Bar dataKey="taken" stackId="a" fill="#3b82f6" />
+            <Bar dataKey="completed" stackId="a" fill="#48BB78" />
+            <Bar dataKey="cancelled" stackId="a" fill="#ef4444" />
           </BarChart>
         </ResponsiveContainer>
       </div>
       {/* BOTTOM */}
-        <div className="grid grid-cols-4 md:grid-cols-2 lg:grid-cols-4 gap-2 w-full mx-auto">
-            <Status status="open" />
-            <Status status="taken" />
-            <Status status="cancelled" />
-            <Status status="completed" />
-        </div>
+      <div className="grid grid-cols-4 md:grid-cols-2 lg:grid-cols-4 gap-2 w-full mx-auto">
+        <Status status="open" />
+        <Status status="taken" />
+        <Status status="cancelled" />
+        <Status status="completed" />
+      </div>
     </div>
   );
 };
