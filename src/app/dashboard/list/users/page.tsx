@@ -8,7 +8,7 @@ import FormContainer from "@/app/ui/list/form-container";
 import Pagination from "@/app/ui/list/pagination";
 import RelatedDataModal from "@/app/ui/list/related-data-modal";
 import SortListColumns from "@/app/ui/list/sort-list-columns";
-import ApprovedStatus from "@/app/ui/list/status";
+import Status from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/list/table-search";
 import { EyeIcon } from "@heroicons/react/16/solid";
@@ -195,7 +195,7 @@ export default function UsersList() {
           <div className="flex flex-col mt-1">
             {item.pharmacistProfile ? (
               <div className="max-w-[100px]">
-                <ApprovedStatus
+                <Status
                   status={
                     item.pharmacistProfile?.approved ? "approved" : "pending"
                   }
@@ -259,13 +259,13 @@ export default function UsersList() {
         <h3 className="font-semibold">
           {item.firstName} {item?.lastName}
         </h3>
-        <p className="text-xs text-gray-500 break-words">{item.email}</p>
-        <p className="text-xs text-gray-500">{item.phone}</p>
+        <p className="text-xs text-gray-500 break-all">{item.email}</p>
+        <p className="text-xs text-gray-500 mt-1">{item.phone}</p>
       </div>
 
       {/* ROLE*/}
       <div className="bg-slate-50 p-3 rounded-lg mb-4">
-        <p className="font-semibold">{displayRole(item.role)}</p>
+        <p className="font-semibold">{displayRole(item.role)} </p>
         {item.role === "pharmacy_manager" && (
           <div className="flex flex-col">
             {item?.company ? (
@@ -304,7 +304,7 @@ export default function UsersList() {
           <div className="flex flex-col mt-1">
             {item.pharmacistProfile ? (
               <div className="max-w-[100px]">
-                <ApprovedStatus
+                <Status
                   status={
                     item.pharmacistProfile?.approved ? "approved" : "pending"
                   }

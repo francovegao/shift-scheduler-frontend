@@ -98,9 +98,9 @@ export default function SinglePharmacistPage({
         <div className="flex flex-col lg:flex-row gap-4">
           {/* USER INFO CARD */}
           <div className="bg-primary py-6 px-4 rounded-md flex-1 flex gap-4 text-white">
-            <div className="w-1/3 flex flex-col justify-center items-center">
+            <div className="w-2/5 md:w-1/3 flex flex-col justify-start items-center">
               {profilePicture ? (
-                <div className="relative w-32 h-32 rounded-full overflow-hidden border border-black-100">
+                <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border border-black-100 flex-shrink-0">
                   <Image
                     src={profilePicture.fileUrl}
                     alt="Profile picture"
@@ -109,7 +109,7 @@ export default function SinglePharmacistPage({
                   />
                 </div>
               ) : (
-                <UserCircleIcon className="w-36 h-36" />
+                <UserCircleIcon className="w-24 h-24 md:w-36 md:h-36" />
               )}
 
               <div className="py-1 mb-2 text-gray-800">
@@ -144,24 +144,26 @@ export default function SinglePharmacistPage({
                 )}
               </div>
               {role === "admin" && (
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="">
+                <div className="flex flex-col md:grid md:grid-cols-2 gap-2 w-full mt-4">
+                  <div className="flex flex-col items-center text-center">
                     <FormContainer
                       table="user"
                       type="update"
                       token={token}
                       data={pharmacist}
                     />
-                    <p className="text-xs mt-2">Edit User</p>
+                    <p className="text-[10px] md:text-xs mt-1">Edit User</p>
                   </div>
-                  <div className="">
+                  <div className="flex flex-col items-center text-center">
                     <FormContainer
                       table="pharmacist"
                       type="update"
                       token={token}
                       data={pharmacist.pharmacistProfile}
                     />
-                    <p className="text-xs mt-2">Edit Pharmacist Profile</p>
+                    <p className="text-[10px] md:text-xs mt-1">
+                      Edit Pharmacist Profile
+                    </p>
                   </div>
                 </div>
               )}
