@@ -144,12 +144,12 @@ export default function UsersList() {
       key={item.id}
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-purple-50"
     >
-      <td className="max-w-[200px] py-3 pl-6 pr-3 overflow-hidden">
+      <td className="min-w-0 py-3 pl-6 pr-3 overflow-hidden">
         <div className="flex flex-col">
           <h3 className="font-semibold">
             {item.firstName} {item?.lastName}
           </h3>
-          <p className="text-xs text-gray-500 truncate" title={item.email}>
+          <p className="text-xs text-gray-500 break-all" title={item.email}>
             {item.email}
           </p>
           <p className="text-xs text-gray-500">{item.phone}</p>

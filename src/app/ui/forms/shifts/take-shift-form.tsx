@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import {  takeShiftSchema } from "@/app/lib/formValidationSchemas";
+import { takeShiftSchema } from "@/app/lib/formValidationSchemas";
 import z from "zod";
 import { useFormState } from "react-dom";
 import { takeShift } from "@/app/lib/actions";
@@ -17,137 +17,171 @@ type FormInput = z.input<typeof takeShiftSchema>;
 type FormOutput = z.output<typeof takeShiftSchema>;
 
 const DateFormat = {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
-  weekday: 'short',
- } as const;
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  weekday: "short",
+} as const;
 
- const TimeFormat = {
+const TimeFormat = {
   hour: "2-digit",
   minute: "2-digit",
-  hour12: false,  
- } as const;
+  hour12: false,
+} as const;
 
-export default function TakeShiftForm({ 
+export default function TakeShiftForm({
   token,
-  data, 
+  data,
   setOpen,
-  pharmacistId, 
+  pharmacistId,
 }: {
   pharmacistId?: string;
   data?: any;
   setOpen: Dispatch<SetStateAction<boolean>>;
   token: string;
-  }){
+}) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormInput, any, FormOutput>({
+    resolver: zodResolver(takeShiftSchema),
+  });
 
-    const {
-      register,
-      handleSubmit,
-      formState: { errors },
-    } = useForm<FormInput, any, FormOutput>({
-      resolver: zodResolver(takeShiftSchema),
-    });
-    
-    const [state, formAction] = useFormState(
-        takeShift.bind(null, token),
-      {
-        success: false,
-        error: false,
-      }
-    );
-    
-    const onSubmit = handleSubmit((data) => {
-        formAction(data)
-      });
+  const [state, formAction] = useFormState(takeShift.bind(null, token), {
+    success: false,
+    error: false,
+  });
 
-    useEffect(() => {
-      if (state.success) {
-        toast(`Shift taken!`, {toastId: 'unique-toast'});
-        setOpen(false);
-        window.location.reload();
-      }
-    }, [state, setOpen])
+  const onSubmit = handleSubmit((data) => {
+    formAction(data);
+  });
 
-    if (!data) {
-      return <p>Loading...</p>;
+  useEffect(() => {
+    if (state.success) {
+      toast(`Shift taken!`, { toastId: "unique-toast" });
+      setOpen(false);
+      window.location.reload();
     }
-        
-    return(
-      <form className='p-4 flex flex-col gap-4' onSubmit={onSubmit} >
-        <input  
-          value={data?.id} 
-          defaultValue={data?.id} 
-          {...register("id")}
-          hidden />
-                {errors.id?.message && ( 
-                  <p className="text-xs text-red-400">
-                    {errors.id?.message.toString()}
-                  </p>
-                )}
-        <input  
-        value={pharmacistId} 
-        defaultValue={pharmacistId} 
-        {...register("pharmacistId")} 
-        hidden />
-                {errors.pharmacistId?.message && ( 
-                  <p className="text-xs text-red-400">
-                    {errors.pharmacistId?.message.toString()}
-                  </p>
-                )}
-        <input 
-        value="taken" 
-        defaultValue="taken" 
+  }, [state, setOpen]);
+
+  if (!data) {
+    return <p>Loading...</p>;
+  }
+
+  return (
+    <form className="p-4 flex flex-col gap-4" onSubmit={onSubmit}>
+      <input
+        value={data?.id}
+        defaultValue={data?.id}
+        {...register("id")}
+        hidden
+      />
+      {errors.id?.message && (
+        <p className="text-xs text-red-400">{errors.id?.message.toString()}</p>
+      )}
+      <input
+        value={pharmacistId}
+        defaultValue={pharmacistId}
+        {...register("pharmacistId")}
+        hidden
+      />
+      {errors.pharmacistId?.message && (
+        <p className="text-xs text-red-400">
+          {errors.pharmacistId?.message.toString()}
+        </p>
+      )}
+      <input
+        value="taken"
+        defaultValue="taken"
         {...register("status")}
-        hidden/>
-                {errors.status?.message && ( 
-                  <p className="text-xs text-red-400">
-                    {errors.status?.message.toString()}
-                  </p>
+        hidden
+      />
+      {errors.status?.message && (
+        <p className="text-xs text-red-400">
+          {errors.status?.message.toString()}
+        </p>
+      )}
+      <h1 className="text-xl font-semibold">Take Shift</h1>
+      <div className="bg-white p-4 rounded-xl border border-slate-200 mb-4 shadow-sm">
+        {/* HEADER: Pay */}
+        <div className="flex justify-end items-start mb-3">
+          <span className="font-medium text-lg text-green-700">
+            {formatPayRate(data.payRate)}
+            {formatPayRate(data.payRate) !== "No Data" ? " per hr" : ""}
+          </span>
+        </div>
+        {/* LOCATION */}
+        <div className="mb-4">
+          {data.location ? (
+            <div className="">
+              <h3 className="font-semibold">{data.location?.name}</h3>
+              <p className="text-sm text-gray-500">{data.company?.name}</p>
+              <p className="text-sm text-gray-500">{data.location?.email}</p>
+              <p className="text-sm text-gray-500">{data.location?.phone}</p>
+              <p className="text-sm text-gray-500">
+                {getFullAddress(
+                  data.location?.address,
+                  data.location?.city,
+                  data.location?.province,
+                  null,
                 )}
-        <h1 className="text-xl font-semibold">Take Shift</h1>
-        <div className="flex justify-around flex-wrap gap-4 mb-4">
-          <div>
-            <h2 className="text-gray-400 font-medium mb-2">Location Information</h2>
-            {data.location ? (
-              <div className="">
-                <h3 className="font-semibold">{data.location?.name}</h3>
-                <p className="text-sm text-gray-500">{data.company?.name}</p>
-                <p className="text-sm text-gray-500">{data.location?.email}</p>
-                <p className="text-sm text-gray-500">{data.location?.phone}</p>
-                <p className="text-sm text-gray-500">{getFullAddress(data.location?.address, data.location?.city, data.location?.province, null)}</p>
-              </div>
-              ):(
-              <div className="">
-                <h3 className="font-semibold">{data.company?.name}</h3>
-                <p className="text-sm text-gray-500">{data.company?.email}</p>
-                <p className="text-sm text-gray-500">{data.company?.phone}</p>
-                <p className="text-sm text-gray-500">{getFullAddress(data.company?.address, data.company?.city, data.company?.province, null)}</p>
-              </div>
-              )}
-          </div>
-          <div>
-            <h2 className="text-gray-400 font-medium mb-2">Shift Information</h2>
-              <div className="">
-                <h3 className="font-semibold">{formatInTimeZone(data.startTime, data.company?.timezone, 'EEE MMM dd, yyyy')}</h3>
-                <p className="text-sm text-gray-500">{formatInTimeZone(data.startTime, data.company?.timezone, "HH:mm")}-{formatInTimeZone(data.endTime, data.company?.timezone, "HH:mm")} </p>
-                <p className="text-sm text-gray-500">{formatPayRate(data.payRate)}{formatPayRate(data.payRate) !== "No Data" ? " per hr" : "" }</p>
-              </div>
-          </div>
-          <div>
-            <h2 className="text-gray-400 font-medium mb-2">Shift Description</h2>
-              <div className="">
-                <h3 className="font-semibold">{data.title}</h3>
-                <p className="text-sm text-gray-500">{data.description} </p>
-              </div>
+              </p>
+            </div>
+          ) : (
+            <div className="">
+              <h3 className="font-semibold">{data.company?.name}</h3>
+              <p className="text-sm text-gray-500">{data.company?.email}</p>
+              <p className="text-sm text-gray-500">{data.company?.phone}</p>
+              <p className="text-sm text-gray-500">
+                {getFullAddress(
+                  data.company?.address,
+                  data.company?.city,
+                  data.company?.province,
+                  null,
+                )}
+              </p>
+            </div>
+          )}
+        </div>
+        {/* SHIFT INFO */}
+        <div className="bg-slate-50 p-3 rounded-lg mb-4">
+          <h3 className="font-semibold">
+            {formatInTimeZone(
+              data.startTime,
+              data.company?.timezone,
+              "EEE MMM dd, yyyy",
+            )}
+          </h3>
+          <p className="text-sm text-gray-500">
+            {formatInTimeZone(data.startTime, data.company?.timezone, "HH:mm")}-
+            {formatInTimeZone(
+              data.endTime,
+              data.company?.timezone,
+              "HH:mm",
+            )}{" "}
+          </p>
+          <div className="flex flex-col mt-2">
+            <h3 className="font-semibold">{data.title}</h3>
+            <p className="text-sm text-gray-500">{data.description} </p>
           </div>
         </div>
-        <span className="text-center font-medium">Are you sure you want to take this shift?</span>
-        <span className="text-center font-medium">Please verify all the information before taking this shift</span>
-        <button type="submit" className="bg-primary text-white py-2 px-4 rounded-md border-none w-max self-center hover:bg-primary-100 cursor-pointer">
-          Take Shift
-        </button>
-        {state.error && <span className="text-red-500 text-center">Something went wrong!</span>}
-      </form>
-    );
+      </div>
+      <span className="text-center font-medium">
+        Are you sure you want to take this shift?
+      </span>
+      <span className="text-center font-medium">
+        Please verify all the information before taking this shift
+      </span>
+      <button
+        type="submit"
+        className="bg-primary text-white py-2 px-4 rounded-md border-none w-max self-center hover:bg-primary-100 cursor-pointer"
+      >
+        Take Shift
+      </button>
+      {state.error && (
+        <span className="text-red-500 text-center">Something went wrong!</span>
+      )}
+    </form>
+  );
 }

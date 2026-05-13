@@ -90,55 +90,68 @@ export default function SingleLocationPage({
         <div className="flex flex-col lg:flex-row gap-4">
           {/* USER INFO CARD */}
           <div className="bg-primary py-6 px-4 rounded-md flex-1 flex gap-4 text-white">
-            <div className="w-1/3 flex flex-col justify-center items-center">
+            <div className="w-[35%] md:w-1/3 flex flex-col justify-center items-center">
               {companyLogo ? (
-                <div className="relative w-34 h-34 overflow-hidden">
+                <div className="relative w-24 h-24 md:w-32 md:h-32 overflow-hidden">
                   <Image
                     src={companyLogo.fileUrl}
                     alt="Company Logo"
                     fill
-                    objectFit="contain"
+                    style={{ objectFit: "contain" }}
                   />
                 </div>
               ) : (
-                <BuildingStorefrontIcon className="w-36 h-36" />
+                <BuildingStorefrontIcon className="w-24 h-24 md:w-36 md:h-36" />
               )}
 
               {canEdit && (
                 <>
                   {companyLogo ? (
-                    <div className="flex flex-row gap-4 mt-2">
-                      <ManageFilesModal
-                        type="replace"
-                        fileType="logo"
-                        token={token}
-                        ownerId={company.id}
-                        data={companyLogo}
-                      />
-                      <ManageFilesModal
-                        type="delete"
-                        fileType="logo"
-                        token={token}
-                        ownerId={company.id}
-                        id={companyLogo.id}
-                      />
+                    <div className="flex flex-col md:grid md:grid-cols-2 gap-2 w-full mt-4">
+                      <div className="flex flex-col items-center text-center">
+                        <ManageFilesModal
+                          type="replace"
+                          fileType="logo"
+                          token={token}
+                          ownerId={company.id}
+                          data={companyLogo}
+                        />
+                        <p className="text-[10px] md:text-xs mt-1">
+                          Replace Logo
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-center text-center">
+                        <ManageFilesModal
+                          type="delete"
+                          fileType="logo"
+                          token={token}
+                          ownerId={company.id}
+                          id={companyLogo.id}
+                        />
+                        <p className="text-[10px] md:text-xs mt-1">
+                          Delete Logo
+                        </p>
+                      </div>
                     </div>
                   ) : (
-                    <div className="flex flex-row mt-2">
+                    <div className="flex flex-col mt-2">
                       <ManageFilesModal
                         type="upload"
                         fileType="logo"
                         token={token}
                         ownerId={company.id}
                       />
+                      <p className="text-[10px] md:text-xs mt-1">Upload Logo</p>
                     </div>
                   )}
                 </>
               )}
             </div>
-            <div className="w-2/3 flex flex-col justify-between gap-4">
+            <div className="w-[65%] md:w-2/3 flex flex-col justify-between gap-4 min-w-0">
               <div className="flex items-center gap-4">
-                <h2 className="text-xl font-semibold">{company?.name}</h2>
+                <h2 className="text-xl font-semibold break-words flex-1">
+                  {company?.name}
+                </h2>
                 {canEdit && (
                   <FormContainer
                     table="company"
@@ -161,7 +174,7 @@ export default function SingleLocationPage({
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPinIcon className="w-5" />
-                  <span>
+                  <span className="break-words">
                     {getFullAddress(
                       company.address,
                       company.city,
@@ -172,7 +185,9 @@ export default function SingleLocationPage({
                 </div>
                 <div className="flex items-center gap-2">
                   <EnvelopeIcon className="w-5" />
-                  <span>{company?.email || "Add an email"}</span>
+                  <span className="break-all">
+                    {company?.email || "Add an email"}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <PhoneIcon className="w-5" />

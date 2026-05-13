@@ -353,9 +353,6 @@ export default function ShiftsList() {
 
       {/* LOCATION */}
       <div className="bg-slate-50 p-3 rounded-lg mb-4">
-        {/* <p className="text-xs font-semibold uppercase text-slate-500 mb-1">
-          Location
-        </p> */}
         <p className="font-medium">
           {item.location?.name || item.company?.name}
         </p>
