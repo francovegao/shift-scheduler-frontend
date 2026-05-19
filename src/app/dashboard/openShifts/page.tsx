@@ -17,84 +17,79 @@ import FilterPayRate from "@/app/ui/list/filter-pay-rate";
 import PharmacistAccessGuard from "@/app/ui/authorization/pharmacists-access-guard";
 import { formatInTimeZone } from "date-fns-tz";
 
-type ShiftList = Shift & { company: Company }
-                 & { location: Location } 
-                 & { pharmacist: Pharmacist & { user: User } };
+type ShiftList = Shift & { company: Company } & { location: Location } & {
+  pharmacist: Pharmacist & { user: User };
+};
 
 type Shift = {
-    id: number,
-    companyId: string,
-    locationId?: string,
-    title: string,
-    description?: string,
-    startTime: string,
-    endTime: string,
-    payRate: string,
-    status: string,
-    createdAt : string,
-    pharmacistId: string,
-}
+  id: number;
+  companyId: string;
+  locationId?: string;
+  title: string;
+  description?: string;
+  startTime: string;
+  endTime: string;
+  payRate: string;
+  status: string;
+  createdAt: string;
+  pharmacistId: string;
+};
 
 type Company = {
-  id: string,
-  name: string,
-  email: string,
-  phone: string,
-  address: string,
-  city: string,
-  province: string,
-  timezone: string,
-}
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  province: string;
+  timezone: string;
+};
 
 type Location = {
-  id: string,
-  name: string,
-  email: string,
-  phone: string,
-  address: string,
-  city: string,
-  province: string,
-}
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  province: string;
+};
 
 type Pharmacist = {
-  id: string,
-  userId: string,
-}
+  id: string;
+  userId: string;
+};
 
 type User = {
-  id: string,
-  firstName: string,
-  lastName: string,
-  email: string,
-  phone: string,
-}
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+};
 
 const DateFormat = {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
- } as const;
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+} as const;
 
- const TimeFormat = {
+const TimeFormat = {
   hour: "2-digit",
   minute: "2-digit",
-  hour12: false,  
- } as const;
+  hour12: false,
+} as const;
 
 const columns = [
   {
-    header: "Info",
-    accessor: "info",
+    header: "Pharmacy",
+    accessor: "pharmacy",
     className: "px-4 py-5 font-medium sm:pl-6",
   },
   {
-    header: "Date",
-    accessor: "date",
-    className: "table-cell px-3 py-5 font-medium",
-  },
-  {
-    header: "Start - End time",
-    accessor: "startEndTime",
+    header: "Info",
+    accessor: "info",
     className: "table-cell px-3 py-5 font-medium",
   },
   {
@@ -108,150 +103,175 @@ const columns = [
     className: "hidden lg:table-cell px-3 py-5 font-medium",
   },
   {
-    header: "Notes",
-    accessor: "notes",
-    className: "hidden md:table-cell px-3 py-5 font-medium",
-  },
-  {
     header: "Take Shift",
     accessor: "take",
-    className:"relative py-3 pl-6 pr-3 font-medium"
+    className: "relative py-3 pl-6 pr-3 font-medium",
   },
 ];
 
+export default function OpenShiftsList() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { firebaseUser, appUser, loading } = useAuth();
+  const [isFetching, setIsFetching] = useState(true);
+  const [token, setToken] = useState("");
+  const [shifts, setShifts] = useState<any[]>([]);
+  const [totalPages, setTotalPages] = useState<number>(1);
 
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!loading && !firebaseUser) {
+      router.push("/");
+    }
+  }, [loading, firebaseUser, router]);
 
-export default function OpenShiftsList(){
+  // Get token
+  useEffect(() => {
+    if (firebaseUser) {
+      firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
+        setToken(idToken);
+      });
+    }
+  }, [firebaseUser]);
 
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const { firebaseUser, appUser, loading } = useAuth();
-    const [isFetching, setIsFetching] = useState(true);
-    const [token, setToken] = useState("");
-    const [shifts, setShifts] = useState<any[]>([]);
-    const [totalPages, setTotalPages] = useState<number>(1);
+  // Fetch shifts when token is ready
+  useEffect(() => {
+    const getShifts = async () => {
+      setIsFetching(true);
+      try {
+        const page = searchParams.get("page");
+        const query = searchParams.get("query");
+        const queryParams: Record<string, string> = {};
 
-    // Redirect if not logged in
-    useEffect(() => {
-      if (!loading && !firebaseUser) {
-        router.push("/");
-      }
-    }, [loading, firebaseUser, router]);
+        searchParams.forEach((value, key) => {
+          if (key !== "page" && key !== "query") {
+            if (key === "from" || key === "to") {
+              //Detect if the value is a valid date
+              const parsedDate = new Date(value);
+              const isValidDate = !isNaN(parsedDate.getTime());
 
-    // Get token
-    useEffect(() => {
-      if (firebaseUser) {
-        firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
-          setToken(idToken);
-        });
-      }
-    }, [firebaseUser]);
-
-        // Fetch shifts when token is ready
-      useEffect(() => {
-        const getShifts = async () => {
-          setIsFetching(true);
-          try {
-            const page = searchParams.get('page');
-            const query = searchParams.get('query');
-            const queryParams: Record<string, string> = {};
-
-            searchParams.forEach((value, key) => {
-              if (key !== 'page' && key !== 'query') {
-
-                if(key === "from" || key === "to" ){
-                   //Detect if the value is a valid date
-                  const parsedDate = new Date(value);
-                  const isValidDate = !isNaN(parsedDate.getTime());
-
-                  if(isValidDate){
-                    queryParams[key] = parsedDate.toISOString();
-                  }
-
-                }else{
-                  queryParams[key] = value;
-                }
-            }});
-        
-            const currentPage = page ? parseInt(page) : 1;
-            const search = query ?? '';
-
-
-            const shiftsResponse = await fetchShifts(search, currentPage, queryParams, token);
-            setShifts(shiftsResponse?.data ?? []);
-            setTotalPages(shiftsResponse?.meta?.totalPages ?? 1);
-          } catch (err) {
-            console.error("Failed to fetch shifts", err);
-          } finally {
-            setIsFetching(false);
+              if (isValidDate) {
+                queryParams[key] = parsedDate.toISOString();
+              }
+            } else {
+              queryParams[key] = value;
+            }
           }
-        };
-        if (token){ getShifts() };
+        });
+
+        const currentPage = page ? parseInt(page) : 1;
+        const search = query ?? "";
+
+        const shiftsResponse = await fetchShifts(
+          search,
+          currentPage,
+          queryParams,
+          token,
+        );
+        setShifts(shiftsResponse?.data ?? []);
+        setTotalPages(shiftsResponse?.meta?.totalPages ?? 1);
+      } catch (err) {
+        console.error("Failed to fetch shifts", err);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+    if (token) {
+      getShifts();
+    }
   }, [token, searchParams]);
 
-    if (loading || isFetching) return <div>Loading...</div>;
-    if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
+  if (loading || isFetching) return <div>Loading...</div>;
+  if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
 
-    const role = appUser.role;
-    const pharmacistId = appUser.pharmacistProfile?.id;
+  const role = appUser.role;
+  const pharmacistId = appUser.pharmacistProfile?.id;
 
-     const data = shifts.map((shift) => {
-        const title =
-            shift.location?.name
-            ? `${shift.location.name} - ${shift.company.name}`
-            : shift.company.name;
+  const data = shifts.map((shift) => {
+    const title = shift.location?.name
+      ? `${shift.location.name} - ${shift.company.name}`
+      : shift.company.name;
 
-        return {
-            title,
-            allDay: false,
-            start: new Date(shift.startTime),
-            end: new Date(shift.endTime),
-            shift: shift,
-        };
-    });
+    return {
+      title,
+      allDay: false,
+      start: new Date(shift.startTime),
+      end: new Date(shift.endTime),
+      shift: shift,
+    };
+  });
 
-    const renderRow = (item: ShiftList) => (
+  const renderRow = (item: ShiftList) => (
     <tr
       key={item.id}
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-purple-50"
     >
       <td className="flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
         {item.location ? (
-        <div className="flex flex-col">
-          <h3 className="font-semibold">{item.location?.name}</h3>
-          <p className="text-xs text-gray-500">{item.company?.name}</p>
-                    <p className="text-xs text-gray-500">{item.location?.email}</p>
-          <p className="text-xs text-gray-500">{item.location?.phone}</p>
-          <p className="text-xs text-gray-500">{getFullAddress(item.location?.address, item.location?.city, item.location?.province, null)}</p>
-        </div>
-        ):(
-        <div className="flex flex-col">
-          <h3 className="font-semibold">{item.company?.name}</h3>
-          <p className="text-xs text-gray-500">{item.company?.email}</p>
-          <p className="text-xs text-gray-500">{item.company?.phone}</p>
-          <p className="text-xs text-gray-500">{getFullAddress(item.company?.address, item.company?.city, item.company?.province, null)}</p>
-        </div>
+          <div className="flex flex-col">
+            <h3 className="font-semibold">{item.location?.name}</h3>
+            <p className="text-xs text-gray-500">{item.company?.name}</p>
+            <p className="text-xs text-gray-500">{item.location?.email}</p>
+            <p className="text-xs text-gray-500">{item.location?.phone}</p>
+            <p className="text-xs text-gray-500">
+              {getFullAddress(
+                item.location?.address,
+                item.location?.city,
+                item.location?.province,
+                null,
+              )}
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col">
+            <h3 className="font-semibold">{item.company?.name}</h3>
+            <p className="text-xs text-gray-500">{item.company?.email}</p>
+            <p className="text-xs text-gray-500">{item.company?.phone}</p>
+            <p className="text-xs text-gray-500">
+              {getFullAddress(
+                item.company?.address,
+                item.company?.city,
+                item.company?.province,
+                null,
+              )}
+            </p>
+          </div>
         )}
       </td>
-      <td className="table-cell whitespace-nowrap px-3 py-3">{formatInTimeZone(item.startTime, item.company?.timezone, 'MMM dd, yyyy')}</td>
-      <td className="table-cell whitespace-nowrap px-3 py-3">
-        {formatInTimeZone(item.startTime, item.company?.timezone, "HH:mm")}-{formatInTimeZone(item.endTime, item.company?.timezone, "HH:mm")} 
+      <td className="table-cell px-3 py-3 max-w-[200px]">
+        <p className="whitespace-nowrap">
+          {formatInTimeZone(
+            item.startTime,
+            item.company?.timezone,
+            "MMM dd, yyyy",
+          )}
+        </p>
+        <p className="whitespace-nowrap">
+          {formatInTimeZone(item.startTime, item.company?.timezone, "HH:mm")}-
+          {formatInTimeZone(item.endTime, item.company?.timezone, "HH:mm")}
+        </p>
+        <div className="flex flex-col mt-1 min-w-0">
+          <h3 className="font-semibold break-words">{item?.title}</h3>
+          <p className="text-xs text-gray-500 break-words">
+            {item?.description}
+          </p>
+        </div>
       </td>
-      <td className="table-cell whitespace-nowrap px-3 py-3">{formatPayRate(item.payRate)}</td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">
+        {formatPayRate(item.payRate)}
+      </td>
       <td className="hidden lg:table-cell whitespace-nowrap px-3 py-3">
         <ApprovedStatus status={item.status} />
       </td>
-      <td className="hidden md:table-cell flex items-center gap-4 py-3 pl-3 pr-3 w-48">
-        <div className="flex flex-col">
-          <h3 className="font-semibold">{item?.title}</h3>
-          <p className="text-xs text-gray-500 break-words">{item?.description}</p>
-        </div>
-      </td>
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex justify-start gap-3">
-          {(role === "relief_pharmacist" ) && (
+          {role === "relief_pharmacist" && (
             <>
-              <TakeShiftModal token={token} data={item} pharmacistId={pharmacistId}/>
+              <TakeShiftModal
+                token={token}
+                data={item}
+                pharmacistId={pharmacistId}
+              />
             </>
           )}
         </div>
@@ -259,8 +279,95 @@ export default function OpenShiftsList(){
     </tr>
   );
 
+  const ShiftCard = ({ item }: { item: ShiftList }) => (
+    <div className="bg-white p-4 rounded-xl border border-slate-200 mb-4 shadow-sm">
+      {/* HEADER: Pay */}
+      <div className="flex justify-end items-start mb-3">
+        <span className="font-medium text-lg text-green-700">
+          {formatPayRate(item.payRate)}
+        </span>
+      </div>
+      {/* LOCATION */}
+      <div className="mb-4">
+        {item.location ? (
+          <div className="flex flex-col">
+            <h3 className="font-semibold">{item.location?.name}</h3>
+            <p className="text-xs text-gray-500">{item.company?.name}</p>
+            <p className="text-xs text-gray-500">{item.location?.email}</p>
+            <p className="text-xs text-gray-500">{item.location?.phone}</p>
+            <p className="text-xs text-gray-500">
+              {getFullAddress(
+                item.location?.address,
+                item.location?.city,
+                item.location?.province,
+                null,
+              )}
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col">
+            <h3 className="font-semibold">{item.company?.name}</h3>
+            <p className="text-xs text-gray-500">{item.company?.email}</p>
+            <p className="text-xs text-gray-500">{item.company?.phone}</p>
+            <p className="text-xs text-gray-500">
+              {getFullAddress(
+                item.company?.address,
+                item.company?.city,
+                item.company?.province,
+                null,
+              )}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* SHIFT INFO */}
+      <div className="bg-slate-50 p-3 rounded-lg mb-4">
+        <p>
+          {formatInTimeZone(
+            item.startTime,
+            item.company?.timezone,
+            "MMM dd, yyyy",
+          )}
+        </p>
+        <p>
+          {formatInTimeZone(item.startTime, item.company?.timezone, "HH:mm")}-
+          {formatInTimeZone(item.endTime, item.company?.timezone, "HH:mm")}
+        </p>
+        <div className="flex flex-col mt-1">
+          <h3 className="font-semibold">{item?.title}</h3>
+          <p className="text-xs text-gray-500 break-words">
+            {item?.description}
+          </p>
+        </div>
+      </div>
+
+      {/* ACTIONS */}
+      <div className="flex justify-between items-center pt-3 border-t border-slate-100">
+        <div className="flex justify-start gap-3">
+          {role === "relief_pharmacist" && (
+            <>
+              <TakeShiftModal
+                token={token}
+                data={item}
+                pharmacistId={pharmacistId}
+              />
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <AuthWrapper allowedRoles={["admin", "pharmacy_manager", "location_manager", "relief_pharmacist"]}>
+    <AuthWrapper
+      allowedRoles={[
+        "admin",
+        "pharmacy_manager",
+        "location_manager",
+        "relief_pharmacist",
+      ]}
+    >
       <PharmacistAccessGuard>
         <div className="p-4 lg:p-8">
           <h1 className={`font-semibold mb-4 text-xl md:text-2xl`}>
@@ -268,14 +375,21 @@ export default function OpenShiftsList(){
           </h1>
           <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
             {/* TOP */}
-            <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between gap-2 md:mt-8">
               <TableSearch placeholder="Search shifts..." />
               <FilterDate />
               <FilterPayRate />
             </div>
             {/* LIST */}
-            <div style={{ overflowX: 'scroll' }}>
-              <Table columns={columns} renderRow={renderRow} data={shifts} />
+            <div className="block md:hidden mt-6">
+              {shifts.map((item) => (
+                <ShiftCard key={item.id} item={item} />
+              ))}
+            </div>
+            <div className="hidden md:block">
+              <div style={{ overflowX: "scroll" }}>
+                <Table columns={columns} renderRow={renderRow} data={shifts} />
+              </div>
             </div>
             {/* PAGINATION */}
             <div className="mt-5 flex w-full justify-center">
@@ -283,12 +397,18 @@ export default function OpenShiftsList(){
             </div>
           </div>
           <div className="bg-white p-4 rounded-md">
-              <BigCalendar token={token} data={data}  pharmacistId={pharmacistId} action="takeShift"/>
-              <p className="text-gray-500 text-sm flex justify-end">Click on any open shift to take it.</p>
+            <BigCalendar
+              token={token}
+              data={data}
+              pharmacistId={pharmacistId}
+              action="takeShift"
+            />
+            <p className="text-gray-500 text-sm flex justify-end">
+              Click on any open shift to take it.
+            </p>
           </div>
-          
         </div>
       </PharmacistAccessGuard>
     </AuthWrapper>
-  );   
+  );
 }

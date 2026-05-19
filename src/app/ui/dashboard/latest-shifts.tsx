@@ -1,89 +1,101 @@
 "use client";
 
-import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { useAuth } from '../context/auth-context';
-import { SetStateAction, useEffect, useState } from 'react';
-import { fetchLatestShifts } from '@/app/lib/data';
-import ApprovedStatus from '../list/status';
-import ShiftInfoModal from '../list/shift-info-modal';
-import Link from 'next/link';
-import { useSelectedCompany } from '@/app/lib/useSelectedCompany';
-import { formatInTimeZone } from 'date-fns-tz';
+import { ArrowPathIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useAuth } from "../context/auth-context";
+import { SetStateAction, useEffect, useState } from "react";
+import { fetchLatestShifts } from "@/app/lib/data";
+import ApprovedStatus from "../list/status";
+import ShiftInfoModal from "../list/shift-info-modal";
+import Link from "next/link";
+import { useSelectedCompany } from "@/app/lib/useSelectedCompany";
+import { formatInTimeZone } from "date-fns-tz";
 
 const companyColors: Record<string, string> = {
   "Create Compounding": "bg-[rgb(104,163,67)] text-white",
   "Curis Seton": "bg-[rgb(255,222,33)] text-black",
   "Curis Mahogany": "bg-[rgb(178,255,255)] text-black",
-  "Grassroots": "bg-[rgb(99,107,47)] text-white",
+  Grassroots: "bg-[rgb(99,107,47)] text-white",
   "Curis Kingsland": "bg-[rgb(255,70,162)] text-white",
   "Curis Harmony": "bg-[rgb(144,213,255)] text-black",
   "Curis Trinity Hills": "bg-[rgb(224,176,255)] text-black",
   "Pharm Drugstore": "bg-[rgb(239,191,4)] text-black",
-  "Default": "bg-primary text-white"
+  Default: "bg-primary text-white",
 };
 
-  export default function LatestShifts(){
-    const { firebaseUser, appUser, loading } = useAuth();
-    const [isFetching, setIsFetching] = useState(true);
-    const [token, setToken] = useState("");
-    const [latestShifts, setLatestShifts] = useState<any[]>([]);
+export default function LatestShifts() {
+  const { firebaseUser, appUser, loading } = useAuth();
+  const [isFetching, setIsFetching] = useState(true);
+  const [token, setToken] = useState("");
+  const [latestShifts, setLatestShifts] = useState<any[]>([]);
 
-    const [openEventId, setOpenEventId] = useState(null);
-    const currentCompanyId = useSelectedCompany((state) => state.currentCompanyId);
+  const [openEventId, setOpenEventId] = useState(null);
+  const currentCompanyId = useSelectedCompany(
+    (state) => state.currentCompanyId,
+  );
 
-    // Get token
-      useEffect(() => {
-        if (firebaseUser) {
-          firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
-            setToken(idToken);
-          });
-        }
-      }, [firebaseUser]);
+  // Get token
+  useEffect(() => {
+    if (firebaseUser) {
+      firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
+        setToken(idToken);
+      });
+    }
+  }, [firebaseUser]);
 
-      // Fetch latest shifts when token is ready
-      useEffect(() => {
-        const getLatestShifts = async () => {
-          setIsFetching(true);
-          try {
-              const queryParams: Record<string, string> = {};
+  // Fetch latest shifts when token is ready
+  useEffect(() => {
+    const getLatestShifts = async () => {
+      setIsFetching(true);
+      try {
+        const queryParams: Record<string, string> = {};
 
-              //Set current selected companyId
-              if(appUser?.role ==="pharmacy_manager"){
-                if(currentCompanyId !== appUser?.companyId ){
-                  queryParams["companyId"] = currentCompanyId || "";
-                }
-              }
-
-              if (queryParams["companyId"] === "") {
-                  delete queryParams["companyId"];
-              }
-
-            const latestShiftsResponse = await fetchLatestShifts(token, queryParams);
-            setLatestShifts(latestShiftsResponse?.data ?? []);
-          } catch (err) {
-            console.error("Failed to fetch latest shifts", err);
-          } finally {
-            setIsFetching(false);
+        //Set current selected companyId
+        if (appUser?.role === "pharmacy_manager") {
+          if (currentCompanyId !== appUser?.companyId) {
+            queryParams["companyId"] = currentCompanyId || "";
           }
-        };
-        if (token){ getLatestShifts() };
-    }, [token, currentCompanyId]);
+        }
 
-    if (loading || isFetching) return <div>Loading...</div>;
-    if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
+        if (queryParams["companyId"] === "") {
+          delete queryParams["companyId"];
+        }
 
-    const role = appUser.role;
-
-    const handleSelectEvent = (eventId: SetStateAction<null>) => {
-      setOpenEventId(eventId);
+        const latestShiftsResponse = await fetchLatestShifts(
+          token,
+          queryParams,
+        );
+        setLatestShifts(latestShiftsResponse?.data ?? []);
+      } catch (err) {
+        console.error("Failed to fetch latest shifts", err);
+      } finally {
+        setIsFetching(false);
+      }
     };
+    if (token) {
+      getLatestShifts();
+    }
+  }, [token, currentCompanyId]);
+
+  if (loading || isFetching) return <div>Loading...</div>;
+  if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
+
+  const role = appUser.role;
+
+  const handleSelectEvent = (eventId: SetStateAction<null>) => {
+    setOpenEventId(eventId);
+  };
 
   return (
     <div className="flex w-full flex-col md:col-span-4 rounded-md">
-        <div className="flex items-center justify-between mt-2 mb-4">
-          <h1 className="text-xl font-semibold">Latest Posted Shifts</h1>
-          <Link href='/dashboard/shifts' className="text-gray-500 text-xs hover:bg-gray-100 hover:text-blue-600" >View All</Link>
-        </div>
+      <div className="flex items-center justify-between mt-2 mb-4">
+        <h1 className="text-xl font-semibold">Latest Posted Shifts</h1>
+        <Link
+          href="/dashboard/shifts"
+          className="text-gray-500 text-xs hover:bg-gray-100 hover:text-blue-600"
+        >
+          View All
+        </Link>
+      </div>
       <div className="flex grow flex-col justify-between rounded-md shadow-sm bg-white">
         <div className="bg-white divide-y-4 rounded-md p-4">
           {latestShifts.length === 0 && (
@@ -92,75 +104,93 @@ const companyColors: Record<string, string> = {
             </p>
           )}
 
-          {latestShifts.slice(0, 5).map((item) =>{
-            const compColors = companyColors[item?.company?.name] || companyColors.Default;
-          return (
-            <div
-              onClick={() => handleSelectEvent(item.id)}
-              key={item.id}
-              className={`flex flex-row items-center rounded-md justify-between p-4  transition ${compColors}`}
-            >
-              <div className="flex flex-col">
-                {item.location ? (
-                  <span>
-                    <p className="truncate text-sm font-semibold">
-                      {item?.location?.name}
-                    </p>
-                    <p className="text-sm">{item?.company?.name}</p>
-                  </span>
-                ) : (
-                  <span>
-                    <p className="truncate text-sm font-semibold">
-                      {item.company.name}
-                    </p>
-                    <p className="text-sm">{item?.location?.name}</p>
-                  </span>
-                )}
-                {item.pharmacist?.user && (
-                   <span>
-                    <p className="text-sm">
-                      {item.pharmacist?.user?.firstName} {item.pharmacist?.user?.lastName}
-                    </p>
-                  </span>
-                )}
-                <div className="mt-1">
-                  <ApprovedStatus status={item.status} />
-                  {item.published === false && (
-                    <span className="flex items-center justify-center rounded-2xl mt-1 py-1 px-3 text-xs bg-orange-500 text-white text-center text-wrap">
-                      <h3 className="font-semibold">Draft Shift</h3>
+          {latestShifts.slice(0, 5).map((item) => {
+            const compColors =
+              companyColors[item?.company?.name] || companyColors.Default;
+            return (
+              <div
+                onClick={() => handleSelectEvent(item.id)}
+                key={item.id}
+                className={`flex flex-row items-center rounded-md justify-between p-4  transition ${compColors}`}
+              >
+                <div className="flex flex-col">
+                  {item.location ? (
+                    <span>
+                      <p className="truncate text-sm font-semibold">
+                        {item?.location?.name}
+                      </p>
+                      <p className="text-sm">{item?.company?.name}</p>
+                    </span>
+                  ) : (
+                    <span>
+                      <p className="truncate text-sm font-semibold">
+                        {item.company.name}
+                      </p>
+                      <p className="text-sm">{item?.location?.name}</p>
                     </span>
                   )}
+                  {item.pharmacist?.user && (
+                    <span>
+                      <p className="text-sm">
+                        {item.pharmacist?.user?.firstName}{" "}
+                        {item.pharmacist?.user?.lastName}
+                      </p>
+                    </span>
+                  )}
+                  <div className="mt-1">
+                    <ApprovedStatus status={item.status} />
+                    {item.published === false && (
+                      <span className="flex items-center justify-center rounded-2xl mt-1 py-1 px-3 text-xs bg-orange-500 text-white text-center text-wrap">
+                        <h3 className="font-semibold">Draft Shift</h3>
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <div className="text-right">
-                <p
-                  className={` text-sm font-medium`}
-                >
-                  {formatInTimeZone(item.startTime, item?.company?.timezone, 'MMM dd, yyyy')}
-                </p>
-                <p className="text-sm">
-                  {formatInTimeZone(item.startTime, item?.company?.timezone, "HH:mm")}-{formatInTimeZone(item.endTime, item?.company?.timezone, "HH:mm")}
-                </p>
-              </div>
-              { (openEventId === item.id && role !== 'relief_pharmacist') && (
-                <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
-                  <div className='bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]'>
-                    <ShiftInfoModal data={item} setOpen={() => setOpenEventId(null)}/>
-                    <div className='absolute top-4 right-4 cursor-pointer'
+                <div className="text-right">
+                  <p className={` text-sm font-medium`}>
+                    {formatInTimeZone(
+                      item.startTime,
+                      item?.company?.timezone,
+                      "MMM dd, yyyy",
+                    )}
+                  </p>
+                  <p className="text-sm">
+                    {formatInTimeZone(
+                      item.startTime,
+                      item?.company?.timezone,
+                      "HH:mm",
+                    )}
+                    -
+                    {formatInTimeZone(
+                      item.endTime,
+                      item?.company?.timezone,
+                      "HH:mm",
+                    )}
+                  </p>
+                </div>
+                {openEventId === item.id && role !== "relief_pharmacist" && (
+                  <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
+                    <div className="bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] max-h-[90vh] overflow-y-auto">
+                      <ShiftInfoModal
+                        data={item}
+                        setOpen={() => setOpenEventId(null)}
+                      />
+                      <div
+                        className="absolute top-4 right-4 cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           setOpenEventId(null);
-                        }}>
-                      <XMarkIcon className='w-6 text-black' />
+                        }}
+                      >
+                        <XMarkIcon className="w-6 text-black" />
+                      </div>
                     </div>
-
                   </div>
-                </div>
-              )}
-
-            </div>
-          )})}
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <div className="flex items-center pb-3 pt-2 px-4 text-gray-500">
