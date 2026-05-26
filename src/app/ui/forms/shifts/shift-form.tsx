@@ -1,19 +1,25 @@
-'use client';
+"use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useWatch } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import InputField from "../input-field";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import {  shiftSchema } from "@/app/lib/formValidationSchemas";
+import { shiftSchema } from "@/app/lib/formValidationSchemas";
 import z from "zod";
 import { useFormState } from "react-dom";
-import { createShift, createShiftSeries, updateShift, updateShiftSeries } from "@/app/lib/actions";
+import {
+  createBulkShifts,
+  createShift,
+  createShiftSeries,
+  updateShift,
+  updateShiftSeries,
+} from "@/app/lib/actions";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/auth-context";
 import { getFullAddress } from "@/app/lib/utils";
 import { useSelectedCompany } from "@/app/lib/useSelectedCompany";
-import { formatInTimeZone } from 'date-fns-tz';
-import { addHours, format } from 'date-fns';
+import { formatInTimeZone } from "date-fns-tz";
+import { addHours, format } from "date-fns";
 import React from "react";
 
 // Infer the input and output types from the schema
@@ -27,14 +33,14 @@ export default function ShiftForm({
   token,
   relatedData,
   initialDate,
-}:{
+}: {
   type: "create" | "update";
   data?: any;
   setOpen: Dispatch<SetStateAction<boolean>>;
   token: string;
   relatedData?: any;
   initialDate?: Date;
-}){
+}) {
   const { appUser, loading } = useAuth();
 
   const [step, setStep] = useState(data ? 2 : 1);
@@ -42,13 +48,24 @@ export default function ShiftForm({
 
   const [pharmaciesList, setPharmaciesList] = useState<any>([]);
 
-  const [selectedLocationId, setSelectedLocationId] = useState(data ? data.locationId : null);
-  const [selectedCompanyId, setSelectedCompanyId] = useState(data ? data.companyId : null);
-  const [selectedLocationName, setSelectedLocationName] = useState(data ? data.location?.name : null);
-  const [selectedCompanyName, setSelectedCompanyName] = useState(data ? data.company.name : null);
-  const currentCompanyId = useSelectedCompany((state) => state.currentCompanyId);
+  const [selectedLocationId, setSelectedLocationId] = useState(
+    data ? data.locationId : null,
+  );
+  const [selectedCompanyId, setSelectedCompanyId] = useState(
+    data ? data.companyId : null,
+  );
+  const [selectedLocationName, setSelectedLocationName] = useState(
+    data ? data.location?.name : null,
+  );
+  const [selectedCompanyName, setSelectedCompanyName] = useState(
+    data ? data.company.name : null,
+  );
+  const currentCompanyId = useSelectedCompany(
+    (state) => state.currentCompanyId,
+  );
 
-  const [shiftSeriesSelectedOption, setShiftSeriesSelectedOption] = useState('current');
+  const [shiftSeriesSelectedOption, setShiftSeriesSelectedOption] =
+    useState("current");
 
   const {
     register,
@@ -61,26 +78,35 @@ export default function ShiftForm({
     resolver: zodResolver(shiftSchema),
     defaultValues: {
       repeatType: "NONE",
-      pharmacistId: data?.pharmacistId || '',
-      status: data?.status || 'open',
+      pharmacistId: data?.pharmacistId || "",
+      status: data?.status || "open",
+      dates: [] as { value: string }[],
     },
   });
 
   const repeatType = watch("repeatType");
   const isRepetitive = repeatType !== "NONE";
+  const isDaily = repeatType === "DAILY";
   const isWeekly = repeatType === "WEEKLY";
+  const isMultiple = repeatType === "BULK";
 
   // Watch the value of the published field
   const isPublished = watch("published", data ? data.published : true);
 
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "dates",
+  });
+  const temporaryDate = watch("startDate");
+
   //Remove pharmacistId if published === False
   useEffect(() => {
-      if (isPublished === false) {
-        setValue("pharmacistId", "");
-      }
+    if (isPublished === false) {
+      setValue("pharmacistId", "");
+    }
   }, [isPublished, setValue]);
 
-    // Watch the value of the 'pharmacistId' field
+  // Watch the value of the 'pharmacistId' field
   const watchedPharmacistId = useWatch({
     control,
     name: "pharmacistId",
@@ -88,19 +114,25 @@ export default function ShiftForm({
 
   // Use a useEffect hook to update the 'status' whenever 'watchedPharmacistId' changes
   useEffect(() => {
-      const newStatus = watchedPharmacistId ? 'taken' : 'open';
+    const newStatus = watchedPharmacistId ? "taken" : "open";
 
-      setValue('status', newStatus);
+    setValue("status", newStatus);
   }, [repeatType, watchedPharmacistId, setValue]);
 
   const [state, formAction] = useFormState(
-      type === "create" ?
-      (repeatType === "NONE" ? createShift.bind(null, token) : createShiftSeries.bind(null,token) ) :
-      ( (repeatType === "NONE" && shiftSeriesSelectedOption === "current") ? updateShift.bind(null, token) : updateShiftSeries.bind(null, token)) ,
+    type === "create"
+      ? repeatType === "NONE"
+        ? createShift.bind(null, token)
+        : repeatType === "BULK"
+          ? createBulkShifts.bind(null, token)
+          : createShiftSeries.bind(null, token)
+      : repeatType === "NONE" && shiftSeriesSelectedOption === "current"
+        ? updateShift.bind(null, token)
+        : updateShiftSeries.bind(null, token),
     {
       success: false,
       error: false,
-    }
+    },
   );
 
   const onSubmit = handleSubmit((formData) => {
@@ -110,7 +142,7 @@ export default function ShiftForm({
     const finalData = {
       ...formData,
       payRate: pattern.test(formData.payRate) ? "0.0" : formData.payRate,
-      title: formData.title === '' ? "----" : formData.title,
+      title: formData.title === "" ? "----" : formData.title,
 
       scope: shiftSeriesSelectedOption,
       referenceShiftId: data?.id, // from initial data prop
@@ -124,21 +156,21 @@ export default function ShiftForm({
     //   return;
     // }
 
-    formAction(finalData)
-
+    formAction(finalData);
   });
-
 
   useEffect(() => {
     if (state.success) {
-      toast(`Shift has been ${type === "create" ? "created" : "updated"}!`, {toastId: 'unique-toast'});
+      toast(`Shift has been ${type === "create" ? "created" : "updated"}!`, {
+        toastId: "unique-toast",
+      });
       setOpen(false);
       window.location.reload();
     }
-  }, [state, type, setOpen])
+  }, [state, type, setOpen]);
 
   const formatForDatetimeLocal = (isoString: string, timeZone: string) => {
-    if (!isoString) return '';
+    if (!isoString) return "";
 
     // Directly format the UTC date into the string format required by the input
     // for the specific timezone provided.
@@ -146,20 +178,20 @@ export default function ShiftForm({
   };
 
   const formatForTimeLocal = (isoString: string, timeZone: string) => {
-    if (!isoString) return '';
+    if (!isoString) return "";
 
-    return formatInTimeZone(isoString, timeZone, 'HH:mm');
+    return formatInTimeZone(isoString, timeZone, "HH:mm");
   };
 
-  const {pharmacists, companies, locations } = relatedData;
+  const { pharmacists, companies, locations } = relatedData;
 
   if (loading) return <div>Loading...</div>;
-  if ( !appUser) return <div>Please sign in to continue</div>;
+  if (!appUser) return <div>Please sign in to continue</div>;
 
   const role = appUser.role;
   const companyId = appUser.companyId || undefined;
   const locationId = appUser.locationId || undefined;
-  const today = format(new Date(), 'yyyy-MM-dd');
+  const today = format(new Date(), "yyyy-MM-dd");
   const now = format(new Date(), "yyyy-MM-dd'T'HH:mm");
 
   useEffect(() => {
@@ -171,89 +203,106 @@ export default function ShiftForm({
     }
 
     // location_manager starts at step 2
-    if(role==="location_manager"){
+    if (role === "location_manager") {
       setCompanyApproved(relatedData.companies?.[0]?.approved ?? false);
-      setStep(2)
+      setStep(2);
     }
 
     // Build unified list
-    if(role==="admin" || role==="pharmacy_manager"){
+    if (role === "admin" || role === "pharmacy_manager") {
       const unifiedList = [
-        ...relatedData.locations.map((loc: {
-          legalName: any; id: any; name: any; companyId: any; company: any; address: any; city: any; province: any; postalCode: any;
+        ...relatedData.locations.map(
+          (loc: {
+            legalName: any;
+            id: any;
+            name: any;
+            companyId: any;
+            company: any;
+            address: any;
+            city: any;
+            province: any;
+            postalCode: any;
           }) => ({
-          type: "location",
-          id: loc.id,
-          name: loc.name,
-          legalName: loc.legalName,
-          companyId: loc.companyId,
-          company: loc.company,
-          address: loc.address,
-          city: loc.city,
-          province: loc.province,
-          postalCode: loc.postalCode,
-        })),
-        ...relatedData.companies.map((c: {
-          legalName: any; id: any; name: any; address: any; city: any; province: any; postalCode: any;
+            type: "location",
+            id: loc.id,
+            name: loc.name,
+            legalName: loc.legalName,
+            companyId: loc.companyId,
+            company: loc.company,
+            address: loc.address,
+            city: loc.city,
+            province: loc.province,
+            postalCode: loc.postalCode,
+          }),
+        ),
+        ...relatedData.companies.map(
+          (c: {
+            legalName: any;
+            id: any;
+            name: any;
+            address: any;
+            city: any;
+            province: any;
+            postalCode: any;
           }) => ({
-          type: "company",
-          id: c.id,
-          name: c.name,
-          legalName: c.legalName,
-          companyId: c.id,
-          //company: c,
-          address: c.address,
-          city: c.city,
-          province: c.province,
-          postalCode: c.postalCode,
-        }))
-      ]
+            type: "company",
+            id: c.id,
+            name: c.name,
+            legalName: c.legalName,
+            companyId: c.id,
+            //company: c,
+            address: c.address,
+            city: c.city,
+            province: c.province,
+            postalCode: c.postalCode,
+          }),
+        ),
+      ];
       setPharmaciesList(unifiedList);
     }
-
   }, [role, relatedData, data]);
 
-  const handleOptionChange = (event: { target: { value: any; }; }) => {
+  const handleOptionChange = (event: { target: { value: any } }) => {
     const selected = JSON.parse(event.target.value);
 
     setSelectedCompanyId(selected.companyId);
     setSelectedLocationId(selected.type === "location" ? selected.id : null);
 
     setSelectedCompanyName(selected.company?.name || selected.name);
-    setSelectedLocationName(selected.type === "location" ? selected.name : null);
+    setSelectedLocationName(
+      selected.type === "location" ? selected.name : null,
+    );
 
     setValue("companyId", selected.companyId);
     setValue("locationId", selected.type === "location" ? selected.id : "");
   };
 
-  const handleShiftSeriesOptonChange = (event: { target: { value: SetStateAction<string>; }; }) => {
+  const handleShiftSeriesOptonChange = (event: {
+    target: { value: SetStateAction<string> };
+  }) => {
     setShiftSeriesSelectedOption(event.target.value);
   };
 
   //Render conditions
   const showStep1ApprovalBlock =
-    !companyApproved &&
-    role === "pharmacy_manager" &&
-    step === 1;
+    !companyApproved && role === "pharmacy_manager" && step === 1;
 
   const showStep1Selection =
     companyApproved &&
     step === 1 &&
     (role === "admin" || role === "pharmacy_manager");
 
-  const showStep2ApprovalBlock =
-    !companyApproved &&
-    step === 2 &&
-    !data;
+  const showStep2ApprovalBlock = !companyApproved && step === 2 && !data;
 
   const showStep2Form =
-    (companyApproved || data || role === "admin") &&
-    step === 2;
+    (companyApproved || data || role === "admin") && step === 2;
 
   function RestrictedBlock() {
     return (
       <div className="flex flex-col items-center justify-center h-full p-10">
-        <h1 className="text-2xl font-semibold text-red-600">Action Restricted</h1>
+        <h1 className="text-2xl font-semibold text-red-600">
+          Action Restricted
+        </h1>
         <p className="mt-4 text-gray-700 text-center max-w-lg">
           Your company is currently not approved to post shifts.
           <br />
@@ -263,82 +312,92 @@ export default function ShiftForm({
     );
   }
 
+  return (
+    <form className="flex flex-col gap-8" onSubmit={onSubmit}>
+      <h1 className="text-xl font-semibold">
+        {type === "create" ? "Create a new shift" : "Update shift"}
+      </h1>
 
+      {showStep1ApprovalBlock && <RestrictedBlock />}
 
-  return(
-      <form className="flex flex-col gap-8" onSubmit={onSubmit}>
-        <h1 className="text-xl font-semibold">{type === "create" ? "Create a new shift" : "Update shift"}</h1>
+      {showStep1Selection && (
+        <>
+          <span className="text-sm text-gray-600 font-medium">
+            Select Pharmacy / Company
+          </span>
 
-        { showStep1ApprovalBlock && (
-          <RestrictedBlock />
-        )}
-
-        { showStep1Selection && (
-          <>
-            <span className="text-sm text-gray-600 font-medium">
-              Select Pharmacy / Company
-            </span>
-
-            <div className="flex flex-col gap-6">
-
-              <ul className="space-y-2 max-h-95 overflow-y-auto border p-2 rounded-md">
-              {pharmaciesList.map((pharmacy:any) => (
-                <li key={pharmacy.id} className="flex items-center border-b border-gray-300">
+          <div className="flex flex-col gap-6">
+            <ul className="space-y-2 max-h-95 overflow-y-auto border p-2 rounded-md">
+              {pharmaciesList.map((pharmacy: any) => (
+                <li
+                  key={pharmacy.id}
+                  className="flex items-center border-b border-gray-300"
+                >
                   <input
                     type="radio"
                     value={JSON.stringify(pharmacy)}
                     checked={
                       selectedCompanyId === pharmacy.companyId &&
-                      selectedLocationId === (pharmacy.type === "location" ? pharmacy.id : null)
+                      selectedLocationId ===
+                        (pharmacy.type === "location" ? pharmacy.id : null)
                     }
                     onChange={handleOptionChange}
                     className="form-radio h-5 w-5 text-indigo-600 transition duration-150 ease-in-out"
                   />
                   <label className="ml-2 text-gray-700">
-                  <p className="font-semibold">{pharmacy?.name} - {pharmacy?.legalName}</p>
-                  {pharmacy.company && (
-                    <p className="text-xs font-medium">{pharmacy?.company?.name} - {pharmacy?.company?.legalName}</p>
-                  )}
-                  <p className="text-xs">{getFullAddress(pharmacy?.address, pharmacy?.city, pharmacy?.province, pharmacy?.postalCode)}</p>
-                </label>
+                    <p className="font-semibold">
+                      {pharmacy?.name} - {pharmacy?.legalName}
+                    </p>
+                    {pharmacy.company && (
+                      <p className="text-xs font-medium">
+                        {pharmacy?.company?.name} -{" "}
+                        {pharmacy?.company?.legalName}
+                      </p>
+                    )}
+                    <p className="text-xs">
+                      {getFullAddress(
+                        pharmacy?.address,
+                        pharmacy?.city,
+                        pharmacy?.province,
+                        pharmacy?.postalCode,
+                      )}
+                    </p>
+                  </label>
                 </li>
               ))}
-              </ul>
+            </ul>
 
-              <button
-                type="button"
-                onClick={() => setStep(2)}
-                className="bg-primary text-white p-2 rounded-md mt-4 cursor-pointer hover:bg-primary-100"
-              >
-                Next →
-              </button>
-            </div>
-          </>
-        )}
+            <button
+              type="button"
+              onClick={() => setStep(2)}
+              className="bg-primary text-white p-2 rounded-md mt-4 cursor-pointer hover:bg-primary-100"
+            >
+              Next →
+            </button>
+          </div>
+        </>
+      )}
 
+      {showStep2ApprovalBlock && <RestrictedBlock />}
 
-        { showStep2ApprovalBlock && (
-          <RestrictedBlock />
-        )}
-
-        { showStep2Form && (
-          <>
+      {showStep2Form && (
+        <>
           <span className="text-sm text-gray-600 font-medium">
             Shift Information
           </span>
           <div className="flex justify-between flex-wrap gap-4">
             {data && (
               <InputField
-                  label="Id"
-                  name="id"
-                  defaultValue={data?.id}
-                  register={register}
-                  error={errors?.id}
-                  hidden
-                />
-              )}
+                label="Id"
+                name="id"
+                defaultValue={data?.id}
+                register={register}
+                error={errors?.id}
+                hidden
+              />
+            )}
 
-            {role === "admin" || role==="pharmacy_manager" ? (
+            {role === "admin" || role === "pharmacy_manager" ? (
               <div className="flex flex-col gap-2 w-full md:w-1/4">
                 <label className="text-xs text-gray-500">Company</label>
                 <input
@@ -360,10 +419,11 @@ export default function ShiftForm({
                   </p>
                 )}
               </div>
-              ):null}
+            ) : null}
 
-            { (//role === "pharmacy_manager" ||
-              role === "location_manager") ? (
+            {
+              //role === "pharmacy_manager" ||
+              role === "location_manager" ? (
                 <InputField
                   label="Pharmacy"
                   name="companyId"
@@ -372,7 +432,8 @@ export default function ShiftForm({
                   error={errors?.companyId}
                   hidden
                 />
-            ) : null}
+              ) : null
+            }
 
             {/* {role === "admin" ||
             role === "pharmacy_manager" ? (
@@ -399,20 +460,22 @@ export default function ShiftForm({
               </div>
             ) : null} */}
 
-            {role === "location_manager" ?  (
-                <InputField
-                  label="Location"
-                  name="locationId"
-                  defaultValue={locationId}
-                  register={register}
-                  error={errors?.locationId}
-                  hidden
-                />
+            {role === "location_manager" ? (
+              <InputField
+                label="Location"
+                name="locationId"
+                defaultValue={locationId}
+                register={register}
+                error={errors?.locationId}
+                hidden
+              />
             ) : null}
 
             {!data ? (
               <div className="flex flex-col gap-2 w-full md:w-1/4">
-                <label className="text-xs text-gray-500">Repetitive Shift?</label>
+                <label className="text-xs text-gray-500">
+                  Repetitive Shift?
+                </label>
                 <select
                   {...register("repeatType")}
                   className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm"
@@ -421,14 +484,12 @@ export default function ShiftForm({
                   <option value="NONE">No (Single shift)</option>
                   <option value="DAILY">Yes (Daily)</option>
                   <option value="WEEKLY">Yes (Weekly)</option>
+                  <option value="BULK">Yes (Multiple)</option>
                 </select>
               </div>
-            ):(
-              <div className="flex flex-col gap-2 w-full md:w-1/4">
-
-              </div>
-            )  }
-
+            ) : (
+              <div className="flex flex-col gap-2 w-full md:w-1/4"></div>
+            )}
 
             <InputField
               label="Title"
@@ -452,15 +513,15 @@ export default function ShiftForm({
               register={register}
               error={errors?.payRate}
             />
-            {isRepetitive && (
+            {(isDaily || isWeekly) && (
               <>
                 <InputField
                   label="Start Date"
                   name="startDate"
                   type="date"
-                  defaultValue={initialDate
-                    ? format(initialDate, "yyyy-MM-dd")
-                    : ""}
+                  defaultValue={
+                    initialDate ? format(initialDate, "yyyy-MM-dd") : ""
+                  }
                   inputProps={{ min: today }}
                   register={register}
                   error={errors?.startDate}
@@ -478,9 +539,7 @@ export default function ShiftForm({
                   label="Start Time (Daily)"
                   name="startMinutes"
                   type="time"
-                  defaultValue={initialDate
-                      ? format(initialDate, "HH:mm")
-                      : ""}
+                  defaultValue={initialDate ? format(initialDate, "HH:mm") : ""}
                   register={register}
                   error={errors?.startMinutes}
                 />
@@ -489,79 +548,105 @@ export default function ShiftForm({
                   label="End Time (Daily)"
                   name="endMinutes"
                   type="time"
-                  defaultValue={initialDate
-                      ? format(addHours(initialDate, 8), "HH:mm")
-                      : ""}
+                  defaultValue={
+                    initialDate ? format(addHours(initialDate, 8), "HH:mm") : ""
+                  }
                   register={register}
                   error={errors?.endMinutes}
                 />
 
                 <div className="flex items-center gap-2">
-                <input type="checkbox" {...register("excludeWeekends")} defaultChecked={false}/>
-                <label className="text-sm">Exclude weekends</label>
-              </div>
-
+                  <input
+                    type="checkbox"
+                    {...register("excludeWeekends")}
+                    defaultChecked={false}
+                  />
+                  <label className="text-sm">Exclude weekends</label>
+                </div>
               </>
             )}
 
             {!isRepetitive && (
               <>
-              {shiftSeriesSelectedOption === "current" ? (
-                <React.Fragment key="datetime-fields">
-                  <InputField
-                  label="Start Time"
-                  name="startTime"
-                  type="datetime-local"
-                  inputProps={{ min: now }}
-                  defaultValue={initialDate
-                    ? format(initialDate, "yyyy-MM-dd'T'HH:mm")
-                    : formatForDatetimeLocal(data?.startTime, data?.company.timezone)}
-                  register={register}
-                  error={errors?.startTime}
-                  containerClassName="w-full md:w-[48%]"
-                  />
-                  <InputField
-                  label="End Time"
-                  name="endTime"
-                  type="datetime-local"
-                  inputProps={{ min: now }}
-                  defaultValue={initialDate
-                    ? format(addHours(initialDate, 8), "yyyy-MM-dd'T'HH:mm")
-                    : formatForDatetimeLocal(data?.endTime, data?.company.timezone)}
-                  register={register}
-                  error={errors?.endTime}
-                  containerClassName="w-full md:w-[48%]"
-                  />
-                </React.Fragment>
-              ) : (
-                <React.Fragment key="time-fields">
-                  <InputField
-                    key={`time-start-${shiftSeriesSelectedOption}`}
-                    label="Start Time (Daily)"
-                    name="startMinutes"
-                    type="time"
-                    defaultValue={data?.startTime
-                      ? formatForTimeLocal(data?.startTime, data?.company.timezone)
-                      : ""}
-                    register={register}
-                    error={errors?.startMinutes}
-                    containerClassName="w-full md:w-[48%]"
-                  />
-                  <InputField
-                    key={`time-end-${shiftSeriesSelectedOption}`}
-                    label="End Time (Daily)"
-                    name="endMinutes"
-                    type="time"
-                    defaultValue={data?.endTime
-                      ? formatForTimeLocal(data?.endTime, data?.company.timezone)
-                      : ""}
-                    register={register}
-                    error={errors?.endMinutes}
-                    containerClassName="w-full md:w-[48%]"
-                  />
-                </React.Fragment>
-              )}
-            </>
+                {shiftSeriesSelectedOption === "current" ? (
+                  <React.Fragment key="datetime-fields">
+                    <InputField
+                      label="Start Time"
+                      name="startTime"
+                      type="datetime-local"
+                      inputProps={{ min: now }}
+                      defaultValue={
+                        initialDate
+                          ? format(initialDate, "yyyy-MM-dd'T'HH:mm")
+                          : formatForDatetimeLocal(
+                              data?.startTime,
+                              data?.company.timezone,
+                            )
+                      }
+                      register={register}
+                      error={errors?.startTime}
+                      containerClassName="w-full md:w-[48%]"
+                    />
+                    <InputField
+                      label="End Time"
+                      name="endTime"
+                      type="datetime-local"
+                      inputProps={{ min: now }}
+                      defaultValue={
+                        initialDate
+                          ? format(
+                              addHours(initialDate, 8),
+                              "yyyy-MM-dd'T'HH:mm",
+                            )
+                          : formatForDatetimeLocal(
+                              data?.endTime,
+                              data?.company.timezone,
+                            )
+                      }
+                      register={register}
+                      error={errors?.endTime}
+                      containerClassName="w-full md:w-[48%]"
+                    />
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment key="time-fields">
+                    <InputField
+                      key={`time-start-${shiftSeriesSelectedOption}`}
+                      label="Start Time (Daily)"
+                      name="startMinutes"
+                      type="time"
+                      defaultValue={
+                        data?.startTime
+                          ? formatForTimeLocal(
+                              data?.startTime,
+                              data?.company.timezone,
+                            )
+                          : ""
+                      }
+                      register={register}
+                      error={errors?.startMinutes}
+                      containerClassName="w-full md:w-[48%]"
+                    />
+                    <InputField
+                      key={`time-end-${shiftSeriesSelectedOption}`}
+                      label="End Time (Daily)"
+                      name="endMinutes"
+                      type="time"
+                      defaultValue={
+                        data?.endTime
+                          ? formatForTimeLocal(
+                              data?.endTime,
+                              data?.company.timezone,
+                            )
+                          : ""
+                      }
+                      register={register}
+                      error={errors?.endMinutes}
+                      containerClassName="w-full md:w-[48%]"
+                    />
+                  </React.Fragment>
+                )}
+              </>
             )}
 
             {isWeekly && (
@@ -576,7 +661,7 @@ export default function ShiftForm({
                     { label: "Thu", value: 4 },
                     { label: "Fri", value: 5 },
                     { label: "Sat", value: 6 },
-                  ].map(day => (
+                  ].map((day) => (
                     <label key={day.value} className="flex items-center gap-1">
                       <input
                         type="checkbox"
@@ -595,52 +680,140 @@ export default function ShiftForm({
               </div>
             )}
 
-            {/* {(!data || data.status === "open") && ( */}
-              <div className="flex flex-col gap-2 w-full md:w-1/4">
-                <label className="text-xs text-gray-500">Published</label>
-                <select
-                    className={ (data && data.status !== "open")
-                      ? "bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                      : "ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full" }
-                    {...register("published", {
-                      setValueAs: value => value === 'true'
-                    })}
-                    defaultValue={data ? (data.published ? "true" : "false") : "true"}
-                    disabled={(data && data?.status !== "open")}
-                  >
-                    <option value="true">Yes</option>
-                    <option value="false">No: Draft Shift, not visible to Relief Pharmacists</option>
-                  </select>
-                  {errors.published?.message && (
-                    <p className="text-xs text-red-400">
-                      {errors.published?.message.toString()}
-                    </p>
+            {isMultiple && (
+              <>
+                <div className="w-full">
+                  <div className="flex flex-col gap-2">
+                    <InputField
+                      label="Select Date"
+                      name="startDate"
+                      type="date"
+                      inputProps={{ min: today }}
+                      register={register}
+                      error={errors?.dates}
+                    />
+
+                    {temporaryDate && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (
+                            !fields.some((f: any) => f.value === temporaryDate)
+                          ) {
+                            append({ value: temporaryDate });
+                          }
+                          setValue("startDate", ""); // Clear picker
+                        }}
+                        className="bg-primary text-white p-2 rounded-md hover:bg-primary-100"
+                      >
+                        Add Date
+                      </button>
+                    )}
+                  </div>
+
+                  {fields.length > 0 && (
+                    <div className="flex flex-wrap gap-2 my-2">
+                      {fields.map((field: any, index) => (
+                        <div
+                          key={field.id}
+                          className="flex items-center gap-1 bg-gray-100 text-gray-800 text-sm px-3 py-1 rounded-full border border-gray-300"
+                        >
+                          <span>{field.value}</span>
+                          <button
+                            type="button"
+                            onClick={() => remove(index)}
+                            className="text-gray-500 hover:text-red-500 font-bold ml-1"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   )}
-              </div>
+                </div>
+
+                <InputField
+                  label="Start Time (Daily)"
+                  name="startMinutes"
+                  type="time"
+                  defaultValue={initialDate ? format(initialDate, "HH:mm") : ""}
+                  register={register}
+                  error={errors?.startMinutes}
+                />
+
+                <InputField
+                  label="End Time (Daily)"
+                  name="endMinutes"
+                  type="time"
+                  defaultValue={
+                    initialDate ? format(addHours(initialDate, 8), "HH:mm") : ""
+                  }
+                  register={register}
+                  error={errors?.endMinutes}
+                />
+              </>
+            )}
+
+            {/* {(!data || data.status === "open") && ( */}
+            <div className="flex flex-col gap-2 w-full md:w-1/4">
+              <label className="text-xs text-gray-500">Published</label>
+              <select
+                className={
+                  data && data.status !== "open"
+                    ? "bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                    : "ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                }
+                {...register("published", {
+                  setValueAs: (value) => value === "true",
+                })}
+                defaultValue={
+                  data ? (data.published ? "true" : "false") : "true"
+                }
+                disabled={data && data?.status !== "open"}
+              >
+                <option value="true">Yes</option>
+                <option value="false">
+                  No: Draft Shift, not visible to Relief Pharmacists
+                </option>
+              </select>
+              {errors.published?.message && (
+                <p className="text-xs text-red-400">
+                  {errors.published?.message.toString()}
+                </p>
+              )}
+            </div>
             {/* ) } */}
             <div className="flex flex-col gap-2 w-full md:w-1/4">
               <label className="text-xs text-gray-500">Relief Pharmacist</label>
               <select
                 className={`ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full transition-colors ${
-                            !isPublished ? "bg-gray-200" : "bg-white"
-                          }`}
+                  !isPublished ? "bg-gray-200" : "bg-white"
+                }`}
                 {...register("pharmacistId")}
                 disabled={!isPublished}
                 defaultValue={data?.pharmacistId}
               >
                 <option value=""></option>
                 {pharmacists
-                .filter((pharmacist: { pharmacistProfile: any; }) => pharmacist && pharmacist.pharmacistProfile)
-                .map(
-                  (pharmacist: { id: string; firstName: string; lastName: string; pharmacistProfile:{id:string} }) => (
-                    <option
-                      value={pharmacist.pharmacistProfile.id}
-                      key={pharmacist.pharmacistProfile.id}
-                      >
-                      {pharmacist?.firstName + " " + pharmacist?.lastName}
-                    </option>
+                  .filter(
+                    (pharmacist: { pharmacistProfile: any }) =>
+                      pharmacist && pharmacist.pharmacistProfile,
                   )
-                )}
+                  .map(
+                    (pharmacist: {
+                      id: string;
+                      firstName: string;
+                      lastName: string;
+                      pharmacistProfile: { id: string };
+                    }) => (
+                      <option
+                        value={pharmacist.pharmacistProfile.id}
+                        key={pharmacist.pharmacistProfile.id}
+                      >
+                        {pharmacist?.firstName + " " + pharmacist?.lastName}
+                      </option>
+                    ),
+                  )}
               </select>
               {errors.pharmacistId?.message && (
                 <p className="text-xs text-red-400">
@@ -648,40 +821,42 @@ export default function ShiftForm({
                 </p>
               )}
             </div>
-              <div className="flex flex-col gap-2 w-full md:w-1/4">
-                  <label className="text-xs text-gray-500">Status</label>
-                  <select
-                    className="bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                    {...register("status")}
-                    defaultValue={data?.status || "open"}
-                    disabled={true}
-                  >
-                    <option value="open">open</option>
-                    <option value="taken">taken</option>
-                    <option value="completed">completed</option>
-                    <option value="cancelled">cancelled</option>
-                  </select>
-                  {errors.status?.message && (
-                    <p className="text-xs text-red-400">
-                      {errors.status?.message.toString()}
-                    </p>
-                  )}
-              </div>
-              {(type === "update" && data && data?.seriesId ) && (
-                <div className="font-medium gap-2">
-                  <p>This shift belongs to a shift series</p>
-                  <p>Please select if you want to update:</p>
-                  <div className="p-4">
-                    <div>
+            <div className="flex flex-col gap-2 w-full md:w-1/4">
+              <label className="text-xs text-gray-500">Status</label>
+              <select
+                className="bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                {...register("status")}
+                defaultValue={data?.status || "open"}
+                disabled={true}
+              >
+                <option value="open">open</option>
+                <option value="taken">taken</option>
+                <option value="completed">completed</option>
+                <option value="cancelled">cancelled</option>
+              </select>
+              {errors.status?.message && (
+                <p className="text-xs text-red-400">
+                  {errors.status?.message.toString()}
+                </p>
+              )}
+            </div>
+            {type === "update" && data && data?.seriesId && (
+              <div className="font-medium gap-2">
+                <p>This shift belongs to a shift series</p>
+                <p>Please select if you want to update:</p>
+                <div className="p-4">
+                  <div>
                     <input
                       type="radio"
                       id="current"
                       name="scope"
                       value="current"
-                      checked={shiftSeriesSelectedOption === 'current'}
+                      checked={shiftSeriesSelectedOption === "current"}
                       onChange={handleShiftSeriesOptonChange}
                     />
-                    <label htmlFor="current" className="ml-1">This shift only</label>
+                    <label htmlFor="current" className="ml-1">
+                      This shift only
+                    </label>
                   </div>
                   <div>
                     <input
@@ -689,10 +864,12 @@ export default function ShiftForm({
                       id="future"
                       name="scope"
                       value="future"
-                      checked={shiftSeriesSelectedOption === 'future'}
+                      checked={shiftSeriesSelectedOption === "future"}
                       onChange={handleShiftSeriesOptonChange}
                     />
-                    <label htmlFor="future" className="ml-1">This and future shifts</label>
+                    <label htmlFor="future" className="ml-1">
+                      This and future shifts
+                    </label>
                   </div>
                   <div>
                     <input
@@ -700,30 +877,39 @@ export default function ShiftForm({
                       id="all"
                       name="scope"
                       value="all"
-                      checked={shiftSeriesSelectedOption === 'all'}
+                      checked={shiftSeriesSelectedOption === "all"}
                       onChange={handleShiftSeriesOptonChange}
                     />
-                    <label htmlFor="all" className="ml-1">All shifts in the series (except completed and cancelled shifts)</label>
+                    <label htmlFor="all" className="ml-1">
+                      All shifts in the series (except completed and cancelled
+                      shifts)
+                    </label>
                   </div>
-                  </div>
-                  <p className="font-light text-complementary-one">Please note that assigned shifts could be updated with this action</p>
                 </div>
-              )}
+                <p className="font-light text-complementary-one">
+                  Please note that assigned shifts could be updated with this
+                  action
+                </p>
+              </div>
+            )}
           </div>
-          {state.error && <span className="text-red-500">Something went wrong!</span>}
+          {state.error && (
+            <span className="text-red-500">Something went wrong!</span>
+          )}
           <button className="bg-primary text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer">
             {type === "create" ? "Create" : "Update"}
           </button>
-          {(!data && role!=="location_manager") && (<button
-            type="button"
-            onClick={() => setStep(1)}
-            className="bg-complementary-one text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer"
-          >
-            ← Back
-          </button>
+          {!data && role !== "location_manager" && (
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              className="bg-complementary-one text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer"
+            >
+              ← Back
+            </button>
           )}
         </>
-        )}
-      </form>
+      )}
+    </form>
   );
 }

@@ -1,3 +1,4 @@
+import { dateFnsLocalizer } from "react-big-calendar";
 import {
   AllowedCompaniesSchema,
   CancelShiftRequestSchema,
@@ -751,6 +752,52 @@ export const createShift = async (
   }
 };
 
+export const createBulkShifts = async (
+  token: string,
+  currentState: CurrentState,
+  data: ShiftSchema,
+) => {
+  try {
+    console.log("Creating bulk shifts...");
+
+    const body = {
+      companyId: data.companyId,
+      locationId: data.locationId ? data.locationId : null,
+      title: data.title,
+      description: data.description,
+      payRate: parseFloat(data.payRate),
+      status: data.status,
+      dates: data.dates.map((d: { value: string }) => d.value),
+      startMinutes: timeToMinutes(data.startMinutes),
+      endMinutes: timeToMinutes(data.endMinutes),
+      published: data.published,
+      pharmacistId: data.pharmacistId ? data.pharmacistId : null,
+    };
+
+    const response = await fetch(`${CURRENT_URL}/shifts/bulk`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    return { success: true, error: false };
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
+
 export const updateShift = async (
   token: string,
   currentState: CurrentState,
@@ -803,7 +850,6 @@ export const createShiftSeries = async (
   data: ShiftSchema,
 ) => {
   try {
-    console.log(data);
     console.log("Creating new shift series...");
 
     const body = {
