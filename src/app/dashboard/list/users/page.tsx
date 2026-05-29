@@ -4,6 +4,7 @@ import { fetchUsers } from "@/app/lib/data";
 import { displayRole } from "@/app/lib/utils";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
+import FilterUserRole from "@/app/ui/list/filter-user-role";
 import FormContainer from "@/app/ui/list/form-container";
 import Pagination from "@/app/ui/list/pagination";
 import RelatedDataModal from "@/app/ui/list/related-data-modal";
@@ -373,7 +374,7 @@ export default function UsersList() {
         <h1 className={`font-bold mb-4 text-xl md:text-2xl`}>Users List</h1>
         <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
           {/* TOP */}
-          <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+          <div className="mt-2 flex items-center justify-between gap-4 md:mt-2">
             <TableSearch placeholder="Search users..." />
             <SortListColumns
               options={[
@@ -388,6 +389,16 @@ export default function UsersList() {
             {role === "admin" && (
               <FormContainer table="user" type="create" token={token} />
             )}
+          </div>
+          <div className="mt-4 flex flex-wrap items-center gap-4 md:justify-between md:mt-4">
+            <FilterUserRole
+              options={[
+                { value: "admin", label: "Admin" },
+                { value: "pharmacy_manager", label: "Pharmacy Manager" },
+                { value: "relief_pharmacist", label: "Relief Pharmacist" },
+                { value: "location_manager", label: "Location Manager" },
+              ]}
+            />
           </div>
           {/* LIST */}
           <div className="block lg:hidden mt-6">

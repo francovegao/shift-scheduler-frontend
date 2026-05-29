@@ -16,6 +16,7 @@ import { useSelectedCompany } from "@/app/lib/useSelectedCompany";
 import Notifications from "./notifications";
 import Menu from "./menu";
 import Image from "next/image";
+import { useNotifications } from "../context/notifications-context";
 
 type User = {
   id: string;
@@ -56,6 +57,7 @@ type File = {
 
 export default function NavBar() {
   const { firebaseUser, appUser, loading } = useAuth();
+  const { notifications } = useNotifications();
   const [isFetching, setIsFetching] = useState(true);
   const [token, setToken] = useState("");
 
@@ -258,6 +260,13 @@ export default function NavBar() {
           button={
             <div className="rounded-full w-7 h-7 flex items-center justify-center cursor-pointer hover:bg-sky-100 hover:text-primary">
               <BellIcon className="w-5 h-5" />
+
+              {notifications.length > 0 && (
+                <span className="absolute top-0 right-0 flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                </span>
+              )}
             </div>
           }
         >

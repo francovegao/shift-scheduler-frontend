@@ -273,3 +273,38 @@ export const fileSchema = z.object({
 });
 
 export type FileSchema = z.infer<typeof fileSchema>;
+
+export const processCancelRequestSchema = z
+  .discriminatedUnion("status", [
+    z.object({
+      id: z.string().min(1, { message: "Request ID is required" }),
+      status: z.literal("rejected"),
+      reviewedBy: z.string().min(1, { message: "Reviewed By is required" }),
+      newShiftStatus: z.string().optional(),
+      pharmacistId: z.string().optional(),
+    }),
+
+    z.object({
+      id: z.string().min(1, { message: "Request ID is required" }),
+      status: z.literal("approved"),
+      reviewedBy: z.string().min(1, { message: "Reviewed By is required" }),
+      newShiftStatus: z.enum(["open", "cancelled", "taken"]),
+      pharmacistId: z.string().optional(),
+    }),
+  ])
+  .refine(
+    (data) => {
+      if (data.status === "approved" && data.newShiftStatus === "taken") {
+        return !!data.pharmacistId && data.pharmacistId.trim() !== "";
+      }
+      return true;
+    },
+    {
+      message: "Please select a replacement pharmacist.",
+      path: ["pharmacistId"],
+    },
+  );
+
+export type ProcessCancelRequestSchema = z.infer<
+  typeof processCancelRequestSchema
+>;

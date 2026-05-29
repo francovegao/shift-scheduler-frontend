@@ -12,6 +12,7 @@ import {
   ShiftSchema,
   TakeShiftSchema,
   UserSchema,
+  ProcessCancelRequestSchema,
 } from "./formValidationSchemas";
 import { timeToMinutes } from "./utils";
 
@@ -1109,7 +1110,7 @@ export const sendOpenShiftNotificationEmail = async (
 
 export const sendCancelShiftRequestEmail = async (
   token: string,
-  currentState: CurrentState,
+  currentState: any,
   data: CancelShiftRequestSchema,
 ) => {
   try {
@@ -1124,6 +1125,46 @@ export const sendCancelShiftRequestEmail = async (
       `${CURRENT_URL}/shifts/${data.id}/request-cancellation`,
       {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(errorData.message || "Something went wrong!");
+    }
+
+    return { success: true, error: null };
+    //return response.json();
+  } catch (error: any) {
+    console.error("API Error:", error);
+    return { success: false, error: error.message || "Something went wrong!" };
+  }
+};
+
+export const processShiftCancelRequest = async (
+  token: string,
+  currentState: CurrentState,
+  data: ProcessCancelRequestSchema,
+) => {
+  try {
+    console.log("Processing shift cancel request...");
+
+    const body = {
+      status: data.status,
+      reviewedBy: data.reviewedBy,
+      newShiftStatus: data.newShiftStatus,
+      pharmacistId: data.pharmacistId ? data.pharmacistId : null,
+    };
+
+    const response = await fetch(
+      `${CURRENT_URL}/cancellation-requests/${data.id}/process`,
+      {
+        method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
