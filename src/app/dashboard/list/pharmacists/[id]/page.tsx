@@ -283,43 +283,50 @@ export default function SinglePharmacistPage({
               />
             </div>
 
-            <p className="font-bold">Permissions: </p>
-            <div>
-              {pharmacist.pharmacistProfile && (
-                <>
-                  <p>
-                    <span className="font-medium">All Pharmacies?</span>{" "}
-                    {pharmacist.pharmacistProfile?.canViewAllCompanies
-                      ? "Yes"
-                      : "No"}
-                  </p>
-                  {!pharmacist.pharmacistProfile?.canViewAllCompanies && (
-                    <p className="text-xs">
-                      Can see{" "}
-                      {pharmacist.pharmacistProfile?.companyPermissions.length}{" "}
-                      pharmacies
-                    </p>
+            {role === "admin" && (
+              <>
+                <p className="font-bold">Permissions: </p>
+                <div>
+                  {pharmacist.pharmacistProfile && (
+                    <>
+                      <p>
+                        <span className="font-medium">All Pharmacies?</span>{" "}
+                        {pharmacist.pharmacistProfile?.canViewAllCompanies
+                          ? "Yes"
+                          : "No"}
+                      </p>
+                      {!pharmacist.pharmacistProfile?.canViewAllCompanies && (
+                        <p className="text-xs">
+                          Can see{" "}
+                          {
+                            pharmacist.pharmacistProfile?.companyPermissions
+                              .length
+                          }{" "}
+                          pharmacies
+                        </p>
+                      )}
+                      <p className="mt-2">
+                        <span className="font-medium">All Pay Rates?</span>{" "}
+                        {pharmacist.pharmacistProfile?.canViewPayRates
+                          ? "Yes"
+                          : "No"}
+                      </p>
+                      {!pharmacist.pharmacistProfile?.canViewPayRates && (
+                        <p className="text-xs">
+                          Can see{" "}
+                          {
+                            pharmacist.pharmacistProfile?.companyPermissions.filter(
+                              (p: { canViewPayRate: any }) => p.canViewPayRate,
+                            ).length
+                          }{" "}
+                          pharmacies' pay rates
+                        </p>
+                      )}
+                    </>
                   )}
-                  <p className="mt-2">
-                    <span className="font-medium">All Pay Rates?</span>{" "}
-                    {pharmacist.pharmacistProfile?.canViewPayRates
-                      ? "Yes"
-                      : "No"}
-                  </p>
-                  {!pharmacist.pharmacistProfile?.canViewPayRates && (
-                    <p className="text-xs">
-                      Can see{" "}
-                      {
-                        pharmacist.pharmacistProfile?.companyPermissions.filter(
-                          (p: { canViewPayRate: any }) => p.canViewPayRate,
-                        ).length
-                      }{" "}
-                      pharmacies' pay rates
-                    </p>
-                  )}
-                </>
-              )}
-            </div>
+                </div>
+              </>
+            )}
 
             <p className="font-bold">Resume: </p>
             <div>
