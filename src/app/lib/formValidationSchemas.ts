@@ -1,103 +1,116 @@
 import z from "zod";
 
 export const userSchema = z.object({
-    id: z.string().optional(),
-    email: z.email({message: "Invalid email address."}),
-    password: z.string().min(6, { message: "Password must be at least 6 characters long!" }),
-    firstName: z.string().min(1,{message: "First name is required."}),
-    lastName: z.string().min(1,{message: "Last name is required."}),
-    phone: z.string().optional(),
-    role: z.string().min(1,{message: "Role is required."}),
-    //files: z.instanceof(File),  //TODO: Update to work for files
+  id: z.string().optional(),
+  email: z.email({ message: "Invalid email address." }),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters long!" }),
+  firstName: z.string().min(1, { message: "First name is required." }),
+  lastName: z.string().min(1, { message: "Last name is required." }),
+  phone: z.string().optional(),
+  role: z.string().min(1, { message: "Role is required." }),
+  //files: z.instanceof(File),  //TODO: Update to work for files
 });
 
 export type UserSchema = z.infer<typeof userSchema>;
 
 export const linkManagerToCompanySchema = z.object({
-    id: z.string({message: "User is required!"}),
-    companyId: z.string({message: "Company is required, Please select one!"}),
-    locationId: z.string().optional(),
+  id: z.string({ message: "User is required!" }),
+  companyId: z.string({ message: "Company is required, Please select one!" }),
+  locationId: z.string().optional(),
 });
 
-export type LinkManagerToCompanySchema = z.infer<typeof linkManagerToCompanySchema>;
+export type LinkManagerToCompanySchema = z.infer<
+  typeof linkManagerToCompanySchema
+>;
 
 export const linkManagerToLocationSchema = z.object({
-    id: z.string({message: "User is required!"}),
-    companyId: z.string({message: "Company is required, Please select one!"}),
-    locationId: z.string({message: "Location is required, Please select one!"}),
+  id: z.string({ message: "User is required!" }),
+  companyId: z.string({ message: "Company is required, Please select one!" }),
+  locationId: z.string({ message: "Location is required, Please select one!" }),
 });
 
-export type LinkManagerToLocationSchema = z.infer<typeof linkManagerToLocationSchema>;
+export type LinkManagerToLocationSchema = z.infer<
+  typeof linkManagerToLocationSchema
+>;
 
 export const companySchema = z.object({
-    id: z.string().optional(),
-    approved: z.coerce.boolean({message: "Status is required."}),
-    name: z.string().min(3,{message: "Pharmacy name is required."}),
-    legalName: z.string().optional(),
-    GSTNumber: z.string().optional(),
-    email: z.email({message: "Invalid email address."}),
-    phone: z.string().min(1,{message: "Phone is required."}),
-    address: z.string().optional(),
-    city: z.string().optional(),
-    province: z.string().min(2,{message: "Province is required."}),
-    postalCode: z.string().optional(),
-    contactName: z.string().optional(),
-    contactPhone: z.string().optional(),
-    contactEmail: z.string().optional(),
+  id: z.string().optional(),
+  approved: z.coerce.boolean({ message: "Status is required." }),
+  name: z.string().min(3, { message: "Pharmacy name is required." }),
+  legalName: z.string().optional(),
+  GSTNumber: z.string().optional(),
+  email: z.email({ message: "Invalid email address." }),
+  phone: z.string().min(1, { message: "Phone is required." }),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  province: z.string().min(2, { message: "Province is required." }),
+  postalCode: z.string().optional(),
+  contactName: z.string().optional(),
+  contactPhone: z.string().optional(),
+  contactEmail: z.string().optional(),
 });
 
 export type CompanySchema = z.infer<typeof companySchema>;
 
 export const locationSchema = z.object({
-    id: z.string().optional(),
-    name: z.string().min(3,{message: "Location name is required."}),
-    legalName: z.string().optional(),
-    GSTNumber: z.string().optional(),
-    email: z.email({message: "Invalid email address."}),
-    phone: z.string().min(1,{message: "Phone is required."}),
-    address: z.string().optional(),
-    city: z.string().optional(),
-    province: z.string().min(2,{message: "Province is required."}),
-    postalCode: z.string().optional(),
-    companyId: z.string().min(3,{message: "Pharmacy is required."}),
+  id: z.string().optional(),
+  name: z.string().min(3, { message: "Location name is required." }),
+  legalName: z.string().optional(),
+  GSTNumber: z.string().optional(),
+  email: z.email({ message: "Invalid email address." }),
+  phone: z.string().min(1, { message: "Phone is required." }),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  province: z.string().min(2, { message: "Province is required." }),
+  postalCode: z.string().optional(),
+  companyId: z.string().min(3, { message: "Pharmacy is required." }),
 });
 
 export type LocationSchema = z.infer<typeof locationSchema>;
 
 export const pharmacistSchema = z.object({
-    id: z.string().optional(),
-    userId: z.string({ message: "User ID is required!" }),
-    licenseNumber: z.string().optional(),
-    address: z.string().optional(),
-    city: z.string().optional(),
-    province: z.string().min(2,{message: "Province is required."}),
-    postalCode: z.string().optional(),
-    email: z.email({ message: "Invalid email address!" }).optional().or(z.literal("")),
-    bio: z.string().optional(),
-    experienceYears: z.coerce.number().optional(),
-    approved: z.coerce.boolean({message: "Status is required."}),
-    canViewAllCompanies: z.coerce.boolean({message: "View all Pharmacies? is required."}),
-    canViewPayRates: z.coerce.boolean({message: "View all Pay Rates? is required."}),
+  id: z.string().optional(),
+  userId: z.string({ message: "User ID is required!" }),
+  licenseNumber: z.string().optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  province: z.string().min(2, { message: "Province is required." }),
+  postalCode: z.string().optional(),
+  email: z
+    .email({ message: "Invalid email address!" })
+    .optional()
+    .or(z.literal("")),
+  bio: z.string().optional(),
+  experienceYears: z.coerce.number().optional(),
+  approved: z.coerce.boolean({ message: "Status is required." }),
+  canViewAllCompanies: z.coerce.boolean({
+    message: "View all Pharmacies? is required.",
+  }),
+  canViewPayRates: z.coerce.boolean({
+    message: "View all Pay Rates? is required.",
+  }),
 });
 
 export type PharmacistSchema = z.infer<typeof pharmacistSchema>;
 
 export const allowedCompaniesSchema = z.object({
-    id: z.string({ message: "User ID is required!" }),
-    companiesArray: z.array(z.string()),
+  id: z.string({ message: "User ID is required!" }),
+  companiesArray: z.array(z.string()),
 });
 
 export type AllowedCompaniesSchema = z.infer<typeof allowedCompaniesSchema>;
 
 export const companyPermissionsSchema = z.object({
-    id: z.string({ message: "User ID is required!" }), //pharmacistID
-    companyPermissions: z.array(
-      z.object({
-          companyId: z.string(),
-          canViewPayRate: z.boolean().default(false),
-        })
-    ),
- });
+  id: z.string({ message: "User ID is required!" }), //pharmacistID
+  companyPermissions: z.array(
+    z.object({
+      companyId: z.string(),
+      canViewPayRate: z.boolean().default(false),
+    }),
+  ),
+});
 
 export type CompanyPermissionsSchema = z.infer<typeof companyPermissionsSchema>;
 
@@ -110,7 +123,7 @@ export const getCompanyPermissionsSchema = (type: string) => {
         canViewPayRate: z.boolean().default(() => {
           return type === "set_allowed_companies";
         }),
-      })
+      }),
     ),
   });
 };
@@ -119,15 +132,15 @@ export const singleShiftSchema = z.object({
   repeatType: z.literal("NONE"),
 
   id: z.string().optional(),
-  companyId: z.string().min(1,{message: "Company is required."}),
+  companyId: z.string().min(1, { message: "Company is required." }),
   locationId: z.string().optional(),
   title: z.string(),
   description: z.string().optional(),
-  startTime: z.coerce.string({message: "Start date is required"}),
-  endTime: z.coerce.string({message: "End date is required"}),
-  payRate: z.string().min(1,{message: "Pay rate is required."}),
+  startTime: z.coerce.string({ message: "Start date is required" }),
+  endTime: z.coerce.string({ message: "End date is required" }),
+  payRate: z.string().min(1, { message: "Pay rate is required." }),
   status: z.enum(["open", "taken", "cancelled", "completed"]),
-  published: z.coerce.boolean({message: "Published is required."}),
+  published: z.coerce.boolean({ message: "Published is required." }),
   pharmacistId: z.string().optional(),
 
   //extra fields not needed for single shift
@@ -137,85 +150,161 @@ export const singleShiftSchema = z.object({
   endDate: z.any().optional(),
   daysOfWeek: z.any().optional(),
   excludeWeekends: z.any().optional(),
+  dates: z.any().optional(),
 });
 
 export type SingleShiftSchema = z.infer<typeof singleShiftSchema>;
 
-export const seriesShiftSchema = z.object({
-  repeatType: z.enum(["DAILY", "WEEKLY"]),
+export const bulkShiftsSchema = z.object({
+  repeatType: z.literal("BULK"),
 
   id: z.string().optional(),
-  companyId: z.string().min(1,{message: "Company is required."}),
+  companyId: z.string().min(1, { message: "Company is required." }),
   locationId: z.string().optional(),
   title: z.string(),
   description: z.string().optional(),
-  payRate: z.string().min(1,{message: "Pay rate is required."}),
-  startMinutes: z.string().min(1,{message: "Start time is required."}),
-  endMinutes: z.string().min(1,{message: "End time is required."}),
-  daysOfWeek: z.array(z.coerce.number().int()).default([]),
-  startDate: z.coerce.date({message: "Start date is required"}),
-  endDate: z.coerce.date({message: "End date is required"}),
-  excludeWeekends: z.coerce.boolean().default(false),
-  published: z.coerce.boolean({message: "Published is required."}),
-
+  payRate: z.string().min(1, { message: "Pay rate is required." }),
   status: z.enum(["open", "taken", "cancelled", "completed"]),
+  dates: z
+    .array(
+      z.object({
+        value: z.string().min(1, "Invalid date"),
+      }),
+    )
+    .min(1, "Please add at least one shift date"),
+  startMinutes: z.string().min(1, { message: "Start time is required." }),
+  endMinutes: z.string().min(1, { message: "End time is required." }),
+  published: z.coerce.boolean({ message: "Published is required." }),
   pharmacistId: z.string().optional(),
 
-  //extra fields not needed for Shift Seried
+  //extra fields not needed for bulk shift
   startTime: z.any().optional(),
   endTime: z.any().optional(),
-}).superRefine((data, ctx) => {
-  if (data.repeatType === "WEEKLY" && (!data.daysOfWeek || data.daysOfWeek.length === 0)) {
-    ctx.addIssue({
-      path: ["daysOfWeek"],
-      message: "Select at least one day for weekly shifts",
-      code: "custom",
-    });
-  }
+  startDate: z.any().optional(),
+  endDate: z.any().optional(),
+  daysOfWeek: z.any().optional(),
+  excludeWeekends: z.any().optional(),
 });
+
+export type BulkShiftsSchema = z.infer<typeof bulkShiftsSchema>;
+
+export const seriesShiftSchema = z
+  .object({
+    repeatType: z.enum(["DAILY", "WEEKLY"]),
+
+    id: z.string().optional(),
+    companyId: z.string().min(1, { message: "Company is required." }),
+    locationId: z.string().optional(),
+    title: z.string(),
+    description: z.string().optional(),
+    payRate: z.string().min(1, { message: "Pay rate is required." }),
+    startMinutes: z.string().min(1, { message: "Start time is required." }),
+    endMinutes: z.string().min(1, { message: "End time is required." }),
+    daysOfWeek: z.array(z.coerce.number().int()).default([]),
+    startDate: z.coerce.date({ message: "Start date is required" }),
+    endDate: z.coerce.date({ message: "End date is required" }),
+    excludeWeekends: z.coerce.boolean().default(false),
+    published: z.coerce.boolean({ message: "Published is required." }),
+
+    status: z.enum(["open", "taken", "cancelled", "completed"]),
+    pharmacistId: z.string().optional(),
+
+    //extra fields not needed for Shift Seried
+    startTime: z.any().optional(),
+    endTime: z.any().optional(),
+    dates: z.any().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      data.repeatType === "WEEKLY" &&
+      (!data.daysOfWeek || data.daysOfWeek.length === 0)
+    ) {
+      ctx.addIssue({
+        path: ["daysOfWeek"],
+        message: "Select at least one day for weekly shifts",
+        code: "custom",
+      });
+    }
+  });
 
 export type SeriesShiftSchema = z.infer<typeof seriesShiftSchema>;
 
 export const shiftSchema = z.discriminatedUnion("repeatType", [
   singleShiftSchema,
+  bulkShiftsSchema,
   seriesShiftSchema,
 ]);
 
 export type ShiftSchema = z.infer<typeof shiftSchema>;
 
 export const takeShiftSchema = z.object({
-  id: z.string().min(1,{message: "Shift ID is required"}),
+  id: z.string().min(1, { message: "Shift ID is required" }),
   status: z.enum(["open", "taken", "cancelled", "completed"]),
-  pharmacistId: z.string().min(1,{message: "Pharmacist ID is required"}),
+  pharmacistId: z.string().min(1, { message: "Pharmacist ID is required" }),
 });
 
 export type TakeShiftSchema = z.infer<typeof takeShiftSchema>;
 
 export const manualEmailSchema = z.object({
-    id: z.string({ message: "Shift ID is required!" }),
-    userIds: z.array(z.string()),
+  id: z.string({ message: "Shift ID is required!" }),
+  userIds: z.array(z.string()),
 });
 
 export type ManualEmailSchema = z.infer<typeof manualEmailSchema>;
 
 export const cancelShiftRequestSchema = z.object({
-    id: z.string({ message: "Shift ID is required!" }),
-    pharmacistId: z.string().min(1,{message: "Pharmacist ID is required"}),
-    cancelReason: z.string().min(1,{message: "Cancel reason is required."}),
-    confirmed: z.coerce.boolean({message: "Confirmation is required."}),
+  id: z.string({ message: "Shift ID is required!" }),
+  pharmacistId: z.string().min(1, { message: "Pharmacist ID is required" }),
+  cancelReason: z.string().min(1, { message: "Cancel reason is required." }),
+  confirmed: z.coerce.boolean({ message: "Confirmation is required." }),
 });
 
 export type CancelShiftRequestSchema = z.infer<typeof cancelShiftRequestSchema>;
 
 export const fileSchema = z.object({
-    id: z.string().optional(),
-    userId: z.string().optional(),
-    companyId: z.string().optional(),
-    fileName: z.string().min(3,{message: "Please select a file to upload."}),
-    fileUrl: z.string().min(3,{message: "File URL is required."}),
-    mimeType: z.string().optional(),
-    size: z.coerce.number().optional(),
-    type: z.enum(["resume", "logo", "document", "profilePicture"]),
+  id: z.string().optional(),
+  userId: z.string().optional(),
+  companyId: z.string().optional(),
+  fileName: z.string().min(3, { message: "Please select a file to upload." }),
+  fileUrl: z.string().min(3, { message: "File URL is required." }),
+  mimeType: z.string().optional(),
+  size: z.coerce.number().optional(),
+  type: z.enum(["resume", "logo", "document", "profilePicture"]),
 });
 
 export type FileSchema = z.infer<typeof fileSchema>;
+
+export const processCancelRequestSchema = z
+  .discriminatedUnion("status", [
+    z.object({
+      id: z.string().min(1, { message: "Request ID is required" }),
+      status: z.literal("rejected"),
+      reviewedBy: z.string().min(1, { message: "Reviewed By is required" }),
+      newShiftStatus: z.string().optional(),
+      pharmacistId: z.string().optional(),
+    }),
+
+    z.object({
+      id: z.string().min(1, { message: "Request ID is required" }),
+      status: z.literal("approved"),
+      reviewedBy: z.string().min(1, { message: "Reviewed By is required" }),
+      newShiftStatus: z.enum(["open", "cancelled", "taken"]),
+      pharmacistId: z.string().optional(),
+    }),
+  ])
+  .refine(
+    (data) => {
+      if (data.status === "approved" && data.newShiftStatus === "taken") {
+        return !!data.pharmacistId && data.pharmacistId.trim() !== "";
+      }
+      return true;
+    },
+    {
+      message: "Please select a replacement pharmacist.",
+      path: ["pharmacistId"],
+    },
+  );
+
+export type ProcessCancelRequestSchema = z.infer<
+  typeof processCancelRequestSchema
+>;

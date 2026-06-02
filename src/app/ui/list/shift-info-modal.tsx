@@ -7,6 +7,7 @@ import { formatInTimeZone } from "date-fns-tz";
 import { CalendarIcon } from "@heroicons/react/24/outline";
 import SendEmailModal from "./email-modal";
 import { useAuth } from "../context/auth-context";
+import Link from "next/link";
 
 export default function ShiftInfoModal({
   data,
@@ -122,28 +123,58 @@ export default function ShiftInfoModal({
           {data.published === true ? (
             <>
               {data.status !== "open" && (
-                <div className="flex flex-col">
-                  <h3 className="font-medium">
-                    {data.pharmacist?.user.firstName}{" "}
-                    {data.pharmacist?.user.lastName}
-                  </h3>
-                  <p className="text-sm text-gray-500 truncate">
-                    {data.pharmacist?.user.email}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {data.pharmacist?.user.phone}
-                  </p>
-                  {data.pharmacist?.licenseNumber && (
-                    <p className="text-sm text-gray-500">
-                      License: {data.pharmacist?.licenseNumber}
-                    </p>
+                <>
+                  {role === "relief_pharmacist" && (
+                    <div className="flex flex-col">
+                      <h3 className="font-medium">
+                        {data.pharmacist?.user.firstName}{" "}
+                        {data.pharmacist?.user.lastName}
+                      </h3>
+                      <p className="text-sm text-gray-500 truncate">
+                        {data.pharmacist?.user.email}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {data.pharmacist?.user.phone}
+                      </p>
+                      {data.pharmacist?.licenseNumber && (
+                        <p className="text-sm text-gray-500">
+                          License: {data.pharmacist?.licenseNumber}
+                        </p>
+                      )}
+                      {data.pharmacist?.email && (
+                        <p className="text-sm text-gray-500">
+                          E-transfer: {data.pharmacist?.email}
+                        </p>
+                      )}
+                    </div>
                   )}
-                  {data.pharmacist?.email && (
-                    <p className="text-sm text-gray-500">
-                      E-transfer: {data.pharmacist?.email}
-                    </p>
+                  {(role === "admin" || role === "pharmacy_manager") && (
+                    <Link href={`list/pharmacists/${data.pharmacist?.userId}`}>
+                      <div className="flex flex-col">
+                        <h3 className="font-medium">
+                          {data.pharmacist?.user.firstName}{" "}
+                          {data.pharmacist?.user.lastName}
+                        </h3>
+                        <p className="text-sm text-gray-500 truncate">
+                          {data.pharmacist?.user.email}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {data.pharmacist?.user.phone}
+                        </p>
+                        {data.pharmacist?.licenseNumber && (
+                          <p className="text-sm text-gray-500">
+                            License: {data.pharmacist?.licenseNumber}
+                          </p>
+                        )}
+                        {data.pharmacist?.email && (
+                          <p className="text-sm text-gray-500">
+                            E-transfer: {data.pharmacist?.email}
+                          </p>
+                        )}
+                      </div>
+                    </Link>
                   )}
-                </div>
+                </>
               )}
             </>
           ) : (

@@ -16,19 +16,6 @@ import { formatInTimeZone } from "date-fns-tz";
 type FormInput = z.input<typeof takeShiftSchema>;
 type FormOutput = z.output<typeof takeShiftSchema>;
 
-const DateFormat = {
-  year: "numeric",
-  month: "short",
-  day: "numeric",
-  weekday: "short",
-} as const;
-
-const TimeFormat = {
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-} as const;
-
 export default function TakeShiftForm({
   token,
   data,

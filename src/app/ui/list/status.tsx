@@ -21,6 +21,8 @@ export default function Status({ status }: { status: string }) {
           "text-white bg-blue-500": status === "taken",
           "bg-red-500 text-white": status === "cancelled",
           "text-white bg-green-500": status === "completed",
+
+          "text-white bg-red-500": status === "rejected",
         },
       )}
     >
@@ -65,6 +67,12 @@ export default function Status({ status }: { status: string }) {
         <>
           Completed
           <CheckIcon className="ml-1 w-4 text-white" />
+        </>
+      ) : null}
+      {status === "rejected" ? (
+        <>
+          Rejected
+          <XCircleIcon className="ml-1 w-4 text-white" />
         </>
       ) : null}
     </span>

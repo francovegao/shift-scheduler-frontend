@@ -20,6 +20,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { SetStateAction, useEffect, useState } from "react";
 import { formatInTimeZone } from "date-fns-tz";
 import SendEmailModal from "@/app/ui/list/email-modal";
+import Link from "next/link";
 
 type ShiftList = Shift & { company: Company } & { location: Location } & {
   pharmacist: Pharmacist & { user: User };
@@ -273,15 +274,18 @@ export default function ShiftsList() {
       <td className="table-cell flex items-center gap-4 py-3 pl-6 pr-3 max-w-[180px] overflow-hidden">
         {item.published === true ? (
           <div className="flex flex-col">
-            <h3 className="font-semibold">
-              {item.pharmacist?.user.firstName} {item.pharmacist?.user.lastName}
-            </h3>
-            <p className="text-xs text-gray-500 truncate w-full">
-              {item.pharmacist?.user.email}
-            </p>
-            <p className="text-xs text-gray-500">
-              {item.pharmacist?.user.phone}
-            </p>
+            <Link href={`list/pharmacists/${item.pharmacist?.userId}`}>
+              <h3 className="font-semibold">
+                {item.pharmacist?.user.firstName}{" "}
+                {item.pharmacist?.user.lastName}
+              </h3>
+              <p className="text-xs text-gray-500 truncate w-full">
+                {item.pharmacist?.user.email}
+              </p>
+              <p className="text-xs text-gray-500">
+                {item.pharmacist?.user.phone}
+              </p>
+            </Link>
           </div>
         ) : (
           <div className="flex flex-col">
@@ -376,15 +380,18 @@ export default function ShiftsList() {
       <div className="bg-slate-50 p-3 rounded-lg mb-4">
         {item.published === true ? (
           <div className="flex flex-col">
-            <h3 className="font-semibold">
-              {item.pharmacist?.user.firstName} {item.pharmacist?.user.lastName}
-            </h3>
-            <p className="text-xs text-gray-500 truncate">
-              {item.pharmacist?.user.email}
-            </p>
-            <p className="text-xs text-gray-500">
-              {item.pharmacist?.user.phone}
-            </p>
+            <Link href={`list/pharmacists/${item.pharmacist?.userId}`}>
+              <h3 className="font-semibold">
+                {item.pharmacist?.user.firstName}{" "}
+                {item.pharmacist?.user.lastName}
+              </h3>
+              <p className="text-xs text-gray-500 truncate">
+                {item.pharmacist?.user.email}
+              </p>
+              <p className="text-xs text-gray-500">
+                {item.pharmacist?.user.phone}
+              </p>
+            </Link>
           </div>
         ) : (
           <div className="flex flex-col">
