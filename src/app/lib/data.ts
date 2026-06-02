@@ -812,7 +812,7 @@ export async function fetchShiftCancellationRequests(
 
     const url = new URL(`${CURRENT_URL}/cancellation-requests`);
     url.searchParams.append("page", currentPage.toString());
-    url.searchParams.append("limit", ITEMS_PER_PAGE.toString());
+    url.searchParams.append("limit", "5");
 
     const response = await fetch(url.toString(), {
       headers: {
