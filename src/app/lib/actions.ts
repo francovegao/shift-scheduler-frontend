@@ -1068,6 +1068,48 @@ export const deleteShiftSeries = async (
   }
 };
 
+export const clockInShift = async (token: string, id: String) => {
+  console.log("Clocking in shift...");
+
+  const response = await fetch(`${CURRENT_URL}/shifts/${id}/clock-in`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({})); // Safely catch if JSON parsing fails
+    throw new Error(
+      errorData.message || `HTTP error! Status: ${response.status}`,
+    );
+  }
+
+  return response.json().catch(() => ({ success: true })); // Safe fallback if your backend returns an empty body
+};
+
+export const clockOutShift = async (token: string, id: String) => {
+  console.log("Clocking out shift...");
+
+  const response = await fetch(`${CURRENT_URL}/shifts/${id}/clock-out`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(
+      errorData.message || `HTTP error! Status: ${response.status}`,
+    );
+  }
+
+  return response.json().catch(() => ({ success: true }));
+};
+
 export const sendOpenShiftNotificationEmail = async (
   token: string,
   currentState: CurrentState,

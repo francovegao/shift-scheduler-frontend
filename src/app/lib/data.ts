@@ -510,11 +510,34 @@ export async function fetchUserInfo(id: string, token: string) {
   }
 }
 
-export async function fetchPharmacistShifts(id: string, token: string) {
+export async function fetchPharmacistShifts(
+  id: string,
+  token: string,
+  status?: string,
+  from?: string,
+  to?: string,
+  limit?: string,
+) {
   try {
     console.log("Fetching single pharmacist shifts...");
 
     const url = new URL(`${CURRENT_URL}/users/shifts/${id}`);
+
+    if (status) {
+      url.searchParams.append("status", status);
+    }
+
+    if (from) {
+      url.searchParams.append("from", from);
+    }
+
+    if (to) {
+      url.searchParams.append("to", to);
+    }
+
+    if (limit) {
+      url.searchParams.append("limit", limit);
+    }
 
     const response = await fetch(url.toString(), {
       headers: {
@@ -770,7 +793,7 @@ export async function fetchUnseenNotifications(token: string) {
 
 export async function fetchLatestShifts(token: string, queryParams: Object) {
   try {
-    console.log("Fetching latst shifts...");
+    console.log("Fetching latest shifts...");
 
     const url = new URL(`${CURRENT_URL}/shifts/latest`);
 

@@ -22,8 +22,11 @@ import { formatInTimeZone } from "date-fns-tz";
 import SendEmailModal from "@/app/ui/list/email-modal";
 import Link from "next/link";
 
-type ShiftList = Shift & { company: Company } & { location: Location } & {
+type ShiftList = Shift & {
+  company: Company;
+  location: Location;
   pharmacist: Pharmacist & { user: User };
+  workLogs: WorkLogs[];
 };
 
 type Shift = {
@@ -73,6 +76,11 @@ type User = {
   lastName: string;
   email: string;
   phone: string;
+};
+
+type WorkLogs = {
+  clockIn: string;
+  clockOut: string;
 };
 
 const columns = [
@@ -260,6 +268,34 @@ export default function ShiftsList() {
 
       <td className=" px-3 py-3">
         <Status status={item.status} />
+        {item.workLogs?.[0] && (
+          <>
+            {item.workLogs?.[0]?.clockIn && (
+              <p className="text-sm text-gray-500 font-semibold">
+                In:{" "}
+                <span className="text-gray-800">
+                  {formatInTimeZone(
+                    item.workLogs?.[0]?.clockIn,
+                    item.company?.timezone,
+                    "HH:mm",
+                  )}
+                </span>
+              </p>
+            )}
+            {item.workLogs?.[0]?.clockOut && (
+              <p className="text-sm text-gray-500 font-semibold">
+                Out:{" "}
+                <span className="text-gray-800">
+                  {formatInTimeZone(
+                    item.workLogs?.[0]?.clockOut,
+                    item.company?.timezone,
+                    "HH:mm",
+                  )}
+                </span>
+              </p>
+            )}
+          </>
+        )}
       </td>
 
       <td className="table-cell flex items-center gap-4 py-3 pl-6 pr-3 w-48">
@@ -332,7 +368,37 @@ export default function ShiftsList() {
     <div className="bg-white p-4 rounded-xl border border-slate-200 mb-4 shadow-sm">
       {/* HEADER: Status & Pay */}
       <div className="flex justify-between items-start mb-3">
-        <Status status={item.status} />
+        <div className="text-left space-y-0.5 w-full">
+          <Status status={item.status} />
+          {item.workLogs?.[0] && (
+            <>
+              {item.workLogs?.[0]?.clockIn && (
+                <p className="text-sm text-gray-500 font-semibold">
+                  In:{" "}
+                  <span className="text-gray-800">
+                    {formatInTimeZone(
+                      item.workLogs?.[0]?.clockIn,
+                      item.company?.timezone,
+                      "HH:mm",
+                    )}
+                  </span>
+                </p>
+              )}
+              {item.workLogs?.[0]?.clockOut && (
+                <p className="text-sm text-gray-500 font-semibold">
+                  Out:{" "}
+                  <span className="text-gray-800">
+                    {formatInTimeZone(
+                      item.workLogs?.[0]?.clockOut,
+                      item.company?.timezone,
+                      "HH:mm",
+                    )}
+                  </span>
+                </p>
+              )}
+            </>
+          )}
+        </div>
         <span className="font-medium text-lg text-green-700">
           ${parseFloat(item.payRate).toFixed(2)}/hr
         </span>
@@ -408,9 +474,11 @@ export default function ShiftsList() {
       {/* ACTIONS */}
       <div className="flex justify-between items-center pt-3 border-t border-slate-100">
         <div className="flex gap-2">
-          {role === "admin" && item.status === "open" && (
-            <SendEmailModal type="open_shift" token={token} data={item} />
-          )}
+          {role === "admin" &&
+            item.status === "open" &&
+            !item.workLogs?.[0] && (
+              <SendEmailModal type="open_shift" token={token} data={item} />
+            )}
           {(role === "admin" ||
             role === "pharmacy_manager" ||
             role === "location_manager") &&
