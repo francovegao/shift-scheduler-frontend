@@ -73,7 +73,11 @@ export const createUser = async (
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email: data.email, password: data.password }),
+      body: JSON.stringify({
+        email: data.email,
+        password: data.password,
+        firstName: data.firstName,
+      }),
     });
 
     if (!firebaseResponse.ok) {
@@ -1112,7 +1116,7 @@ export const clockOutShift = async (token: string, id: String) => {
 
 export const sendOpenShiftNotificationEmail = async (
   token: string,
-  currentState: CurrentState,
+  currentState: any,
   data: ManualEmailSchema,
 ) => {
   try {
@@ -1122,21 +1126,23 @@ export const sendOpenShiftNotificationEmail = async (
       userIds: data.userIds,
     };
 
-    const response = await fetch(
-      `${CURRENT_URL}/shifts/${data.id}/notify-pharmacists`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+    const url =
+      data.notificationType === "general"
+        ? `${CURRENT_URL}/pharmacist-profiles/notify-open-shifts`
+        : `${CURRENT_URL}/shifts/${data.id}/notify-pharmacists`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify(body),
+    });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
-      const errorData = await response.json(); // If the API returns error details
+      const errorData = await response.json().catch(() => ({}));
       throw new Error(
         `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
       );
