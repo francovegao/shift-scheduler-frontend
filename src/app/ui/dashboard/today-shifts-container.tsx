@@ -51,12 +51,11 @@ export default function TodayShiftsContainer() {
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
-  if (!shifts.length) return null;
 
   return (
     <div className="mb-6 bg-white pb-4 px-4 rounded-md shadow-sm">
       <div className="flex items-center justify-between border-b border-gray-100 mb-4">
-        <h1 className="text-xl font-semibold my-4">Clock In Dashboard</h1>
+        <h1 className="text-xl font-semibold my-4">Clock In/Out Dashboard</h1>
         <Link
           href="/dashboard/myShifts"
           className="text-gray-500 text-xs font-medium px-2.5 py-1.5 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors"
