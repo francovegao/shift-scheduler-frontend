@@ -34,7 +34,7 @@ const links = [
     name: "Shifts",
     href: "/dashboard/shifts",
     icon: CalendarDaysIcon,
-    visible: ["admin", "pharmacy_manager", "location_manager"],
+    visible: ["admin"],
     children: [
       {
         name: "Cancel Requests",
@@ -43,6 +43,12 @@ const links = [
         visible: ["admin"],
       },
     ],
+  },
+  {
+    name: "Shifts",
+    href: "/dashboard/shifts",
+    icon: CalendarDaysIcon,
+    visible: ["pharmacy_manager", "location_manager"],
   },
   {
     name: "Open Shifts",
@@ -70,12 +76,12 @@ const links = [
       },
     ],
   },
-  // {
-  //   name: "Pharmacists",
-  //   href: "/dashboard/list/pharmacists",
-  //   icon: UserIcon,
-  //   visible: ["admin", "pharmacy_manager", "location_manager"],
-  // },
+  {
+    name: "Pharmacists",
+    href: "/dashboard/list/pharmacists",
+    icon: UserIcon,
+    visible: ["pharmacy_manager", "location_manager"],
+  },
   {
     name: "Companies",
     href: "/dashboard/list/companies",
