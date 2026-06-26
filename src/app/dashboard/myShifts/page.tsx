@@ -17,8 +17,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { SetStateAction, useEffect, useState } from "react";
 import SendEmailModal from "@/app/ui/list/email-modal";
 
-type ShiftList = Shift & { company: Company } & { location: Location } & {
+type ShiftList = Shift & {
+  company: Company;
+  location: Location;
   pharmacist: Pharmacist & { user: User };
+  workLogs: WorkLogs[];
 };
 
 type Shift = {
@@ -69,6 +72,11 @@ type User = {
   phone: string;
 };
 
+type WorkLogs = {
+  clockIn: string;
+  clockOut: string;
+};
+
 const DateFormat = {
   year: "numeric",
   month: "short",
@@ -105,7 +113,7 @@ const columns = [
   {
     header: "Pharmacist",
     accessor: "pharmacist",
-    className: "hidden lg:table-cell px-3 py-5 font-medium",
+    className: "hidden xl:table-cell px-3 py-5 font-medium",
   },
 ];
 
@@ -247,18 +255,48 @@ export default function PharmacistShiftsList() {
       </td>
       <td className="table-cell px-3 py-3 align-middle max-w-[140px] min-w-[90px] break-words">
         <Status status={item.status} />
-        {item.status === "taken" && item.pharmacistId && (
-          <div className="mt-2">
-            <SendEmailModal
-              type="request_cancellation"
-              token={token}
-              id={item.id}
-              pharmacistId={item.pharmacistId}
-            />
-          </div>
+        {item.workLogs?.[0] && (
+          <>
+            {item.workLogs?.[0]?.clockIn && (
+              <p className="text-sm text-gray-500 font-semibold">
+                In:{" "}
+                <span className="text-gray-800">
+                  {formatInTimeZone(
+                    item.workLogs?.[0]?.clockIn,
+                    item.company?.timezone,
+                    "HH:mm",
+                  )}
+                </span>
+              </p>
+            )}
+            {item.workLogs?.[0]?.clockOut && (
+              <p className="text-sm text-gray-500 font-semibold">
+                Out:{" "}
+                <span className="text-gray-800">
+                  {formatInTimeZone(
+                    item.workLogs?.[0]?.clockOut,
+                    item.company?.timezone,
+                    "HH:mm",
+                  )}
+                </span>
+              </p>
+            )}
+          </>
         )}
+        {item.status === "taken" &&
+          item.pharmacistId &&
+          !item.workLogs?.[0] && (
+            <div className="mt-2">
+              <SendEmailModal
+                type="request_cancellation"
+                token={token}
+                id={item.id}
+                pharmacistId={item.pharmacistId}
+              />
+            </div>
+          )}
       </td>
-      <td className="hidden lg:table-cell flex items-center gap-4 whitespace-nowrap py-3 pl-3 pr-3">
+      <td className="hidden xl:table-cell flex items-center gap-4 whitespace-nowrap py-3 pl-3 pr-3">
         <div className="flex flex-col">
           <h3 className="font-semibold">
             {item.pharmacist?.user.firstName} {item.pharmacist?.user.lastName}
@@ -274,7 +312,37 @@ export default function PharmacistShiftsList() {
     <div className="bg-white p-4 rounded-xl border border-slate-200 mb-4 shadow-sm">
       {/* HEADER: Pay */}
       <div className="flex justify-between items-start mb-3">
-        <Status status={item.status} />
+        <div className="text-left space-y-0.5 w-full">
+          <Status status={item.status} />
+          {item.workLogs?.[0] && (
+            <>
+              {item.workLogs?.[0]?.clockIn && (
+                <p className="text-sm text-gray-500 font-semibold">
+                  In:{" "}
+                  <span className="text-gray-800">
+                    {formatInTimeZone(
+                      item.workLogs?.[0]?.clockIn,
+                      item.company?.timezone,
+                      "HH:mm",
+                    )}
+                  </span>
+                </p>
+              )}
+              {item.workLogs?.[0]?.clockOut && (
+                <p className="text-sm text-gray-500 font-semibold">
+                  Out:{" "}
+                  <span className="text-gray-800">
+                    {formatInTimeZone(
+                      item.workLogs?.[0]?.clockOut,
+                      item.company?.timezone,
+                      "HH:mm",
+                    )}
+                  </span>
+                </p>
+              )}
+            </>
+          )}
+        </div>
         <span className="font-medium text-lg text-green-700">
           {formatPayRate(item.payRate)}
         </span>
@@ -335,7 +403,7 @@ export default function PharmacistShiftsList() {
       </div>
 
       {/* ACTIONS */}
-      {item.status === "taken" && item.pharmacistId && (
+      {item.status === "taken" && item.pharmacistId && !item.workLogs?.[0] && (
         <div className="flex justify-between items-center pt-3 border-t border-slate-100">
           <div className="mt-2">
             <SendEmailModal
@@ -375,12 +443,12 @@ export default function PharmacistShiftsList() {
             />
           </div>
           {/* LIST */}
-          <div className="block md:hidden mt-6">
+          <div className="block lg:hidden mt-6">
             {shifts.map((item) => (
               <ShiftCard key={item.id} item={item} />
             ))}
           </div>
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <div style={{ overflowX: "scroll" }}>
               <Table columns={columns} renderRow={renderRow} data={shifts} />
             </div>

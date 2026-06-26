@@ -1,4 +1,3 @@
-import { dateFnsLocalizer } from "react-big-calendar";
 import {
   AllowedCompaniesSchema,
   CancelShiftRequestSchema,
@@ -13,6 +12,7 @@ import {
   TakeShiftSchema,
   UserSchema,
   ProcessCancelRequestSchema,
+  GenerateReportSchema,
 } from "./formValidationSchemas";
 import { timeToMinutes } from "./utils";
 
@@ -73,7 +73,11 @@ export const createUser = async (
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email: data.email, password: data.password }),
+      body: JSON.stringify({
+        email: data.email,
+        password: data.password,
+        firstName: data.firstName,
+      }),
     });
 
     if (!firebaseResponse.ok) {
@@ -1068,9 +1072,51 @@ export const deleteShiftSeries = async (
   }
 };
 
+export const clockInShift = async (token: string, id: String) => {
+  console.log("Clocking in shift...");
+
+  const response = await fetch(`${CURRENT_URL}/shifts/${id}/clock-in`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({})); // Safely catch if JSON parsing fails
+    throw new Error(
+      errorData.message || `HTTP error! Status: ${response.status}`,
+    );
+  }
+
+  return response.json().catch(() => ({ success: true })); // Safe fallback if your backend returns an empty body
+};
+
+export const clockOutShift = async (token: string, id: String) => {
+  console.log("Clocking out shift...");
+
+  const response = await fetch(`${CURRENT_URL}/shifts/${id}/clock-out`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(
+      errorData.message || `HTTP error! Status: ${response.status}`,
+    );
+  }
+
+  return response.json().catch(() => ({ success: true }));
+};
+
 export const sendOpenShiftNotificationEmail = async (
   token: string,
-  currentState: CurrentState,
+  currentState: any,
   data: ManualEmailSchema,
 ) => {
   try {
@@ -1080,21 +1126,23 @@ export const sendOpenShiftNotificationEmail = async (
       userIds: data.userIds,
     };
 
-    const response = await fetch(
-      `${CURRENT_URL}/shifts/${data.id}/notify-pharmacists`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+    const url =
+      data.notificationType === "general"
+        ? `${CURRENT_URL}/pharmacist-profiles/notify-open-shifts`
+        : `${CURRENT_URL}/shifts/${data.id}/notify-pharmacists`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify(body),
+    });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
-      const errorData = await response.json(); // If the API returns error details
+      const errorData = await response.json().catch(() => ({}));
       throw new Error(
         `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
       );
@@ -1406,5 +1454,49 @@ export const getDownloadUrl = async (token: string, fileId: string) => {
   } catch (error) {
     console.error("API Error:", error);
     throw error;
+  }
+};
+
+export const generateAdminReport = async (
+  token: string,
+  currentState: CurrentState,
+  data: GenerateReportSchema,
+) => {
+  try {
+    console.log("Generating admin report...");
+
+    const body = {
+      type: data.type,
+      startDate: data.startDate,
+      endDate: data.endDate,
+    };
+
+    const response = await fetch(`${CURRENT_URL}/reports/csv`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json();
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    const result = await response.json();
+
+    return {
+      success: true,
+      error: false,
+      url: result.url,
+    };
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
   }
 };

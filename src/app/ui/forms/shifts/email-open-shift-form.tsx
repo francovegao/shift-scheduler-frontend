@@ -32,13 +32,17 @@ export default function NotifyOpenShiftForm({
     register,
     setValue,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<FormInput, any, FormOutput>({
     resolver: zodResolver(manualEmailSchema),
     defaultValues: {
       userIds: [],
+      notificationType: "specific_shift",
     },
   });
+
+  const notificationType = watch("notificationType");
 
   const [state, formAction] = useFormState(
     sendOpenShiftNotificationEmail.bind(null, token),
@@ -60,7 +64,6 @@ export default function NotifyOpenShiftForm({
     }
   }, [state, setOpen]);
 
-  // Fetch companies
   useEffect(() => {
     const fetchData = async () => {
       setIsFetching(true);
@@ -77,9 +80,7 @@ export default function NotifyOpenShiftForm({
     };
 
     if (token) fetchData();
-  }, [token]);
-
-  if (isFetching) return <div>Loading...</div>;
+  }, [token, type]);
 
   const handleCheckboxChange = (event: {
     target: { value: any; checked: any };
@@ -114,17 +115,16 @@ export default function NotifyOpenShiftForm({
     setValue("userIds", nextSelected);
   };
 
-  if (!data) {
-    return <p>Loading...</p>;
-  }
+  if (isFetching || !data) return <div>Loading...</div>;
 
   return (
-    <form className="flex flex-col gap-8" onSubmit={onSubmit}>
+    <form className="flex flex-col gap-6" onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold">
         Send 'Open Shift' Notification Email
       </h1>
       <span className="text-sm text-gray-600 font-medium">
-        Select pharmacists to notify via email that the selected shift is open
+        Notify selected pharmacists about this specific open shift or a general
+        open shifts notification
       </span>
       <input
         value={data.id}
@@ -132,6 +132,33 @@ export default function NotifyOpenShiftForm({
         {...register("id")}
         hidden
       />
+
+      <div>
+        <span className="text-sm text-gray-600 font-medium">
+          Select type of email notification
+        </span>
+        <div className="flex gap-6 p-3 border rounded-md">
+          <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-gray-700">
+            <input
+              type="radio"
+              value="specific_shift"
+              {...register("notificationType")}
+              className="form-radio h-4 w-4 text-indigo-600"
+            />
+            Specific Shift Open
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-gray-700">
+            <input
+              type="radio"
+              value="general"
+              {...register("notificationType")}
+              className="form-radio h-4 w-4 text-indigo-600"
+            />
+            General (Multiple Shifts Open)
+          </label>
+        </div>
+      </div>
+
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2 px-2 py-1">
           <input
@@ -176,9 +203,10 @@ export default function NotifyOpenShiftForm({
         <p className="text-sm text-gray-600">
           Pharmacists Selected: {selectedOptions.length}
         </p>
-        <span className="text-center font-medium">
-          Selected pharmacists will receive an email with this shift's
-          information
+        <span className="text-center font-medium text-gray-800">
+          {notificationType === "specific_shift"
+            ? "Selected pharmacists will receive an email with this shift's information."
+            : "Selected pharmacists will receive a general notification that multiple shifts are available."}
         </span>
         {errors.id?.message && (
           <p className="text-xs text-red-400">
@@ -194,7 +222,9 @@ export default function NotifyOpenShiftForm({
           type="submit"
           className="bg-primary text-white py-2 px-4 rounded-md border-none w-max self-center hover:bg-primary-100 cursor-pointer"
         >
-          Send Emails
+          {notificationType === "specific_shift"
+            ? "Send Specific Shift Email"
+            : "Send General Shift Alert"}
         </button>
         {state.error && (
           <span className="text-red-500 text-center">

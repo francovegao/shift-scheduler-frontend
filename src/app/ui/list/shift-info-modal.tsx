@@ -64,6 +64,8 @@ export default function ShiftInfoModal({
   const role = appUser.role;
   const pharmacistId = appUser.pharmacistProfile?.id;
 
+  const workLog = data.workLogs?.[0];
+
   return (
     <div className="p-4 flex flex-col gap-4 text-primary">
       <h1 className="text-xl font-semibold">Shift Info</h1>
@@ -71,7 +73,37 @@ export default function ShiftInfoModal({
       <div className="bg-white p-4 rounded-xl border border-slate-200 mb-4 shadow-sm">
         {/* HEADER: Status & Pay */}
         <div className="flex justify-between items-start mb-3">
-          <Status status={data.status} />
+          <div className="text-left space-y-0.5 w-full">
+            <Status status={data.status} />
+            {workLog && (
+              <>
+                {workLog?.clockIn && (
+                  <p className="text-sm text-gray-500 font-semibold">
+                    In:{" "}
+                    <span className="text-gray-800">
+                      {formatInTimeZone(
+                        workLog?.clockIn,
+                        data.company?.timezone,
+                        "HH:mm",
+                      )}
+                    </span>
+                  </p>
+                )}
+                {workLog?.clockOut && (
+                  <p className="text-sm text-gray-500 font-semibold">
+                    Out:{" "}
+                    <span className="text-gray-800">
+                      {formatInTimeZone(
+                        workLog?.clockOut,
+                        data.company?.timezone,
+                        "HH:mm",
+                      )}
+                    </span>
+                  </p>
+                )}
+              </>
+            )}
+          </div>
           <span className="font-medium text-lg">
             {formatPayRate(data.payRate)}
             {formatPayRate(data.payRate) !== "No Data" ? " per hr" : ""}
@@ -187,8 +219,8 @@ export default function ShiftInfoModal({
         </div>
 
         {/* CANCELLATION */}
-        <div className="bg-slate-50 p-3 rounded-lg mb-4">
-          {data.status === "taken" && (
+        {data.status === "taken" && !workLog && (
+          <div className="bg-slate-50 p-3 rounded-lg mb-4">
             <div className="font-medium">
               <p className="text-sm text-complementary-one">
                 To cancel this shift please contact:
@@ -218,8 +250,8 @@ export default function ShiftInfoModal({
                 </div>
               )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
       <div className="flex justify-center items-center gap-4 w-full">
         {data.status === "taken" && (

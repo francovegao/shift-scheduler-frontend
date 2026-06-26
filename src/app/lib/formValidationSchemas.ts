@@ -245,10 +245,24 @@ export const takeShiftSchema = z.object({
 
 export type TakeShiftSchema = z.infer<typeof takeShiftSchema>;
 
-export const manualEmailSchema = z.object({
-  id: z.string({ message: "Shift ID is required!" }),
-  userIds: z.array(z.string()),
-});
+export const manualEmailSchema = z
+  .object({
+    notificationType: z.enum(["specific_shift", "general"]),
+    id: z.string({ message: "Shift ID is required!" }),
+    userIds: z.array(z.string()),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      data.notificationType === "specific_shift" &&
+      (!data.id || data.id.trim() === "")
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Shift ID is required for specific shift notifications!",
+        path: ["id"], // Attaches the error message directly to the 'id' field
+      });
+    }
+  });
 
 export type ManualEmailSchema = z.infer<typeof manualEmailSchema>;
 
@@ -308,3 +322,11 @@ export const processCancelRequestSchema = z
 export type ProcessCancelRequestSchema = z.infer<
   typeof processCancelRequestSchema
 >;
+
+export const generateReportSchema = z.object({
+  type: z.enum(["shifts", "companies", "pharmacists"]),
+  startDate: z.coerce.date({ message: "Start date is required" }),
+  endDate: z.coerce.date({ message: "End date is required" }),
+});
+
+export type GenerateReportSchema = z.infer<typeof generateReportSchema>;

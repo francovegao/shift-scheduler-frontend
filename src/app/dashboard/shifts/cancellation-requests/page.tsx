@@ -4,9 +4,8 @@ import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { SetStateAction, useEffect, useState } from "react";
 import ShiftCancellationRequestsList from "@/app/ui/cancel-requests/shifts-cancellation-request-list";
 import { useAuth } from "@/app/ui/context/auth-context";
-import ReportOptionSelector from "@/app/ui/reports/report-options-selector";
 
-export default function ReportsPage() {
+export default function CancelRequestsPage() {
   const { firebaseUser, appUser, loading } = useAuth();
   const [token, setToken] = useState("");
 
@@ -27,7 +26,9 @@ export default function ReportsPage() {
   return (
     <AuthWrapper allowedRoles={["admin"]}>
       <div className="p-4 lg:p-8">
-        {role === "admin" && <ReportOptionSelector token={token} />}
+        {role === "admin" && (
+          <ShiftCancellationRequestsList token={token} appUser={appUser} />
+        )}
       </div>
     </AuthWrapper>
   );

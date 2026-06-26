@@ -218,97 +218,113 @@ export default function PharmacistsList() {
             }
           />
         </td>
-        <td className="table-cell whitespace-nowrap px-3 py-3">
-          {item.pharmacistProfile && (
+        {role === "admin" && (
+          <td className="table-cell whitespace-nowrap px-3 py-3">
+            {item.pharmacistProfile && (
+              <>
+                <p>
+                  <span className="font-semibold">All Pharmacies?</span>{" "}
+                  {item.pharmacistProfile?.canViewAllCompanies ? "Yes" : "No"}
+                </p>
+                {!item.pharmacistProfile?.canViewAllCompanies && (
+                  <p className="text-xs">
+                    Can see {item.pharmacistProfile?.companyPermissions.length}{" "}
+                    pharmacies
+                  </p>
+                )}
+                <p className="mt-2">
+                  <span className="font-semibold">All Pay Rates?</span>{" "}
+                  {item.pharmacistProfile?.canViewPayRates ? "Yes" : "No"}
+                </p>
+                {!item.pharmacistProfile?.canViewPayRates && (
+                  <p className="text-xs">
+                    Can see{" "}
+                    {
+                      item.pharmacistProfile?.companyPermissions.filter(
+                        (p) => p.canViewPayRate,
+                      ).length
+                    }{" "}
+                    pharmacies' pay rates
+                  </p>
+                )}
+              </>
+            )}
+          </td>
+        )}
+        <td className="whitespace-nowrap py-3 pl-6 pr-3">
+          {role === "admin" && (
             <>
-              <p>
-                <span className="font-semibold">All Pharmacies?</span>{" "}
-                {item.pharmacistProfile?.canViewAllCompanies ? "Yes" : "No"}
-              </p>
-              {!item.pharmacistProfile?.canViewAllCompanies && (
-                <p className="text-xs">
-                  Can see {item.pharmacistProfile?.companyPermissions.length}{" "}
-                  pharmacies
-                </p>
-              )}
-              <p className="mt-2">
-                <span className="font-semibold">All Pay Rates?</span>{" "}
-                {item.pharmacistProfile?.canViewPayRates ? "Yes" : "No"}
-              </p>
-              {!item.pharmacistProfile?.canViewPayRates && (
-                <p className="text-xs">
-                  Can see{" "}
-                  {
-                    item.pharmacistProfile?.companyPermissions.filter(
-                      (p) => p.canViewPayRate,
-                    ).length
-                  }{" "}
-                  pharmacies' pay rates
-                </p>
+              {item.pharmacistProfile ? (
+                <div className="flex justify-end gap-2">
+                  {item.pharmacistProfile?.canViewAllCompanies === false &&
+                  item.pharmacistProfile?.canViewPayRates === false ? (
+                    <RelatedDataModal
+                      type="set_pharmacist_permissions"
+                      token={token}
+                      id={item?.pharmacistProfile?.id}
+                      data={item?.pharmacistProfile}
+                    />
+                  ) : item.pharmacistProfile?.canViewAllCompanies === false &&
+                    item.pharmacistProfile?.canViewPayRates === true ? (
+                    <RelatedDataModal
+                      type="set_allowed_companies"
+                      token={token}
+                      id={item?.pharmacistProfile?.id}
+                      data={item?.pharmacistProfile}
+                    />
+                  ) : item.pharmacistProfile?.canViewAllCompanies === true &&
+                    item.pharmacistProfile?.canViewPayRates === false ? (
+                    <RelatedDataModal
+                      type="set_allowed_pay_rates"
+                      token={token}
+                      id={item?.pharmacistProfile?.id}
+                      data={item?.pharmacistProfile}
+                    />
+                  ) : (
+                    <></>
+                  )}
+                  <Link
+                    href={`pharmacists/${item.id}`}
+                    className="rounded-md border p-2 hover:bg-gray-100"
+                  >
+                    <EyeIcon className="w-5" />
+                  </Link>
+                  {role === "admin" && (
+                    <>
+                      <FormContainer
+                        table="pharmacist"
+                        type="update"
+                        token={token}
+                        data={item.pharmacistProfile}
+                      />
+                      <FormContainer
+                        table="pharmacist"
+                        type="delete"
+                        token={token}
+                        id={item.pharmacistProfile?.id}
+                      />
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="flex justify-end gap-2 px-8 mr-28">
+                  <RelatedDataModal
+                    type="link_pharmacist_profile"
+                    token={token}
+                    id={item.id}
+                  />
+                </div>
               )}
             </>
           )}
-        </td>
-        <td className="whitespace-nowrap py-3 pl-6 pr-3">
-          {item.pharmacistProfile ? (
+          {role !== "admin" && item.pharmacistProfile && (
             <div className="flex justify-end gap-2">
-              {item.pharmacistProfile?.canViewAllCompanies === false &&
-              item.pharmacistProfile?.canViewPayRates === false ? (
-                <RelatedDataModal
-                  type="set_pharmacist_permissions"
-                  token={token}
-                  id={item?.pharmacistProfile?.id}
-                  data={item?.pharmacistProfile}
-                />
-              ) : item.pharmacistProfile?.canViewAllCompanies === false &&
-                item.pharmacistProfile?.canViewPayRates === true ? (
-                <RelatedDataModal
-                  type="set_allowed_companies"
-                  token={token}
-                  id={item?.pharmacistProfile?.id}
-                  data={item?.pharmacistProfile}
-                />
-              ) : item.pharmacistProfile?.canViewAllCompanies === true &&
-                item.pharmacistProfile?.canViewPayRates === false ? (
-                <RelatedDataModal
-                  type="set_allowed_pay_rates"
-                  token={token}
-                  id={item?.pharmacistProfile?.id}
-                  data={item?.pharmacistProfile}
-                />
-              ) : (
-                <></>
-              )}
               <Link
                 href={`pharmacists/${item.id}`}
                 className="rounded-md border p-2 hover:bg-gray-100"
               >
                 <EyeIcon className="w-5" />
               </Link>
-              {role === "admin" && (
-                <>
-                  <FormContainer
-                    table="pharmacist"
-                    type="update"
-                    token={token}
-                    data={item.pharmacistProfile}
-                  />
-                  <FormContainer
-                    table="pharmacist"
-                    type="delete"
-                    token={token}
-                    id={item.pharmacistProfile?.id}
-                  />
-                </>
-              )}
-            </div>
-          ) : (
-            <div className="flex justify-end gap-2 px-8 mr-28">
-              <RelatedDataModal
-                type="link_pharmacist_profile"
-                token={token}
-                id={item.id}
-              />
             </div>
           )}
         </td>
@@ -377,128 +393,159 @@ export default function PharmacistsList() {
         </div>
 
         {/* STATUS & PERMISSIONS */}
-        <div className="bg-slate-50 p-3 rounded-lg mb-4">
-          <div className="flex flex-col mt-1">
-            <div className="max-w-[170px]">
-              <Status
-                status={
-                  item.pharmacistProfile?.approved === true
-                    ? "approved"
-                    : item.pharmacistProfile?.approved === false
-                      ? "pending"
-                      : "no-profile"
-                }
-              />
+        {role === "admin" && (
+          <div className="bg-slate-50 p-3 rounded-lg mb-4">
+            <div className="flex flex-col mt-1">
+              <div className="max-w-[170px]">
+                <Status
+                  status={
+                    item.pharmacistProfile?.approved === true
+                      ? "approved"
+                      : item.pharmacistProfile?.approved === false
+                        ? "pending"
+                        : "no-profile"
+                  }
+                />
+              </div>
+              <div className="max-w-[200px] mt-1">
+                {item.pharmacistProfile && (
+                  <>
+                    <p>
+                      <span className="font-semibold">All Pharmacies?</span>{" "}
+                      {item.pharmacistProfile?.canViewAllCompanies
+                        ? "Yes"
+                        : "No"}
+                    </p>
+                    {!item.pharmacistProfile?.canViewAllCompanies && (
+                      <p className="text-xs">
+                        Can see{" "}
+                        {item.pharmacistProfile?.companyPermissions.length}{" "}
+                        pharmacies
+                      </p>
+                    )}
+                    <p className="mt-2">
+                      <span className="font-semibold">All Pay Rates?</span>{" "}
+                      {item.pharmacistProfile?.canViewPayRates ? "Yes" : "No"}
+                    </p>
+                    {!item.pharmacistProfile?.canViewPayRates && (
+                      <p className="text-xs">
+                        Can see{" "}
+                        {
+                          item.pharmacistProfile?.companyPermissions.filter(
+                            (p) => p.canViewPayRate,
+                          ).length
+                        }{" "}
+                        pharmacies' pay rates
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
-            <div className="max-w-[200px] mt-1">
-              {item.pharmacistProfile && (
-                <>
-                  <p>
-                    <span className="font-semibold">All Pharmacies?</span>{" "}
-                    {item.pharmacistProfile?.canViewAllCompanies ? "Yes" : "No"}
-                  </p>
-                  {!item.pharmacistProfile?.canViewAllCompanies && (
-                    <p className="text-xs">
-                      Can see{" "}
-                      {item.pharmacistProfile?.companyPermissions.length}{" "}
-                      pharmacies
-                    </p>
+          </div>
+        )}
+
+        {/* ACTIONS */}
+        {role === "admin" && (
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pt-3 border-t border-slate-100">
+            <div className="flex flex-wrap items-center gap-2">
+              {item.pharmacistProfile ? (
+                <div className="w-full sm:w-auto">
+                  {item.pharmacistProfile?.canViewAllCompanies === false &&
+                  item.pharmacistProfile?.canViewPayRates === false ? (
+                    <RelatedDataModal
+                      type="set_pharmacist_permissions"
+                      token={token}
+                      id={item?.pharmacistProfile?.id}
+                      data={item?.pharmacistProfile}
+                    />
+                  ) : item.pharmacistProfile?.canViewAllCompanies === false &&
+                    item.pharmacistProfile?.canViewPayRates === true ? (
+                    <RelatedDataModal
+                      type="set_allowed_companies"
+                      token={token}
+                      id={item?.pharmacistProfile?.id}
+                      data={item?.pharmacistProfile}
+                    />
+                  ) : item.pharmacistProfile?.canViewAllCompanies === true &&
+                    item.pharmacistProfile?.canViewPayRates === false ? (
+                    <RelatedDataModal
+                      type="set_allowed_pay_rates"
+                      token={token}
+                      id={item?.pharmacistProfile?.id}
+                      data={item?.pharmacistProfile}
+                    />
+                  ) : (
+                    <></>
                   )}
-                  <p className="mt-2">
-                    <span className="font-semibold">All Pay Rates?</span>{" "}
-                    {item.pharmacistProfile?.canViewPayRates ? "Yes" : "No"}
-                  </p>
-                  {!item.pharmacistProfile?.canViewPayRates && (
-                    <p className="text-xs">
-                      Can see{" "}
-                      {
-                        item.pharmacistProfile?.companyPermissions.filter(
-                          (p) => p.canViewPayRate,
-                        ).length
-                      }{" "}
-                      pharmacies' pay rates
-                    </p>
-                  )}
-                </>
+                  <div className="flex gap-2 mt-2">
+                    <Link
+                      href={`pharmacists/${item.id}`}
+                      className="rounded-md border p-2 hover:bg-gray-100"
+                    >
+                      <EyeIcon className="w-5" />
+                    </Link>
+                    {role === "admin" && (
+                      <>
+                        <FormContainer
+                          table="pharmacist"
+                          type="update"
+                          token={token}
+                          data={item.pharmacistProfile}
+                        />
+                        <FormContainer
+                          table="pharmacist"
+                          type="delete"
+                          token={token}
+                          id={item.pharmacistProfile?.id}
+                        />
+                      </>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex justify-start gap-3 px-2">
+                  <RelatedDataModal
+                    type="link_pharmacist_profile"
+                    token={token}
+                    id={item.id}
+                  />
+                </div>
               )}
             </div>
           </div>
-        </div>
+        )}
 
-        {/* ACTIONS */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pt-3 border-t border-slate-100">
-          <div className="flex flex-wrap items-center gap-2">
-            {item.pharmacistProfile ? (
-              <div className="w-full sm:w-auto">
-                {item.pharmacistProfile?.canViewAllCompanies === false &&
-                item.pharmacistProfile?.canViewPayRates === false ? (
-                  <RelatedDataModal
-                    type="set_pharmacist_permissions"
-                    token={token}
-                    id={item?.pharmacistProfile?.id}
-                    data={item?.pharmacistProfile}
-                  />
-                ) : item.pharmacistProfile?.canViewAllCompanies === false &&
-                  item.pharmacistProfile?.canViewPayRates === true ? (
-                  <RelatedDataModal
-                    type="set_allowed_companies"
-                    token={token}
-                    id={item?.pharmacistProfile?.id}
-                    data={item?.pharmacistProfile}
-                  />
-                ) : item.pharmacistProfile?.canViewAllCompanies === true &&
-                  item.pharmacistProfile?.canViewPayRates === false ? (
-                  <RelatedDataModal
-                    type="set_allowed_pay_rates"
-                    token={token}
-                    id={item?.pharmacistProfile?.id}
-                    data={item?.pharmacistProfile}
-                  />
-                ) : (
-                  <></>
-                )}
-                <div className="flex gap-2 mt-2">
-                  <Link
-                    href={`pharmacists/${item.id}`}
-                    className="rounded-md border p-2 hover:bg-gray-100"
-                  >
-                    <EyeIcon className="w-5" />
-                  </Link>
-                  {role === "admin" && (
-                    <>
-                      <FormContainer
-                        table="pharmacist"
-                        type="update"
-                        token={token}
-                        data={item.pharmacistProfile}
-                      />
-                      <FormContainer
-                        table="pharmacist"
-                        type="delete"
-                        token={token}
-                        id={item.pharmacistProfile?.id}
-                      />
-                    </>
-                  )}
+        {role !== "admin" && (
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pt-3 border-t border-slate-100">
+            <div className="flex flex-wrap items-center gap-2">
+              {item.pharmacistProfile ? (
+                <div className="w-full sm:w-auto">
+                  <div className="flex gap-2 mt-2">
+                    <Link
+                      href={`pharmacists/${item.id}`}
+                      className="rounded-md border p-2 hover:bg-gray-100"
+                    >
+                      <EyeIcon className="w-5" />
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className="flex justify-start gap-3 px-2">
-                <RelatedDataModal
-                  type="link_pharmacist_profile"
-                  token={token}
-                  id={item.id}
-                />
-              </div>
-            )}
+              ) : (
+                <div className="flex justify-start gap-3 px-2">
+                  <Status status={"no-profile"} />
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
   };
 
   return (
-    <AuthWrapper allowedRoles={["admin"]}>
+    <AuthWrapper
+      allowedRoles={["admin", "pharmacy_manager", "location_manager"]}
+    >
       <div className="p-4 lg:p-8">
         <h1 className={`font-bold mb-4 text-xl md:text-2xl`}>
           Pharmacists List

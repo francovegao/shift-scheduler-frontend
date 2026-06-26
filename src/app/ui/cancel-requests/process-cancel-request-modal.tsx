@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { useAuth } from "../context/auth-context";
-import clsx from "clsx";
 import { WrenchScrewdriverIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import ProcessCancelRequestForm from "./process-cancel-request-form";
 
