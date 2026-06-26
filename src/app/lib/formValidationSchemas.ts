@@ -322,3 +322,11 @@ export const processCancelRequestSchema = z
 export type ProcessCancelRequestSchema = z.infer<
   typeof processCancelRequestSchema
 >;
+
+export const generateReportSchema = z.object({
+  type: z.enum(["shifts", "companies", "pharmacists"]),
+  startDate: z.coerce.date({ message: "Start date is required" }),
+  endDate: z.coerce.date({ message: "End date is required" }),
+});
+
+export type GenerateReportSchema = z.infer<typeof generateReportSchema>;

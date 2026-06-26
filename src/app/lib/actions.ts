@@ -1,4 +1,3 @@
-import { dateFnsLocalizer } from "react-big-calendar";
 import {
   AllowedCompaniesSchema,
   CancelShiftRequestSchema,
@@ -13,6 +12,7 @@ import {
   TakeShiftSchema,
   UserSchema,
   ProcessCancelRequestSchema,
+  GenerateReportSchema,
 } from "./formValidationSchemas";
 import { timeToMinutes } from "./utils";
 
@@ -1454,5 +1454,49 @@ export const getDownloadUrl = async (token: string, fileId: string) => {
   } catch (error) {
     console.error("API Error:", error);
     throw error;
+  }
+};
+
+export const generateAdminReport = async (
+  token: string,
+  currentState: CurrentState,
+  data: GenerateReportSchema,
+) => {
+  try {
+    console.log("Generating admin report...");
+
+    const body = {
+      type: data.type,
+      startDate: data.startDate,
+      endDate: data.endDate,
+    };
+
+    const response = await fetch(`${CURRENT_URL}/reports/csv`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json();
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    const result = await response.json();
+
+    return {
+      success: true,
+      error: false,
+      url: result.url,
+    };
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
   }
 };
