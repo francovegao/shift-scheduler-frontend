@@ -1,0 +1,14 @@
+#File used for devcontainer
+FROM node:24-bookworm-slim
+
+WORKDIR /app
+
+# Ensure Next.js binds to all network interfaces inside the container
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+ENV NEXT_TELEMETRY_DISABLED=1
+
+EXPOSE 3000
+
+# Start Next.js in hot-reloading development mode
+CMD ["sleep", "infinity"]
