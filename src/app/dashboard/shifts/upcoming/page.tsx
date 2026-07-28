@@ -4,7 +4,6 @@ import { fetchShifts } from "@/app/lib/data";
 import { useSelectedCompany } from "@/app/lib/useSelectedCompany";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
-import BigCalendar from "@/app/ui/dashboard/big-calendar";
 import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
 import FilterDate from "@/app/ui/list/filter-date";
 import FilterPayRate from "@/app/ui/list/filter-pay-rate";
@@ -16,8 +15,8 @@ import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/list/table-search";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SetStateAction, useEffect, useState } from "react";
-import ShiftListRow from "@/app/ui/list/shift-list-row";
 import ShiftListCard from "@/app/ui/list/shift-list-card";
+import ShiftListRow from "@/app/ui/list/shift-list-row";
 
 type ShiftList = Shift & {
   company: Company;
@@ -114,7 +113,7 @@ const columns = [
   },
 ];
 
-export default function ShiftsList() {
+export default function PastShiftsList() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { firebaseUser, appUser, loading } = useAuth();
@@ -142,7 +141,7 @@ export default function ShiftsList() {
     }
   }, [firebaseUser]);
 
-  // Fetch shifts when token is ready
+  // Fetch previous shifts when token is ready
   useEffect(() => {
     const getShifts = async () => {
       setIsFetching(true);
@@ -176,6 +175,8 @@ export default function ShiftsList() {
             queryParams["companyId"] = currentCompanyId || "";
           }
         }
+
+        queryParams["timeFilter"] = "upcoming";
 
         const shiftsResponse = await fetchShifts(
           search,
@@ -234,11 +235,13 @@ export default function ShiftsList() {
       ]}
     >
       <div className="p-4 lg:p-8">
-        <h1 className={`font-bold mb-4 text-xl md:text-2xl`}>Shifts List</h1>
+        <h1 className={`font-bold mb-4 text-xl md:text-2xl`}>
+          Upcoming Shifts List
+        </h1>
         <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
           {/* TOP */}
           <div className="mt-2 flex items-center justify-between gap-4 md:mt-2">
-            <TableSearch placeholder="Search shifts..." />
+            <TableSearch placeholder="Search upcoming shifts..." />
             <SortListColumns
               options={[
                 { value: "name:asc", label: "Pharmacy Name ↑" },
@@ -291,10 +294,7 @@ export default function ShiftsList() {
           {(role === "admin" ||
             role === "pharmacy_manager" ||
             role === "location_manager") && (
-            <BigCalendarContainer type="dashboard_manager" />
-          )}
-          {role === "relief_pharmacist" && (
-            <BigCalendar token={token} data={data} />
+            <BigCalendarContainer type="upcoming_shifts_manager" />
           )}
         </div>
       </div>

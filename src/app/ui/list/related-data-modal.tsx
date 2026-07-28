@@ -3,9 +3,11 @@
 import {
   BuildingOffice2Icon,
   BuildingOfficeIcon,
+  ClockIcon,
   CurrencyDollarIcon,
   NoSymbolIcon,
   PencilIcon,
+  PencilSquareIcon,
   PlusIcon,
   ShieldExclamationIcon,
   TrashIcon,
@@ -20,6 +22,7 @@ import PharmacistForm from "../forms/pharmacists/pharmacist-form";
 import LinkManagerToLocationForm from "../forms/pharmacies/link-manager-to-location-form";
 import ChangePasswordForm from "../forms/security/change-password-form";
 import SelectManagedCompaniesForm from "../forms/pharmacies/select-managed-companies-form";
+import ShiftWorkLogForm from "../forms/shifts/shift-work-log-form";
 
 export default function RelatedDataModal({
   type,
@@ -35,6 +38,7 @@ export default function RelatedDataModal({
     | "set_allowed_companies"
     | "set_allowed_pay_rates"
     | "set_managed_companies"
+    | "upsert_work_log"
     | "update_password";
   token: string;
   data?: any;
@@ -103,6 +107,15 @@ export default function RelatedDataModal({
           data={data}
         />
       </div>
+    ) : type === "upsert_work_log" && data ? (
+      <div>
+        <ShiftWorkLogForm
+          setOpen={setOpen}
+          token={token}
+          data={data}
+          workLogId={id}
+        />
+      </div>
     ) : type === "update_password" ? (
       <div>
         <ChangePasswordForm setOpen={setOpen} />
@@ -165,6 +178,12 @@ export default function RelatedDataModal({
           <>
             <BuildingOffice2Icon className="w-4 h-4" />
             <span>Set Managed Pharmacies</span>
+          </>
+        )}
+        {type === "upsert_work_log" && (
+          <>
+            <PencilSquareIcon className="w-4 h-4" />
+            <span>Upsert Worklog</span>
           </>
         )}
         {type === "update_password" && (

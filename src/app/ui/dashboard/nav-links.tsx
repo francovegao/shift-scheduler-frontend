@@ -10,6 +10,8 @@ import {
   BuildingOfficeIcon,
   UserCircleIcon,
   XCircleIcon,
+  ChevronDoubleRightIcon,
+  ChevronDoubleLeftIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -37,6 +39,18 @@ const links = [
     visible: ["admin"],
     children: [
       {
+        name: "Upcoming",
+        href: "/dashboard/shifts/upcoming",
+        icon: ChevronDoubleRightIcon,
+        visible: ["admin"],
+      },
+      {
+        name: "Past",
+        href: "/dashboard/shifts/past",
+        icon: ChevronDoubleLeftIcon,
+        visible: ["admin"],
+      },
+      {
         name: "Cancel Requests",
         href: "/dashboard/shifts/cancellation-requests",
         icon: XCircleIcon,
@@ -49,6 +63,20 @@ const links = [
     href: "/dashboard/shifts",
     icon: CalendarDaysIcon,
     visible: ["pharmacy_manager", "location_manager"],
+    children: [
+      {
+        name: "Upcoming",
+        href: "/dashboard/shifts/upcoming",
+        icon: ChevronDoubleRightIcon,
+        visible: ["pharmacy_manager", "location_manager"],
+      },
+      {
+        name: "Past",
+        href: "/dashboard/shifts/past",
+        icon: ChevronDoubleLeftIcon,
+        visible: ["pharmacy_manager", "location_manager"],
+      },
+    ],
   },
   {
     name: "Open Shifts",
