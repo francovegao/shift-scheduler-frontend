@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 type MenuProps = {
-  button: React.ReactNode;     
-  children: React.ReactNode;   
-  align?: "left" | "right";    
-  width?: string;              
+  button: React.ReactNode;
+  children: React.ReactNode;
+  align?: "left" | "right";
+  width?: string;
 };
 
 export default function Menu({
@@ -46,7 +46,7 @@ export default function Menu({
       {open && (
         <div
           ref={menuRef}
-          className={`absolute mt-2 bg-white rounded-md shadow-lg z-20 py-2 ${width} ${
+          className={`absolute mt-2 bg-surface rounded-md shadow-lg z-20 py-2 ${width} ${
             align === "right" ? "right-0" : ""
           }`}
         >

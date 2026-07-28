@@ -122,7 +122,7 @@ export default function NotifyOpenShiftForm({
       <h1 className="text-xl font-semibold">
         Send 'Open Shift' Notification Email
       </h1>
-      <span className="text-sm text-gray-600 font-medium">
+      <span className="text-sm text-tx-muted font-medium">
         Notify selected pharmacists about this specific open shift or a general
         open shifts notification
       </span>
@@ -134,11 +134,11 @@ export default function NotifyOpenShiftForm({
       />
 
       <div>
-        <span className="text-sm text-gray-600 font-medium">
+        <span className="text-sm text-tx-muted font-medium">
           Select type of email notification
         </span>
         <div className="flex gap-6 p-3 border rounded-md">
-          <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-gray-700">
+          <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-tx-tertiary">
             <input
               type="radio"
               value="specific_shift"
@@ -147,7 +147,7 @@ export default function NotifyOpenShiftForm({
             />
             Specific Shift Open
           </label>
-          <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-gray-700">
+          <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-tx-tertiary">
             <input
               type="radio"
               value="general"
@@ -167,7 +167,9 @@ export default function NotifyOpenShiftForm({
             onChange={handleSelectAllChange}
             className="form-checkbox h-5 w-5 text-indigo-600"
           />
-          <span className="text-sm font-medium text-gray-700">Select All</span>
+          <span className="text-sm font-medium text-tx-tertiary">
+            Select All
+          </span>
         </div>
 
         <ul className="space-y-2 max-h-95 overflow-y-auto border p-2 rounded-md">
@@ -191,7 +193,7 @@ export default function NotifyOpenShiftForm({
                   onChange={handleCheckboxChange}
                   className="form-checkbox h-5 w-5 text-indigo-600 transition duration-150 ease-in-out"
                 />
-                <label className="ml-2 text-gray-700">
+                <label className="ml-2 text-tx-tertiary">
                   <p className="font-semibold">
                     {pharmacist?.firstName + " " + pharmacist?.lastName}
                   </p>
@@ -200,10 +202,10 @@ export default function NotifyOpenShiftForm({
               </li>
             ))}
         </ul>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-tx-muted">
           Pharmacists Selected: {selectedOptions.length}
         </p>
-        <span className="text-center font-medium text-gray-800">
+        <span className="text-center font-medium text-tx-secondary">
           {notificationType === "specific_shift"
             ? "Selected pharmacists will receive an email with this shift's information."
             : "Selected pharmacists will receive a general notification that multiple shifts are available."}

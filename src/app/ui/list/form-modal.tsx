@@ -1,13 +1,25 @@
-'use client';
+"use client";
 
-import { PencilIcon, PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import clsx from 'clsx';
-import { Dispatch, JSX, SetStateAction, useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
+import {
+  PencilIcon,
+  PlusIcon,
+  TrashIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import clsx from "clsx";
+import { Dispatch, JSX, SetStateAction, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { useFormState } from "react-dom";
-import { toast } from 'react-toastify';
-import { deleteCompany, deleteLocation, deletePharmacist, deleteShift, deleteShiftSeries, deleteUser } from "@/app/lib/actions";
-import { FormContainerProps } from './form-container';
+import { toast } from "react-toastify";
+import {
+  deleteCompany,
+  deleteLocation,
+  deletePharmacist,
+  deleteShift,
+  deleteShiftSeries,
+  deleteUser,
+} from "@/app/lib/actions";
+import { FormContainerProps } from "./form-container";
 
 const deleteActionMap = {
   user: deleteUser,
@@ -17,20 +29,26 @@ const deleteActionMap = {
   shift: deleteShift,
   shiftSeries: deleteShiftSeries,
   file: deleteShift,
-}
+};
 
 const UserForm = dynamic(() => import("../forms/users/user-form"), {
   loading: () => <h1>Loading...</h1>,
 });
-const PharmacistForm = dynamic(() => import("../forms/pharmacists/pharmacist-form"), {
-  loading: () => <h1>Loading...</h1>,
-});
+const PharmacistForm = dynamic(
+  () => import("../forms/pharmacists/pharmacist-form"),
+  {
+    loading: () => <h1>Loading...</h1>,
+  },
+);
 const CompanyForm = dynamic(() => import("../forms/pharmacies/company-form"), {
   loading: () => <h1>Loading...</h1>,
 });
-const LocationForm = dynamic(() => import("../forms/pharmacies/location-form"), {
-  loading: () => <h1>Loading...</h1>,
-});
+const LocationForm = dynamic(
+  () => import("../forms/pharmacies/location-form"),
+  {
+    loading: () => <h1>Loading...</h1>,
+  },
+);
 const ShiftForm = dynamic(() => import("../forms/shifts/shift-form"), {
   loading: () => <h1>Loading...</h1>,
 });
@@ -45,51 +63,107 @@ const forms: {
     initialDate?: Date,
   ) => JSX.Element;
 } = {
-  user: (setOpen, type, token, data, relatedData) => <UserForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData} />,
-  pharmacist: (setOpen, type, token, data, relatedData) => <PharmacistForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData}/>,
-  company: (setOpen, type, token, data, relatedData) => <CompanyForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData}/>,
-  location: (setOpen, type, token, data, relatedData) => <LocationForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData}/>,
-  shift: (setOpen, type, token, data, relatedData, initialDate) => <ShiftForm type={type} data={data} setOpen={setOpen} token={token} relatedData={relatedData} initialDate={initialDate}/>,
-}
+  user: (setOpen, type, token, data, relatedData) => (
+    <UserForm
+      type={type}
+      data={data}
+      setOpen={setOpen}
+      token={token}
+      relatedData={relatedData}
+    />
+  ),
+  pharmacist: (setOpen, type, token, data, relatedData) => (
+    <PharmacistForm
+      type={type}
+      data={data}
+      setOpen={setOpen}
+      token={token}
+      relatedData={relatedData}
+    />
+  ),
+  company: (setOpen, type, token, data, relatedData) => (
+    <CompanyForm
+      type={type}
+      data={data}
+      setOpen={setOpen}
+      token={token}
+      relatedData={relatedData}
+    />
+  ),
+  location: (setOpen, type, token, data, relatedData) => (
+    <LocationForm
+      type={type}
+      data={data}
+      setOpen={setOpen}
+      token={token}
+      relatedData={relatedData}
+    />
+  ),
+  shift: (setOpen, type, token, data, relatedData, initialDate) => (
+    <ShiftForm
+      type={type}
+      data={data}
+      setOpen={setOpen}
+      token={token}
+      relatedData={relatedData}
+      initialDate={initialDate}
+    />
+  ),
+};
 
 export default function FormModal({
-  table, type, token, data, id, initialDate, relatedData, }:
-  FormContainerProps & { relatedData?: any } )
-{
+  table,
+  type,
+  token,
+  data,
+  id,
+  initialDate,
+  relatedData,
+}: FormContainerProps & { relatedData?: any }) {
   const [open, setOpen] = useState(false);
 
   const Form = () => {
-    const [shiftSeriesSelectedOption, setShiftSeriesSelectedOption] = useState('current');
+    const [shiftSeriesSelectedOption, setShiftSeriesSelectedOption] =
+      useState("current");
 
-    const handleOptionChange = (event: { target: { value: SetStateAction<string>; }; }) => {
+    const handleOptionChange = (event: {
+      target: { value: SetStateAction<string> };
+    }) => {
       setShiftSeriesSelectedOption(event.target.value);
     };
 
-    const actionTable = shiftSeriesSelectedOption !== "current" ? "shiftSeries" : table;
+    const actionTable =
+      shiftSeriesSelectedOption !== "current" ? "shiftSeries" : table;
 
     const [state, formAction] = useFormState(
       deleteActionMap[actionTable].bind(null, token),
       {
         success: false,
         error: false,
-      });
+      },
+    );
 
     useEffect(() => {
       if (state.success) {
-        toast(`${table} has been deleted!`, {toastId: 'unique-toast'});
+        toast(`${table} has been deleted!`, { toastId: "unique-toast" });
         setOpen(false);
-         window.location.reload();
+        window.location.reload();
       }
-    }, [state])
+    }, [state]);
 
     return type === "delete" && id ? (
-      <form className='p-4 flex flex-col gap-4' action={formAction} >
-        <input type="text" name="id" value={id}  hidden />
-        <span className="text-center font-medium">Are you sure you want to delete this {table === "pharmacist" ? "pharmacist profile" : table}?</span>
-        {table === "pharmacist" &&(
-          <span className="text-center font-medium">This will delete the selected pharmacist profile, but not the user.</span>
+      <form className="p-4 flex flex-col gap-4" action={formAction}>
+        <input type="text" name="id" value={id} hidden />
+        <span className="text-center font-medium">
+          Are you sure you want to delete this{" "}
+          {table === "pharmacist" ? "pharmacist profile" : table}?
+        </span>
+        {table === "pharmacist" && (
+          <span className="text-center font-medium">
+            This will delete the selected pharmacist profile, but not the user.
+          </span>
         )}
-        { (table === "shift" && data?.seriesId ) && (
+        {table === "shift" && data?.seriesId && (
           <div className="font-medium gap-2">
             <input type="hidden" name="referenceShiftId" value={id} />
             <input type="hidden" name="shiftSeriesId" value={data?.seriesId} />
@@ -97,47 +171,66 @@ export default function FormModal({
             <p>Please select if you want to delete:</p>
             <div className="p-4">
               <div>
-              <input
-                type="radio"
-                id="current"
-                name="scope"
-                value="current"
-                checked={shiftSeriesSelectedOption === 'current'}
-                onChange={handleOptionChange}
-              />
-              <label htmlFor="current" className="ml-1">This shift only</label>
+                <input
+                  type="radio"
+                  id="current"
+                  name="scope"
+                  value="current"
+                  checked={shiftSeriesSelectedOption === "current"}
+                  onChange={handleOptionChange}
+                />
+                <label htmlFor="current" className="ml-1">
+                  This shift only
+                </label>
+              </div>
+              <div>
+                <input
+                  type="radio"
+                  id="future"
+                  name="scope"
+                  value="future"
+                  checked={shiftSeriesSelectedOption === "future"}
+                  onChange={handleOptionChange}
+                />
+                <label htmlFor="future" className="ml-1">
+                  This and future shifts
+                </label>
+              </div>
+              <div>
+                <input
+                  type="radio"
+                  id="all"
+                  name="scope"
+                  value="all"
+                  checked={shiftSeriesSelectedOption === "all"}
+                  onChange={handleOptionChange}
+                />
+                <label htmlFor="all" className="ml-1">
+                  All shifts in the series (except completed and cancelled
+                  shifts)
+                </label>
+              </div>
             </div>
-            <div>
-              <input
-                type="radio"
-                id="future"
-                name="scope"
-                value="future"
-                checked={shiftSeriesSelectedOption === 'future'}
-                onChange={handleOptionChange}
-              />
-              <label htmlFor="future" className="ml-1">This and future shifts</label>
-            </div>
-            <div>
-              <input
-                type="radio"
-                id="all"
-                name="scope"
-                value="all"
-                checked={shiftSeriesSelectedOption === 'all'}
-                onChange={handleOptionChange}
-              />
-              <label htmlFor="all" className="ml-1">All shifts in the series (except completed and cancelled shifts)</label>
-            </div>
-            </div>
-            <p className="font-light text-complementary-one">Please note that assigned shifts could be deleted with this action.</p>
+            <p className="font-light text-complementary-one">
+              Please note that assigned shifts could be deleted with this
+              action.
+            </p>
           </div>
         )}
-        <span className="text-center font-medium">This action cannot be undone!</span>
-        <button type="submit" className="bg-complementary-one text-white p-2 rounded-md hover:bg-complementary-one-100 cursor-pointer">
+        <span className="text-center font-medium">
+          This action cannot be undone!
+        </span>
+        <button
+          type="submit"
+          className="bg-complementary-one text-white p-2 rounded-md hover:bg-complementary-one-100 cursor-pointer"
+        >
           Delete
         </button>
-        {state.error && <span className="text-red-500 text-center">Something went wrong!</span>}
+        {state.error && (
+          <span className="text-red-500 text-center">
+            Something went wrong!
+          </span>
+        )}
       </form>
     ) : type === "create" || type === "update" ? (
       forms[table](setOpen, type, token, data, relatedData, initialDate)
@@ -147,49 +240,47 @@ export default function FormModal({
   };
 
   return (
-     <>
-        <button onClick={()=>setOpen(true)}
-          className={clsx(
-          'rounded-md cursor-pointer',
-          {
-            'flex h-10 items-center bg-primary px-4 text-sm font-medium text-white transition-colors hover:bg-primary-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
-            : type === 'create',
-            'border p-2 hover:bg-gray-200': type === 'update',
-            'p-2 border hover:bg-gray-200': type === 'delete',
-          },
-        )}
-        >
-          {type === 'create' ? (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className={clsx("rounded-md cursor-pointer", {
+          "flex h-10 items-center bg-primary px-4 text-sm font-medium text-white transition-colors hover:bg-primary-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600":
+            type === "create",
+          "border p-2 hover:bg-gray-200": type === "update",
+          "p-2 border hover:bg-gray-200": type === "delete",
+        })}
+      >
+        {type === "create" ? (
           <>
-            <span className="hidden md:block">Add {table}</span>{' '}
+            <span className="hidden md:block">Add {table}</span>{" "}
             <PlusIcon className="h-5 md:ml-4" />
           </>
-          ) : null}
-          {type === 'update' ? (
+        ) : null}
+        {type === "update" ? (
           <>
             <PencilIcon className="w-5" />
           </>
-          ) : null}
-          {type === 'delete' ? (
-            <>
-              <TrashIcon className="w-5" />
-            </>
-          ) : null}
-        </button>
+        ) : null}
+        {type === "delete" ? (
+          <>
+            <TrashIcon className="w-5" />
+          </>
+        ) : null}
+      </button>
 
-        {open && (
-          <div className="w-screen h-screen fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center overflow-hidden">
-            <div className="bg-white p-4 pb-10 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] max-h-[calc(100dvh-40px)] overflow-y-auto">
-              <Form />
-              <div
-                className="absolute top-4 right-4 cursor-pointer text-black"
-                onClick={() => setOpen(false)}
-              >
-                <XMarkIcon className="w-6" />
-              </div>
+      {open && (
+        <div className="w-screen h-screen fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center overflow-hidden">
+          <div className="bg-surface p-4 pb-10 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] max-h-[calc(100dvh-40px)] overflow-y-auto">
+            <Form />
+            <div
+              className="absolute top-4 right-4 cursor-pointer text-foreground"
+              onClick={() => setOpen(false)}
+            >
+              <XMarkIcon className="w-6" />
             </div>
           </div>
-        )}
-     </>
+        </div>
+      )}
+    </>
   );
 }

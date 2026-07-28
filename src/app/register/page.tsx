@@ -5,13 +5,13 @@ import { useState } from "react";
 import { registerFirebaseUser } from "../lib/firebaseConfig";
 import SchedulerLogo from "../ui/scheduler-logo";
 
-export default function Register(){
+export default function Register() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
 
-  const registerUser = async (e: { preventDefault: () => void; }) => {
+  const registerUser = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
       await registerFirebaseUser(email, password);
@@ -23,16 +23,16 @@ export default function Register(){
 
   return (
     <div className="h-screen flex items-center justify-center bg-blue-100">
-      <main className="bg-white p-12 rounded-md shadow-2xl flex flex-col gap-2 items-center">
-         <div className="w-48 text-white md:w-64 flex rounded-md bg-blue-600">
-            <SchedulerLogo />
-          </div>
-          <h2 className="text-gray-400">Register New User</h2>
+      <main className="bg-surface p-12 rounded-md shadow-2xl flex flex-col gap-2 items-center">
+        <div className="w-48 text-white md:w-64 flex rounded-md bg-blue-600">
+          <SchedulerLogo />
+        </div>
+        <h2 className="text-tx-disabled">Register New User</h2>
         <div className="font-mono list-inside list-decimal text-sm/6 text-center">
           <form onSubmit={registerUser} className="p-4">
             <div>
               <input
-              className="p-2 m-1 rounded-md ring-1 ring-gray-300"
+                className="p-2 m-1 rounded-md ring-1 ring-gray-300"
                 type="text"
                 placeholder="Email"
                 onChange={(e) => setEmail(e.target.value)}
@@ -47,7 +47,9 @@ export default function Register(){
               />
             </div>
             <div>
-              {errorMessage && <p className="text-sm text-red-400 p-2">{errorMessage}</p>}
+              {errorMessage && (
+                <p className="text-sm text-red-400 p-2">{errorMessage}</p>
+              )}
             </div>
             <div className="flex gap-4 p-2 items-center flex-col sm:flex-row">
               <button
@@ -62,4 +64,4 @@ export default function Register(){
       </main>
     </div>
   );
-};
+}

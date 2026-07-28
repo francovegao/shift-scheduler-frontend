@@ -53,18 +53,18 @@ export default function TodayShiftsContainer() {
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
 
   return (
-    <div className="mb-6 bg-white pb-4 px-4 rounded-md shadow-sm">
+    <div className="mb-6 bg-surface pb-4 px-4 rounded-md shadow-sm">
       <div className="flex items-center justify-between border-b border-gray-100 mb-4">
         <h1 className="text-xl font-semibold my-4">Clock In/Out Dashboard</h1>
         <Link
           href="/dashboard/myShifts"
-          className="text-gray-500 text-xs font-medium px-2.5 py-1.5 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors"
+          className="text-tx-body-muted text-xs font-medium px-2.5 py-1.5 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors"
         >
           View All My Shifts
         </Link>
       </div>
       {shifts.length === 0 ? (
-        <p className="text-gray-400 text-center py-6">
+        <p className="text-tx-disabled text-center py-6">
           No upcoming assigned shifts (Next 7 days)
         </p>
       ) : (

@@ -13,18 +13,20 @@ export default function ReportOptionSelector({ token }: { token: string }) {
 
   return (
     <div className="p-2">
-      <div className="flex flex-col gap-2 text-black">
+      <div className="flex flex-col gap-2 text-foreground">
         {/*Title */}
         <div className="flex items-center justify-start gap-4">
           <h1 className="text-xl font-semibold">Generate Reports</h1>
         </div>
 
         {/*Options Selectors */}
-        <div className="flex justify-between flex-wrap p-4 gap-4 bg-white rounded-md shadow-sm">
-          <p className="text-gray-700 font-medium">Define Report Parameters</p>
+        <div className="flex justify-between flex-wrap p-4 gap-4 bg-surface rounded-md shadow-sm">
+          <p className="text-tx-tertiary font-medium">
+            Define Report Parameters
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
             <div className="flex flex-col">
-              <label className="text-gray-500">Type:</label>
+              <label className="text-tx-body-muted">Type:</label>
               <select
                 value={reportType}
                 onChange={(e) => setReportType(e.target.value as any)}
@@ -37,7 +39,7 @@ export default function ReportOptionSelector({ token }: { token: string }) {
             </div>
 
             <div className="flex flex-col">
-              <label className="text-gray-500">From:</label>
+              <label className="text-tx-body-muted">From:</label>
               <input
                 type="date"
                 value={startDate}
@@ -47,7 +49,7 @@ export default function ReportOptionSelector({ token }: { token: string }) {
             </div>
 
             <div className="flex flex-col">
-              <label className="text-gray-500">To:</label>
+              <label className="text-tx-body-muted">To:</label>
               <input
                 type="date"
                 value={endDate}

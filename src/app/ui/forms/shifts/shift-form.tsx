@@ -303,7 +303,7 @@ export default function ShiftForm({
         <h1 className="text-2xl font-semibold text-red-600">
           Action Restricted
         </h1>
-        <p className="mt-4 text-gray-700 text-center max-w-lg">
+        <p className="mt-4 text-tx-tertiary text-center max-w-lg">
           Your company is currently not approved to post shifts.
           <br />
           Please contact the administrator to obtain approval.
@@ -322,7 +322,7 @@ export default function ShiftForm({
 
       {showStep1Selection && (
         <>
-          <span className="text-sm text-gray-600 font-medium">
+          <span className="text-sm text-tx-muted font-medium">
             Select Pharmacy / Company
           </span>
 
@@ -344,7 +344,7 @@ export default function ShiftForm({
                     onChange={handleOptionChange}
                     className="form-radio h-5 w-5 text-indigo-600 transition duration-150 ease-in-out"
                   />
-                  <label className="ml-2 text-gray-700">
+                  <label className="ml-2 text-tx-tertiary">
                     <p className="font-semibold">
                       {pharmacy?.name} - {pharmacy?.legalName}
                     </p>
@@ -382,7 +382,7 @@ export default function ShiftForm({
 
       {showStep2Form && (
         <>
-          <span className="text-sm text-gray-600 font-medium">
+          <span className="text-sm text-tx-muted font-medium">
             Shift Information
           </span>
           <div className="flex justify-between flex-wrap gap-4">
@@ -399,12 +399,12 @@ export default function ShiftForm({
 
             {role === "admin" || role === "pharmacy_manager" ? (
               <div className="flex flex-col gap-2 w-full md:w-1/4">
-                <label className="text-xs text-gray-500">Company</label>
+                <label className="text-xs text-tx-body-muted">Company</label>
                 <input
                   type="text"
                   value={selectedCompanyName || ""}
                   disabled
-                  className="bg-gray-100 p-2 rounded-md text-sm w-full"
+                  className="p-2 rounded-md text-sm w-full border border-surface-muted bg-surface text-tx-primary disabled:bg-surface-muted/50 disabled:text-tx-disabled cursor-not-allowed"
                 />
 
                 <input
@@ -438,7 +438,7 @@ export default function ShiftForm({
             {/* {role === "admin" ||
             role === "pharmacy_manager" ? (
               <div className="flex flex-col gap-2 w-full md:w-1/4">
-                <label className="text-xs text-gray-500">Pharmacy</label>
+                <label className="text-xs text-tx-body-muted">Pharmacy</label>
                 <input
                   type="text"
                   value={selectedLocationName || ""}
@@ -473,7 +473,7 @@ export default function ShiftForm({
 
             {!data ? (
               <div className="flex flex-col gap-2 w-full md:w-1/4">
-                <label className="text-xs text-gray-500">
+                <label className="text-xs text-tx-body-muted">
                   Repetitive Shift?
                 </label>
                 <select
@@ -651,7 +651,9 @@ export default function ShiftForm({
 
             {isWeekly && (
               <div className="flex flex-col gap-2">
-                <label className="text-xs text-gray-500">Days of Week</label>
+                <label className="text-xs text-tx-body-muted">
+                  Days of Week
+                </label>
                 <div className="flex gap-4 flex-wrap">
                   {[
                     { label: "Sun", value: 0 },
@@ -716,13 +718,13 @@ export default function ShiftForm({
                       {fields.map((field: any, index) => (
                         <div
                           key={field.id}
-                          className="flex items-center gap-1 bg-gray-100 text-gray-800 text-sm px-3 py-1 rounded-full border border-gray-300"
+                          className="flex items-center gap-1 bg-gray-100 text-tx-secondary text-sm px-3 py-1 rounded-full border border-gray-300"
                         >
                           <span>{field.value}</span>
                           <button
                             type="button"
                             onClick={() => remove(index)}
-                            className="text-gray-500 hover:text-red-500 font-bold ml-1"
+                            className="text-tx-body-muted hover:text-red-500 font-bold ml-1"
                           >
                             ×
                           </button>
@@ -756,7 +758,7 @@ export default function ShiftForm({
 
             {/* {(!data || data.status === "open") && ( */}
             <div className="flex flex-col gap-2 w-full md:w-1/4">
-              <label className="text-xs text-gray-500">Published</label>
+              <label className="text-xs text-tx-body-muted">Published</label>
               <select
                 className={
                   data && data.status !== "open"
@@ -784,10 +786,12 @@ export default function ShiftForm({
             </div>
             {/* ) } */}
             <div className="flex flex-col gap-2 w-full md:w-1/4">
-              <label className="text-xs text-gray-500">Relief Pharmacist</label>
+              <label className="text-xs text-tx-body-muted">
+                Relief Pharmacist
+              </label>
               <select
                 className={`ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full transition-colors ${
-                  !isPublished ? "bg-gray-200" : "bg-white"
+                  !isPublished ? "bg-gray-200" : "bg-surface"
                 }`}
                 {...register("pharmacistId")}
                 disabled={!isPublished}
@@ -822,17 +826,31 @@ export default function ShiftForm({
               )}
             </div>
             <div className="flex flex-col gap-2 w-full md:w-1/4">
-              <label className="text-xs text-gray-500">Status</label>
+              <label className="text-xs text-tx-body-muted">Status</label>
               <select
-                className="bg-gray-200 ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                className="border border-surface-muted p-2 rounded-md text-sm w-full bg-surface text-tx-primary disabled:bg-surface-muted/50 disabled:text-tx-disabled cursor-not-allowed"
                 {...register("status")}
                 defaultValue={data?.status || "open"}
                 disabled={true}
               >
-                <option value="open">open</option>
-                <option value="taken">taken</option>
-                <option value="completed">completed</option>
-                <option value="cancelled">cancelled</option>
+                <option value="open" className="bg-surface text-tx-primary">
+                  open
+                </option>
+                <option value="taken" className="bg-surface text-tx-primary">
+                  taken
+                </option>
+                <option
+                  value="completed"
+                  className="bg-surface text-tx-primary"
+                >
+                  completed
+                </option>
+                <option
+                  value="cancelled"
+                  className="bg-surface text-tx-primary"
+                >
+                  cancelled
+                </option>
               </select>
               {errors.status?.message && (
                 <p className="text-xs text-red-400">

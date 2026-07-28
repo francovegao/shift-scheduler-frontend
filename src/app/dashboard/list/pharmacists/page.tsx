@@ -151,7 +151,7 @@ export default function PharmacistsList() {
     return (
       <tr
         key={item.id}
-        className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-purple-50"
+        className="border-b border-surface-muted even:bg-surface-muted/30 text-sm hover:bg-surface-muted"
       >
         <td className="w-full py-3 pl-6 pr-3 overflow-hidden">
           <div className="flex items-center gap-4">
@@ -165,7 +165,7 @@ export default function PharmacistsList() {
                   className="rounded-full object-cover"
                 />
               ) : (
-                <UserCircleIcon className="w-8 h-8 text-gray-400" />
+                <UserCircleIcon className="w-8 h-8 text-tx-disabled" />
               )}
             </div>
             <div className="flex flex-col justify-center min-w-0">
@@ -173,23 +173,23 @@ export default function PharmacistsList() {
                 {item.firstName} {item?.lastName}
               </h3>
               <p
-                className="text-xs text-gray-500 mt-1 break-all"
+                className="text-xs text-tx-body-muted mt-1 break-all"
                 title={item.email}
               >
                 {item.email}
               </p>
-              <p className="text-xs text-gray-500 mt-1">{item.phone}</p>
+              <p className="text-xs text-tx-body-muted mt-1">{item.phone}</p>
             </div>
           </div>
           <div className="mt-1">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-tx-body-muted">
               License: {item.pharmacistProfile?.licenseNumber}
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-tx-body-muted">
               E-transfer email: {item.pharmacistProfile?.email}
             </p>
             <p
-              className="text-xs text-gray-500 mt-1"
+              className="text-xs text-tx-body-muted mt-1"
               title={getFullAddress(
                 item.pharmacistProfile?.address,
                 item.pharmacistProfile?.city,
@@ -338,7 +338,7 @@ export default function PharmacistsList() {
     );
 
     return (
-      <div className="bg-white p-4 rounded-xl border border-slate-200 mb-4 shadow-sm">
+      <div className="bg-surface p-4 rounded-xl border border-surface-muted dark:border-zinc-800 mb-4 shadow-sm">
         {/* BODY: User Info*/}
         <div className="mb-4">
           <div className="flex items-center gap-4">
@@ -352,28 +352,28 @@ export default function PharmacistsList() {
                   className="rounded-full object-cover"
                 />
               ) : (
-                <UserCircleIcon className="w-8 h-8 text-gray-400" />
+                <UserCircleIcon className="w-8 h-8 text-tx-disabled" />
               )}
             </div>
             <div className="flex flex-col justify-center min-w-0">
               <h3 className="font-semibold">
                 {item.firstName} {item?.lastName}
               </h3>
-              <p className="text-xs text-gray-500 mt-1 break-all">
+              <p className="text-xs text-tx-body-muted mt-1 break-all">
                 {item.email}
               </p>
-              <p className="text-xs text-gray-500 mt-1">{item.phone}</p>
+              <p className="text-xs text-tx-body-muted mt-1">{item.phone}</p>
             </div>
           </div>
           <div className="mt-1">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-tx-body-muted">
               License: {item.pharmacistProfile?.licenseNumber}
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-tx-body-muted">
               E-transfer email: {item.pharmacistProfile?.email}
             </p>
             <p
-              className="text-xs text-gray-500"
+              className="text-xs text-tx-body-muted"
               title={getFullAddress(
                 item.pharmacistProfile?.address,
                 item.pharmacistProfile?.city,
@@ -394,7 +394,7 @@ export default function PharmacistsList() {
 
         {/* STATUS & PERMISSIONS */}
         {role === "admin" && (
-          <div className="bg-slate-50 p-3 rounded-lg mb-4">
+          <div className="bg-surface-muted/50 p-3 rounded-lg mb-4">
             <div className="flex flex-col mt-1">
               <div className="max-w-[170px]">
                 <Status
@@ -447,7 +447,7 @@ export default function PharmacistsList() {
 
         {/* ACTIONS */}
         {role === "admin" && (
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pt-3 border-t border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pt-3 border-t border-surface-muted">
             <div className="flex flex-wrap items-center gap-2">
               {item.pharmacistProfile ? (
                 <div className="w-full sm:w-auto">
@@ -517,7 +517,7 @@ export default function PharmacistsList() {
         )}
 
         {role !== "admin" && (
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pt-3 border-t border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pt-3 border-t border-surface-muted">
             <div className="flex flex-wrap items-center gap-2">
               {item.pharmacistProfile ? (
                 <div className="w-full sm:w-auto">
@@ -550,7 +550,7 @@ export default function PharmacistsList() {
         <h1 className={`font-bold mb-4 text-xl md:text-2xl`}>
           Pharmacists List
         </h1>
-        <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
+        <div className="bg-surface p-4 rounded-md flex-1 m-4 mt-0">
           {/* TOP */}
           <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
             <TableSearch placeholder="Search pharmacists..." />

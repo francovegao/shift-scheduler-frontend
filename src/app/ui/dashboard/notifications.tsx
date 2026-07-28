@@ -104,7 +104,7 @@ export default function Notifications() {
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Notifications</h1>
       </div>
-      <div className="flex flex-col gap-4 mt-4 bg-white p-4 rounded-md shadow-sm">
+      <div className="flex flex-col gap-4 mt-4 bg-surface p-4 rounded-md shadow-sm">
         {notifications.slice(0, visibleCount).map((item: any) => (
           <div
             key={item.id}
@@ -128,10 +128,10 @@ export default function Notifications() {
         ))}
 
         {notifications.length === 0 && (
-          <p className="text-gray-400 text-center">No notifications 🎉</p>
+          <p className="text-tx-disabled text-center">No notifications 🎉</p>
         )}
 
-        <div className="flex items-center pb-1 pt-2 px-1 text-gray-500">
+        <div className="flex items-center pb-1 pt-2 px-1 text-tx-body-muted">
           <ArrowPathIcon className="h-5 w-5" />
           <h3 className="ml-2 text-sm">Updated just now</h3>
         </div>

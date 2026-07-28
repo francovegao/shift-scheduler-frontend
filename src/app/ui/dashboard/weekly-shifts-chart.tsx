@@ -85,7 +85,7 @@ export const WeeklyShiftsChart = () => {
   });
 
   return (
-    <div className="bg-white p-4 rounded-md min-h-[320px] @container flex flex-col">
+    <div className="bg-surface p-4 rounded-md min-h-[320px] @container flex flex-col">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-xl font-semibold">Weekly Breakdown</h1>
       </div>
@@ -99,7 +99,7 @@ export const WeeklyShiftsChart = () => {
               ${
                 selectedWeek === week.value
                   ? "bg-blue-600 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  : "bg-slate-100 text-tx-secondary hover:bg-slate-200"
               }
             `}
           >

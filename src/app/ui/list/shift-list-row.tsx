@@ -80,23 +80,23 @@ export default function ShiftListRow({
   return (
     <tr
       key={item.id}
-      className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-purple-50"
+      className="border-b border-surface-muted even:bg-surface-muted/30 text-sm hover:bg-surface-muted"
     >
       <td className="flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex flex-col">
-          <h3 className="font-semibold">
+          <h3 className="font-semibold text-tx-primary">
             {item.location?.name || item.company?.name}
           </h3>
           {item.location && (
-            <p className="text-xs text-gray-500">{item.company?.name}</p>
+            <p className="text-xs text-tx-body-muted">{item.company?.name}</p>
           )}
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-tx-body-muted">
             {item.location?.email || item.company?.email}
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-tx-body-muted">
             {item.location?.phone || item.company?.phone}
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-tx-body-muted">
             {getFullAddress(
               item.location?.address || item.company?.address,
               item.location?.city || item.company?.city,
@@ -108,14 +108,14 @@ export default function ShiftListRow({
       </td>
       <td className="table-cell whitespace-nowrap px-3 py-3">
         <div className="flex flex-col">
-          <span className="font-medium">
+          <span className="font-medium text-tx-primary">
             {formatInTimeZone(
               item.startTime,
               item.company?.timezone,
               "MMM dd, yyyy",
             )}
           </span>
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-tx-body-muted">
             {formatInTimeZone(item.startTime, item.company?.timezone, "HH:mm")}-
             {formatInTimeZone(item.endTime, item.company?.timezone, "HH:mm")}
           </span>
@@ -130,9 +130,9 @@ export default function ShiftListRow({
         {item.workLogs?.[0] && (
           <>
             {item.workLogs?.[0]?.clockIn && (
-              <p className="text-sm text-gray-500 font-semibold">
+              <p className="text-sm text-tx-body-muted font-semibold">
                 In:{" "}
-                <span className="text-gray-800">
+                <span className="text-tx-secondary">
                   {formatInTimeZone(
                     item.workLogs?.[0]?.clockIn,
                     item.company?.timezone,
@@ -142,9 +142,9 @@ export default function ShiftListRow({
               </p>
             )}
             {item.workLogs?.[0]?.clockOut && (
-              <p className="text-sm text-gray-500 font-semibold">
+              <p className="text-sm text-tx-body-muted font-semibold">
                 Out:{" "}
-                <span className="text-gray-800">
+                <span className="text-tx-secondary">
                   {formatInTimeZone(
                     item.workLogs?.[0]?.clockOut,
                     item.company?.timezone,
@@ -160,7 +160,7 @@ export default function ShiftListRow({
       <td className="table-cell flex items-center gap-4 py-3 pl-6 pr-3 w-48">
         <div className="flex flex-col">
           <h3 className="font-semibold">{item?.title}</h3>
-          <p className="text-xs text-gray-500 break-words">
+          <p className="text-xs text-tx-body-muted break-words">
             {item?.description}
           </p>
         </div>
@@ -174,10 +174,10 @@ export default function ShiftListRow({
                 {item.pharmacist?.user.firstName}{" "}
                 {item.pharmacist?.user.lastName}
               </h3>
-              <p className="text-xs text-gray-500 truncate w-full">
+              <p className="text-xs text-tx-body-muted truncate w-full">
                 {item.pharmacist?.user.email}
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-tx-body-muted">
                 {item.pharmacist?.user.phone}
               </p>
             </Link>
@@ -187,7 +187,7 @@ export default function ShiftListRow({
             <span className="flex items-center justify-center rounded-full px-2 py-1 text-xs bg-orange-500 text-white">
               <h3 className="font-semibold">Draft Shift</h3>
             </span>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-tx-body-muted">
               Publish Shift to make it visible to pharmacists
             </p>
           </div>

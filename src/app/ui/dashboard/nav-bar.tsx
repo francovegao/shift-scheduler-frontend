@@ -151,7 +151,7 @@ export default function NavBar() {
             button={
               <div className="flex items-center gap-1 cursor-pointer hover:bg-sky-100 hover:text-primary rounded-md p-1">
                 {companyLogo ? (
-                  <div className="relative w-7 h-7 overflow-hidden border border-gray-200 shadow-sm">
+                  <div className="relative w-7 h-7 overflow-hidden border border-surface-muted shadow-sm">
                     <Image
                       src={companyLogo.fileUrl}
                       alt="Company logo"
@@ -208,7 +208,7 @@ export default function NavBar() {
             <div className="flex flex-col items-center gap-1 cursor-pointer hover:bg-sky-100 hover:text-primary rounded-md p-1">
               <div className="flex items-center gap-2">
                 {profilePicture ? (
-                  <div className="relative w-7 h-7 rounded-full overflow-hidden border border-gray-200 shadow-sm">
+                  <div className="relative w-7 h-7 rounded-full overflow-hidden border border-surface-muted shadow-sm">
                     <Image
                       src={profilePicture.fileUrl}
                       alt="Profile picture"
@@ -224,7 +224,7 @@ export default function NavBar() {
                   <span className="text-xs font-medium">
                     {appUser.firstName} {appUser.lastName}
                   </span>
-                  <span className="text-[10px] text-gray-500 text-right">
+                  <span className="text-[10px] text-tx-body-muted text-right">
                     {displayRole(appUser.role)}
                   </span>
                 </div>
@@ -239,14 +239,14 @@ export default function NavBar() {
         >
           <Link
             href="/"
-            className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+            className="block px-4 py-2 text-tx-tertiary hover:bg-gray-100"
           >
             <span>Home</span>
           </Link>
 
           <Link
             href="/dashboard/profile"
-            className="flex items-center justify-between w-full gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100"
+            className="flex items-center justify-between w-full gap-2 px-4 py-2 text-tx-tertiary hover:bg-gray-100"
           >
             <span>Profile</span>
             {missingInfoMessage && (

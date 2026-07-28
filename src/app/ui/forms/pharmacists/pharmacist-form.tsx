@@ -125,7 +125,10 @@ export default function PharmacistForm({
           </p>
         </div>
       ) : (
-        <form className="flex flex-col gap-8 text-black" onSubmit={onSubmit}>
+        <form
+          className="flex flex-col gap-8 text-foreground"
+          onSubmit={onSubmit}
+        >
           <h1 className="text-xl font-semibold">
             {type === "create"
               ? "Create a New Pharmacist Profile"
@@ -162,7 +165,7 @@ export default function PharmacistForm({
             />
           )}
 
-          <span className="text-xs text-gray-400 font-medium">
+          <span className="text-xs text-tx-disabled font-medium">
             Pharmacist Information
           </span>
           <div className="flex justify-between flex-wrap gap-4">
@@ -200,7 +203,7 @@ export default function PharmacistForm({
             {role === "admin" ? (
               <>
                 <div className="flex flex-col gap-2 w-full md:w-1/4">
-                  <label className="text-xs text-gray-500">Approved</label>
+                  <label className="text-xs text-tx-body-muted">Approved</label>
                   <select
                     className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
                     {...register("approved", {
@@ -217,7 +220,7 @@ export default function PharmacistForm({
                   )}
                 </div>
                 <div className="flex flex-col gap-2 w-full md:w-1/4">
-                  <label className="text-xs text-gray-500">
+                  <label className="text-xs text-tx-body-muted">
                     Can View All Pharmacies?
                   </label>
                   <select
@@ -236,7 +239,7 @@ export default function PharmacistForm({
                   )}
                 </div>
                 <div className="flex flex-col gap-2 w-full md:w-1/4">
-                  <label className="text-xs text-gray-500">
+                  <label className="text-xs text-tx-body-muted">
                     Can View All Pay Rates?
                   </label>
                   <select
@@ -263,7 +266,7 @@ export default function PharmacistForm({
               </>
             )}
           </div>
-          <span className="text-xs text-gray-400 font-medium">
+          <span className="text-xs text-tx-disabled font-medium">
             Personal Information
           </span>
           <div className="flex justify-between flex-wrap gap-4">
@@ -282,7 +285,7 @@ export default function PharmacistForm({
               error={errors?.city}
             />
             <div className="flex flex-col gap-2 w-full md:w-1/4">
-              <label className="text-xs text-gray-500">Province</label>
+              <label className="text-xs text-tx-body-muted">Province</label>
               <select
                 className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
                 {...register("province")}

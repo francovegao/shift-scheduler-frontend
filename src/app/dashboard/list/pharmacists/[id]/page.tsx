@@ -113,7 +113,7 @@ export default function SinglePharmacistPage({
               )}
 
               {role === "admin" && (
-                <div className="py-1 mb-2 text-gray-800">
+                <div className="py-1 mb-2 text-tx-secondary">
                   {pharmacist.pharmacistProfile?.canViewAllCompanies ===
                     false &&
                   pharmacist.pharmacistProfile?.canViewPayRates === false ? (
@@ -265,7 +265,7 @@ export default function SinglePharmacistPage({
       </div>
       {/* RIGHT */}
       <div className="w-full xl:w-1/3 flex flex-col gap-4">
-        <div className="bg-white p-4 rounded-md">
+        <div className="bg-surface p-4 rounded-md">
           <h1 className="text-xl font-semibold">
             Pharmacist&apos;s Extra Info
           </h1>

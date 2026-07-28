@@ -193,7 +193,7 @@ export default function NavLinks() {
                 href={link.href}
                 onClick={() => hasChildren && toggleMenu(link.name)}
                 className={clsx(
-                  "flex h-[48px] items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-primary md:flex-none md:justify-start md:p-2 md:px-3",
+                  "flex h-[48px] items-center justify-center gap-2 rounded-md bg-surface p-3 text-sm font-medium hover:bg-sky-100 hover:text-primary md:flex-none md:justify-start md:p-2 md:px-3",
                   {
                     "bg-sky-100 text-primary": pathname === link.href,
                   },
@@ -202,7 +202,7 @@ export default function NavLinks() {
                 <LinkIcon className="w-6 shrink-0" />
                 <p className="hidden md:block">{link.name}</p>
                 {hasChildren && (
-                  <div className="block shrink-0 ml-auto text-gray-400 group-hover:text-primary">
+                  <div className="block shrink-0 ml-auto text-tx-disabled group-hover:text-primary">
                     {isExpanded ? (
                       <ChevronDownIcon className="w-4 h-4 transition-transform duration-200" />
                     ) : (
@@ -223,7 +223,7 @@ export default function NavLinks() {
                         key={child.name}
                         href={child.href}
                         className={clsx(
-                          "flex h-[36px] items-center justify-start gap-2 rounded-md bg-gray-50 p-2 text-xs font-medium hover:bg-sky-100 hover:text-primary",
+                          "flex h-[36px] items-center justify-start gap-2 rounded-md bg-surface p-2 text-xs font-medium hover:bg-sky-100 hover:text-primary",
                           {
                             "bg-sky-100 text-primary": pathname === child.href,
                           },

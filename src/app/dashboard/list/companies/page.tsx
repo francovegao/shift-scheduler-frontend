@@ -130,7 +130,7 @@ export default function CompaniesList() {
     return (
       <tr
         key={item.id}
-        className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-purple-50"
+        className="border-b border-surface-muted even:bg-surface-muted/30 text-sm hover:bg-surface-muted"
       >
         <td className="whitespace-nowrap py-3 pl-6 pr-3 max-w-xs">
           <div className="flex items-center gap-4">
@@ -144,20 +144,20 @@ export default function CompaniesList() {
                   style={{ objectFit: "contain" }}
                 />
               ) : (
-                <BuildingStorefrontIcon className="w-8 h-8 text-gray-400" />
+                <BuildingStorefrontIcon className="w-8 h-8 text-tx-disabled" />
               )}
             </div>
             <div className="flex flex-col justify-center min-w-0">
               <h3 className="font-semibold leading-none whitespace-normal">
                 {item.name}
               </h3>
-              <p className="text-xs text-gray-500 mt-1 whitespace-normal break-words">
+              <p className="text-xs text-tx-body-muted mt-1 whitespace-normal break-words">
                 {item.legalName}
               </p>
               <h3 className="text-xs font-medium mt-1">{item.email}</h3>
-              <p className="text-xs text-gray-700">{item.phone}</p>
+              <p className="text-xs text-tx-tertiary">{item.phone}</p>
               <p
-                className="text-xs text-gray-500 mt-1 whitespace-normal break-words"
+                className="text-xs text-tx-body-muted mt-1 whitespace-normal break-words"
                 title={getFullAddress(
                   item?.address,
                   item?.city,
@@ -181,8 +181,8 @@ export default function CompaniesList() {
               {item?.GSTNumber ? `GST: ${item?.GSTNumber}` : ""}
             </p>
             <h3 className="text-xs font-semibold mt-2">{item?.contactName}</h3>
-            <h3 className="text-xs text-gray-700">{item?.contactPhone}</h3>
-            <p className="text-xs text-gray-700">{item?.contactEmail}</p>
+            <h3 className="text-xs text-tx-tertiary">{item?.contactPhone}</h3>
+            <p className="text-xs text-tx-tertiary">{item?.contactEmail}</p>
           </div>
         </td>
         <td className="table-cell whitespace-nowrap px-3 py-3">
@@ -222,7 +222,7 @@ export default function CompaniesList() {
     const companyLogo = item.files?.find((file) => file.type === "logo");
 
     return (
-      <div className="bg-white p-4 rounded-xl border border-slate-200 mb-4 shadow-sm">
+      <div className="bg-surface p-4 rounded-xl border border-surface-muted dark:border-zinc-800 mb-4 shadow-sm">
         {/* BODY: User Info*/}
         <div className="mb-4">
           <div className="flex items-center gap-4">
@@ -236,20 +236,20 @@ export default function CompaniesList() {
                   style={{ objectFit: "contain" }}
                 />
               ) : (
-                <BuildingStorefrontIcon className="w-8 h-8 text-gray-400" />
+                <BuildingStorefrontIcon className="w-8 h-8 text-tx-disabled" />
               )}
             </div>
             <div className="flex flex-col justify-center">
               <h3 className="font-semibold leading-none">{item.name}</h3>
-              <p className="text-xs text-gray-500 mt-1 break-words">
+              <p className="text-xs text-tx-body-muted mt-1 break-words">
                 {item.legalName}
               </p>
               <h3 className="text-xs font-medium mt-1 break-all">
                 {item.email}
               </h3>
-              <p className="text-xs text-gray-700">{item.phone}</p>
+              <p className="text-xs text-tx-tertiary">{item.phone}</p>
               <p
-                className="text-xs text-gray-500 mt-1"
+                className="text-xs text-tx-body-muted mt-1"
                 title={getFullAddress(
                   item?.address,
                   item?.city,
@@ -269,24 +269,24 @@ export default function CompaniesList() {
         </div>
 
         {/* EXTRA INFO */}
-        <div className="bg-slate-50 p-3 rounded-lg mb-4">
+        <div className="bg-surface-muted/50 p-3 rounded-lg mb-4">
           <div className="flex flex-col">
             <p className="text-xs">
               {item?.GSTNumber ? `GST: ${item?.GSTNumber}` : ""}
             </p>
             <h3 className="text-xs font-semibold mt-2">{item?.contactName}</h3>
-            <h3 className="text-xs text-gray-700">{item?.contactPhone}</h3>
-            <p className="text-xs text-gray-700">{item?.contactEmail}</p>
+            <h3 className="text-xs text-tx-tertiary">{item?.contactPhone}</h3>
+            <p className="text-xs text-tx-tertiary">{item?.contactEmail}</p>
           </div>
         </div>
 
         {/* STATUS */}
-        <div className="bg-slate-50 p-3 rounded-lg mb-4">
+        <div className="bg-surface-muted/50 p-3 rounded-lg mb-4">
           <ApprovedStatus status={item.approved ? "approved" : "pending"} />
         </div>
 
         {/* ACTIONS */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pt-3 border-t border-slate-100">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pt-3 border-t border-surface-muted">
           <div className="flex gap-3">
             <Link
               href={`companies/${item.id}`}
@@ -320,7 +320,7 @@ export default function CompaniesList() {
     <AuthWrapper allowedRoles={["admin"]}>
       <div className="p-4 lg:p-8">
         <h1 className={`font-bold mb-4 text-xl md:text-2xl`}>Companies List</h1>
-        <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
+        <div className="bg-surface p-4 rounded-md flex-1 m-4 mt-0">
           {/* TOP */}
           <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
             <TableSearch placeholder="Search companies..." />

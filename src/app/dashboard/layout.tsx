@@ -22,11 +22,11 @@ export default function DashboardLayout({
         <NotificationProvider>
           <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
             {/* LEFT */}
-            <div className="w-full flex-none md:w-52 bg-stone-200 ">
+            <div className="w-full flex-none md:w-52 bg-surface-muted ">
               <SideNav />
             </div>
             {/* RIGHT */}
-            <div className="flex flex-col flex-grow md:overflow-y-auto bg-stone-100">
+            <div className="flex flex-col flex-grow md:overflow-y-auto bg-background">
               <NavBar />
               {children}
             </div>

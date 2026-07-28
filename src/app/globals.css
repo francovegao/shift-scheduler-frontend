@@ -2,7 +2,10 @@
 
 :root {
   --background: #f2f2f2;
+  --surface: #ffffff;
+  --surface-muted: #e7e5e4;
   --foreground: #171717;
+  --foreground-muted: #6b7280;
   --primary: #003768;
   --primary-100: #015b97;
   --secondary: #44c3d3;
@@ -10,11 +13,20 @@
   --complementary-one: #ed2375;
   --complementary-one-100: #e84888;
   --complementary-two: #f8a11c;
+  --text-primary: #171717; /* Replaces gray-900 (Main headings) */
+  --text-secondary: #27272a; /* Replaces gray-800 (Body text) */
+  --text-tertiary: #3f3f46; /* Replaces gray-700 (Subtitles) */
+  --text-muted: #71717a; /* Replaces gray-600 (Captions/Labels) */
+  --text-body-muted: #6b7280;
+  --text-disabled: #a1a1aa; /* Replaces gray-400 (Placeholder text) */
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
   --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
   --color-primary: var(--primary);
   --color-primary-100: var(--primary-100);
   --color-secondary: var(--secondary);
@@ -24,12 +36,28 @@
   --color-complementary-two: var(--complementary-two);
   --font-sans: var(--font-poppins);
   --font-mono: var(--font-poppins);
+  --color-tx-primary: var(--text-primary);
+  --color-tx-secondary: var(--text-secondary);
+  --color-tx-tertiary: var(--text-tertiary);
+  --color-tx-muted: var(--text-muted);
+  --color-tx-body-muted: var(--text-body-muted);
+  --color-tx-disabled: var(--text-disabled);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
+    --surface: #141414;
+    --surface-muted: #1c1917;
     --foreground: #ededed;
+    --foreground-muted: #9ca3af;
+    --primary: #44c3d3;
+    --text-primary: #f4f4f5; /* Turns into light zinc-100 */
+    --text-secondary: #e4e4e7; /* Turns into light zinc-200 */
+    --text-tertiary: #d4d4d8; /* Turns into light zinc-300 */
+    --text-muted: #a1a1aa; /* Turns into light zinc-400 */
+    --text-body-muted: #71717a; /* zinc-500
+    --text-disabled: #52525b; /* Turns into dark zinc-600 */
   }
 }
 
@@ -48,15 +76,48 @@ h1 {
   width: 100% !important;
   border: none !important;
   font-family: "Inter", sans-serif !important;
+  background-color: var(--surface) !important;
+  color: var(--foreground) !important;
+}
+
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+  background-color: var(--surface-muted) !important;
 }
 
 .react-calendar__navigation__label__labelText {
   font-weight: 600;
 }
 
+.react-calendar__month-view__weekdays {
+  color: var(--text-muted) !important;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.react-calendar__tile {
+  color: var(--foreground) !important;
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background-color: var(--surface-muted) !important;
+}
+
 .react-calendar__tile--active {
-  background-color: #c3ebfa !important;
-  color: black !important;
+  background-color: var(--primary) !important;
+  color: var(--background) !important;
+  font-weight: 600;
+}
+
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+  background-color: var(--primary-100) !important;
+}
+
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: var(--text-disabled) !important;
 }
 
 /*Big Calendar Styles*/
@@ -109,15 +170,36 @@ h1 {
 }
 
 .rbc-timeslot-group {
-  background-color: #f7fdff !important;
+  background-color: var(--surface) !important;
+  border-bottom: 1px solid var(--surface-muted) !important;
 }
 
 .rbc-day-slot {
   font-size: 14px !important;
 }
 
+.rbc-day-bg:hover {
+  background-color: var(--surface-muted) !important;
+  opacity: 0.4;
+}
+
+.rbc-day-bg.rbc-today,
+.rbc-month-view .rbc-today {
+  background-color: var(--surface-muted) !important;
+}
+
+.rbc-day-bg.rbc-off-range-bg {
+  background-color: var(--surface-muted) !important;
+  opacity: 0.5;
+}
+
+.rbc-month-row .rbc-off-range a,
+.rbc-month-row .rbc-off-range span {
+  color: var(--text-disabled) !important;
+}
+
 .rbc-month-row {
-  background-color: #f7fdff !important;
+  background-color: var(--surface) !important;
 }
 
 .rbc-date-cell {

@@ -70,7 +70,7 @@ export default function ShiftInfoModal({
     <div className="p-4 flex flex-col gap-4 text-primary">
       <h1 className="text-xl font-semibold">Shift Info</h1>
 
-      <div className="bg-white p-4 rounded-xl border border-slate-200 mb-4 shadow-sm">
+      <div className="bg-surface p-4 rounded-xl border border-surface-muted mb-4 shadow-sm">
         {/* HEADER: Status & Pay */}
         <div className="flex justify-between items-start mb-3">
           <div className="text-left space-y-0.5 w-full">
@@ -78,9 +78,9 @@ export default function ShiftInfoModal({
             {workLog && (
               <>
                 {workLog?.clockIn && (
-                  <p className="text-sm text-gray-500 font-semibold">
+                  <p className="text-sm text-tx-body-muted font-semibold">
                     In:{" "}
-                    <span className="text-gray-800">
+                    <span className="text-tx-secondary">
                       {formatInTimeZone(
                         workLog?.clockIn,
                         data.company?.timezone,
@@ -90,9 +90,9 @@ export default function ShiftInfoModal({
                   </p>
                 )}
                 {workLog?.clockOut && (
-                  <p className="text-sm text-gray-500 font-semibold">
+                  <p className="text-sm text-tx-body-muted font-semibold">
                     Out:{" "}
-                    <span className="text-gray-800">
+                    <span className="text-tx-secondary">
                       {formatInTimeZone(
                         workLog?.clockOut,
                         data.company?.timezone,
@@ -112,35 +112,35 @@ export default function ShiftInfoModal({
 
         {/* BODY: Date & Time */}
         <div className="mb-4">
-          <h3 className="font-bold text-slate-800">
+          <h3 className="font-bold text-tx-primary">
             {formatInTimeZone(
               data.startTime,
               data.company?.timezone,
               "EEEE, MMM dd, yyyy",
             )}
           </h3>
-          <p className="text-slate-600">
+          <p className="text-tx-primary">
             {formatInTimeZone(data.startTime, data.company?.timezone, "HH:mm")}{" "}
             - {formatInTimeZone(data.endTime, data.company?.timezone, "HH:mm")}
           </p>
-          <p className="font-semibold">{data?.title}</p>
-          <p className="text-xs text-gray-500 break-words">
+          <p className="font-semibold text-tx-muted">{data?.title}</p>
+          <p className="text-xs text-tx-body-muted break-words">
             {data?.description}
           </p>
         </div>
 
         {/* LOCATION */}
-        <div className="bg-slate-50 p-3 rounded-lg mb-4">
-          <p className="font-medium">
+        <div className="bg-surface-muted text-tx-muted p-3 rounded-lg mb-4 border-primary">
+          <p className="font-medium text-tx-primary">
             {data.location?.name || data.company?.name}
           </p>
-          <p className="text-sm text-slate-500 leading-tight">
+          <p className="text-sm  leading-tight">
             {data.location?.email || data.company?.email}
           </p>
-          <p className="text-sm text-slate-500 leading-tight">
+          <p className="text-sm  leading-tight">
             {data.location?.phone || data.company?.phone}
           </p>
-          <p className="text-sm text-slate-500 leading-tight">
+          <p className="text-sm  leading-tight">
             {getFullAddress(
               data.location?.address || data.company?.address,
               data.location?.city || data.company?.city,
@@ -151,7 +151,7 @@ export default function ShiftInfoModal({
         </div>
 
         {/* PHARMACIST */}
-        <div className="bg-slate-50 p-3 rounded-lg mb-4">
+        <div className="bg-surface-muted p-3 rounded-lg mb-4">
           {data.published === true ? (
             <>
               {data.status !== "open" && (
@@ -162,19 +162,19 @@ export default function ShiftInfoModal({
                         {data.pharmacist?.user.firstName}{" "}
                         {data.pharmacist?.user.lastName}
                       </h3>
-                      <p className="text-sm text-gray-500 truncate">
+                      <p className="text-sm text-tx-body-muted truncate">
                         {data.pharmacist?.user.email}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-tx-body-muted">
                         {data.pharmacist?.user.phone}
                       </p>
                       {data.pharmacist?.licenseNumber && (
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-tx-body-muted">
                           License: {data.pharmacist?.licenseNumber}
                         </p>
                       )}
                       {data.pharmacist?.email && (
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-tx-body-muted">
                           E-transfer: {data.pharmacist?.email}
                         </p>
                       )}
@@ -187,19 +187,19 @@ export default function ShiftInfoModal({
                           {data.pharmacist?.user.firstName}{" "}
                           {data.pharmacist?.user.lastName}
                         </h3>
-                        <p className="text-sm text-gray-500 truncate">
+                        <p className="text-sm text-tx-body-muted truncate">
                           {data.pharmacist?.user.email}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-tx-body-muted">
                           {data.pharmacist?.user.phone}
                         </p>
                         {data.pharmacist?.licenseNumber && (
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-tx-body-muted">
                             License: {data.pharmacist?.licenseNumber}
                           </p>
                         )}
                         {data.pharmacist?.email && (
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-tx-body-muted">
                             E-transfer: {data.pharmacist?.email}
                           </p>
                         )}
@@ -210,7 +210,7 @@ export default function ShiftInfoModal({
               )}
             </>
           ) : (
-            <div className="flex flex-col">
+            <div className="flex flex-col ">
               <span className="flex items-center justify-center rounded-full max-w-[130px] px-2 py-1 text-xs bg-orange-500 text-white">
                 <h3 className="font-semibold">Draft Shift</h3>
               </span>
@@ -220,18 +220,18 @@ export default function ShiftInfoModal({
 
         {/* CANCELLATION */}
         {data.status === "taken" && !workLog && (
-          <div className="bg-slate-50 p-3 rounded-lg mb-4">
+          <div className="bg-surface-muted/50 p-3 rounded-lg mb-4">
             <div className="font-medium">
               <p className="text-sm text-complementary-one">
                 To cancel this shift please contact:
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-tx-body-muted">
                 {data.company?.contactName}
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-tx-body-muted">
                 {data.company?.contactPhone}
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-tx-body-muted">
                 {data.company?.contactEmail}
               </p>
               {!!(

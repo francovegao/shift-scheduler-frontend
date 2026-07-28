@@ -29,7 +29,7 @@ export default async function PharmacistPage({
               <h1 className={`font-semibold mb-4 text-xl md:text-2xl`}>
                 My Shifts
               </h1>
-              <div className="h-full bg-white p-4 rounded-md">
+              <div className="h-full bg-surface p-4 rounded-md">
                 <BigCalendarContainer type="dashboard_pharmacist" />
               </div>
             </div>

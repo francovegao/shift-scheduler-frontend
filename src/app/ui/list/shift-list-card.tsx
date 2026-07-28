@@ -78,7 +78,7 @@ export default function ShiftListCard({
   role: string | null;
 }) {
   return (
-    <div className="bg-white p-4 rounded-xl border border-slate-200 mb-4 shadow-sm">
+    <div className="bg-surface p-4 rounded-xl border border-surface-muted dark:border-zinc-800 mb-4 shadow-sm">
       {/* HEADER: Status & Pay */}
       <div className="flex justify-between items-start mb-3">
         <div className="text-left space-y-2 w-full">
@@ -86,9 +86,9 @@ export default function ShiftListCard({
           {item.workLogs?.[0] && (
             <div className="text-left space-y-0.2 w-full">
               {item.workLogs?.[0]?.clockIn && (
-                <p className="text-sm text-gray-500 font-semibold">
+                <p className="text-sm text-tx-body-muted font-semibold">
                   In:{" "}
-                  <span className="text-gray-800">
+                  <span className="text-tx-secondary">
                     {formatInTimeZone(
                       item.workLogs?.[0]?.clockIn,
                       item.company?.timezone,
@@ -98,9 +98,9 @@ export default function ShiftListCard({
                 </p>
               )}
               {item.workLogs?.[0]?.clockOut && (
-                <p className="text-sm text-gray-500 font-semibold">
+                <p className="text-sm text-tx-body-muted font-semibold">
                   Out:{" "}
-                  <span className="text-gray-800">
+                  <span className="text-tx-secondary">
                     {formatInTimeZone(
                       item.workLogs?.[0]?.clockOut,
                       item.company?.timezone,
@@ -122,40 +122,42 @@ export default function ShiftListCard({
             </>
           )}
         </div>
-        <span className="font-medium text-lg text-green-700">
+        <span className="font-medium text-lg text-tx-primary">
           ${parseFloat(item.payRate).toFixed(2)}/hr
         </span>
       </div>
 
       {/* BODY: Date & Time */}
       <div className="mb-4">
-        <h3 className="font-bold text-slate-800">
+        <h3 className="font-bold text-tx-primary">
           {formatInTimeZone(
             item.startTime,
             item.company?.timezone,
             "EEEE, MMM dd, yyyy",
           )}
         </h3>
-        <p className="text-slate-600">
+        <p className="text-tx-secondary">
           {formatInTimeZone(item.startTime, item.company?.timezone, "HH:mm")} -{" "}
           {formatInTimeZone(item.endTime, item.company?.timezone, "HH:mm")}
         </p>
         <p className="font-semibold">{item?.title}</p>
-        <p className="text-xs text-gray-500 break-words">{item?.description}</p>
+        <p className="text-xs text-tx-body-muted break-words">
+          {item?.description}
+        </p>
       </div>
 
       {/* LOCATION */}
-      <div className="bg-slate-50 p-3 rounded-lg mb-4">
+      <div className="bg-surface-muted/50 p-3 rounded-lg mb-4">
         <p className="font-medium">
           {item.location?.name || item.company?.name}
         </p>
-        <p className="text-sm text-slate-500 leading-tight">
+        <p className="text-sm text-tx-muted leading-tight">
           {item.company?.email}
         </p>
-        <p className="text-sm text-slate-500 leading-tight">
+        <p className="text-sm text-tx-muted leading-tight">
           {item.company?.phone}
         </p>
-        <p className="text-sm text-slate-500 leading-tight">
+        <p className="text-sm text-tx-muted leading-tight">
           {getFullAddress(
             item.location?.address || item.company?.address,
             item.location?.city || item.company?.city,
@@ -166,7 +168,7 @@ export default function ShiftListCard({
       </div>
 
       {/* PHARMACIST */}
-      <div className="bg-slate-50 p-3 rounded-lg mb-4">
+      <div className="bg-surface-muted/50 p-3 rounded-lg mb-4">
         {item.published === true ? (
           <div className="flex flex-col">
             <Link href={`list/pharmacists/${item.pharmacist?.userId}`}>
@@ -174,10 +176,10 @@ export default function ShiftListCard({
                 {item.pharmacist?.user.firstName}{" "}
                 {item.pharmacist?.user.lastName}
               </h3>
-              <p className="text-xs text-gray-500 truncate">
+              <p className="text-xs text-tx-body-muted truncate">
                 {item.pharmacist?.user.email}
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-tx-body-muted">
                 {item.pharmacist?.user.phone}
               </p>
             </Link>
@@ -187,7 +189,7 @@ export default function ShiftListCard({
             <span className="flex items-center justify-center rounded-full max-w-[130px] px-2 py-1 text-xs bg-orange-500 text-white">
               <h3 className="font-semibold">Draft Shift</h3>
             </span>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-tx-body-muted">
               Publish Shift to make it visible to pharmacists
             </p>
           </div>
@@ -195,7 +197,7 @@ export default function ShiftListCard({
       </div>
 
       {/* ACTIONS */}
-      <div className="flex justify-between items-center pt-3 border-t border-slate-100">
+      <div className="flex justify-between items-center pt-3 border-t border-surface-muted">
         <div className="flex gap-2">
           {role === "admin" &&
             item.status === "open" &&
