@@ -116,11 +116,16 @@ const columns = [
 
 interface ShiftsListContainerProps {
   timeFilter?: "past" | "upcoming";
+  bigCalendarType:
+    | "dashboard_manager"
+    | "past_shifts_manager"
+    | "upcoming_shifts_manager";
   title: string;
 }
 
 export default function ShiftsListContainer({
   timeFilter,
+  bigCalendarType,
   title,
 }: ShiftsListContainerProps) {
   const router = useRouter();
@@ -303,7 +308,7 @@ export default function ShiftsListContainer({
           {(role === "admin" ||
             role === "pharmacy_manager" ||
             role === "location_manager") && (
-            <BigCalendarContainer type="dashboard_manager" />
+            <BigCalendarContainer type={bigCalendarType} />
           )}
           {role === "relief_pharmacist" && (
             <BigCalendar token={token} data={data} />
