@@ -10,7 +10,7 @@ export default async function ShiftsCalendarContainer({
   const { date } = await searchParams;
 
   return (
-    <div className="w-full md:col-span-4 bg-white pb-4 px-4 rounded-md shadow-sm">
+    <div className="w-full md:col-span-4 bg-surface pb-4 px-4 rounded-md shadow-sm">
       <h1 className="text-xl font-semibold my-4">View Open Shifts</h1>
       <p className="text-xs">
         Select a date to view the corresponding open shifts
@@ -20,7 +20,7 @@ export default async function ShiftsCalendarContainer({
         <h1 className="text-xl font-semibold my-4">Shifts</h1>
         <Link
           href="/dashboard/openShifts"
-          className="text-gray-500 text-xs font-medium px-2.5 py-1.5 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors"
+          className="text-tx-body-muted text-xs font-medium px-2.5 py-1.5 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors"
         >
           View All
         </Link>
@@ -30,7 +30,7 @@ export default async function ShiftsCalendarContainer({
       </div>
       <Link
         href="/dashboard/openShifts"
-        className="text-gray-500 text-xs hover:bg-gray-100 hover:text-blue-600"
+        className="text-tx-body-muted text-xs hover:bg-gray-100 hover:text-blue-600"
       >
         Click Here to view the complete list of open shifts
       </Link>

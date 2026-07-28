@@ -117,14 +117,14 @@ export default function ProfilePage() {
         )}
 
         {/* <div className="p-2">
-          <div className="flex flex-col gap-2 text-black">
+          <div className="flex flex-col gap-2 text-foreground">
             <div className="flex items-center justify-start gap-4">
               <h1 className="text-xl font-semibold">User Files</h1>
             </div>
-            <div className="flex justify-between flex-wrap p-4 gap-4 bg-white rounded-md shadow-sm">
+            <div className="flex justify-between flex-wrap p-4 gap-4 bg-surface rounded-md shadow-sm">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
                 <div className="flex flex-col">
-                  <label className="text-gray-500">Files:</label>
+                  <label className="text-tx-body-muted">Files:</label>
                   <p>
                     {user.files?.fileName
                       ?.map((f: { name: any }) => f.name)
@@ -137,7 +137,7 @@ export default function ProfilePage() {
         </div> */}
 
         <div className="p-2">
-          <div className="flex flex-col gap-2 text-black">
+          <div className="flex flex-col gap-2 text-foreground">
             {/*Title and Edit Button */}
             <div className="flex items-center justify-start gap-4">
               <h1 className="text-xl font-semibold">Security</h1>
@@ -145,10 +145,10 @@ export default function ProfilePage() {
             </div>
 
             {/*Information */}
-            <div className="flex justify-between flex-wrap p-4 gap-4 bg-white rounded-md shadow-sm">
+            <div className="flex justify-between flex-wrap p-4 gap-4 bg-surface rounded-md shadow-sm">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
                 <div className="flex flex-col">
-                  <label className="text-gray-500">Password:</label>
+                  <label className="text-tx-body-muted">Password:</label>
                   <p>********</p>
                 </div>
               </div>

@@ -3,9 +3,11 @@
 import {
   BuildingOffice2Icon,
   BuildingOfficeIcon,
+  ClockIcon,
   CurrencyDollarIcon,
   NoSymbolIcon,
   PencilIcon,
+  PencilSquareIcon,
   PlusIcon,
   ShieldExclamationIcon,
   TrashIcon,
@@ -20,6 +22,7 @@ import PharmacistForm from "../forms/pharmacists/pharmacist-form";
 import LinkManagerToLocationForm from "../forms/pharmacies/link-manager-to-location-form";
 import ChangePasswordForm from "../forms/security/change-password-form";
 import SelectManagedCompaniesForm from "../forms/pharmacies/select-managed-companies-form";
+import ShiftWorkLogForm from "../forms/shifts/shift-work-log-form";
 
 export default function RelatedDataModal({
   type,
@@ -35,6 +38,7 @@ export default function RelatedDataModal({
     | "set_allowed_companies"
     | "set_allowed_pay_rates"
     | "set_managed_companies"
+    | "upsert_work_log"
     | "update_password";
   token: string;
   data?: any;
@@ -103,6 +107,15 @@ export default function RelatedDataModal({
           data={data}
         />
       </div>
+    ) : type === "upsert_work_log" && data ? (
+      <div>
+        <ShiftWorkLogForm
+          setOpen={setOpen}
+          token={token}
+          data={data}
+          workLogId={id}
+        />
+      </div>
     ) : type === "update_password" ? (
       <div>
         <ChangePasswordForm setOpen={setOpen} />
@@ -167,6 +180,12 @@ export default function RelatedDataModal({
             <span>Set Managed Pharmacies</span>
           </>
         )}
+        {type === "upsert_work_log" && (
+          <>
+            <PencilSquareIcon className="w-4 h-4" />
+            <span>Upsert Worklog</span>
+          </>
+        )}
         {type === "update_password" && (
           <>
             <ShieldExclamationIcon className="w-4 h-4" />
@@ -177,7 +196,7 @@ export default function RelatedDataModal({
 
       {open && (
         <div className="fixed inset-0 w-screen h-screen bg-black bg-opacity-60 z-50 flex items-center justify-center">
-          <div className="bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] max-h-[90vh] overflow-y-scroll">
+          <div className="bg-surface p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] max-h-[90vh] overflow-y-scroll">
             <Form />
             <div
               className="absolute top-4 right-4 cursor-pointer"

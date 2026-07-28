@@ -16,30 +16,30 @@ import SortListColumns from "@/app/ui/list/sort-list-columns";
 type LocationsList = Location & { company: Company };
 
 type Location = {
-    id: string,
-    name: string,
-    legalName?: string,
-    GSTNumber?: string,
-    email?: string,
-    phone?: string,
-    address?: string,
-    city?: string,
-    province?: string,
-    postalCode?: string,
-    companyId: string,
-}
+  id: string;
+  name: string;
+  legalName?: string;
+  GSTNumber?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  province?: string;
+  postalCode?: string;
+  companyId: string;
+};
 
 type Company = {
-    id: number,
-    approved: boolean,
-    name: string,
-    email?: string,
-    phone?: string,
-    address?: string,
-    city?: string,
-    province?: string,
-    postalCode?: string,
-}
+  id: number;
+  approved: boolean;
+  name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  province?: string;
+  postalCode?: string;
+};
 
 const columns = [
   {
@@ -77,12 +77,12 @@ const columns = [
     accessor: "city",
     className: "table-cell px-3 py-5 font-medium",
   },
-    {
+  {
     header: "Province",
     accessor: "province",
     className: "table-cell px-3 py-5 font-medium",
   },
-    {
+  {
     header: "Postal Code",
     accessor: "postalCode",
     className: "table-cell px-3 py-5 font-medium",
@@ -90,48 +90,53 @@ const columns = [
   {
     header: "",
     accessor: "edit",
-    className:"relative py-3 pl-6 pr-3"
+    className: "relative py-3 pl-6 pr-3",
   },
 ];
 
-export default function LocationsList(){
+export default function LocationsList() {
+  const { firebaseUser, appUser, loading } = useAuth();
+  const [token, setToken] = useState("");
 
-    const { firebaseUser, appUser, loading } = useAuth();
-    const [token, setToken] = useState("");
+  const [locations, setLocations] = useState<any[]>([]);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [isFetching, setIsFetching] = useState(true);
 
-    const [locations, setLocations] = useState<any[]>([]);
-    const [totalPages, setTotalPages] = useState<number>(1);
-    const [isFetching, setIsFetching] = useState(true);
+  const searchParams = useSearchParams();
 
-    const searchParams = useSearchParams();
+  // Get token
+  useEffect(() => {
+    if (firebaseUser) {
+      firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
+        setToken(idToken);
+      });
+    }
+  }, [firebaseUser]);
 
-    // Get token
-    useEffect(() => {
-      if (firebaseUser) {
-        firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
-          setToken(idToken);
-        });
-      }
-    }, [firebaseUser]);
-
-    // Fetch locations client-side
-    useEffect(() => {
+  // Fetch locations client-side
+  useEffect(() => {
     const getLocations = async () => {
       setIsFetching(true);
       try {
-        const page = searchParams.get('page');
-        const query = searchParams.get('query');
+        const page = searchParams.get("page");
+        const query = searchParams.get("query");
         const queryParams: Record<string, string> = {};
 
         searchParams.forEach((value, key) => {
-          if (key !== 'page' && key !== 'query') {
+          if (key !== "page" && key !== "query") {
             queryParams[key] = value;
-        }});
+          }
+        });
 
         const currentPage = page ? parseInt(page) : 1;
-        const search = query ?? '';
+        const search = query ?? "";
 
-        const locationsResponse = await fetchLocations(search, currentPage, queryParams, token);
+        const locationsResponse = await fetchLocations(
+          search,
+          currentPage,
+          queryParams,
+          token,
+        );
         setLocations(locationsResponse?.data ?? []);
         setTotalPages(locationsResponse?.meta?.totalPages ?? 1);
       } catch (err) {
@@ -141,53 +146,78 @@ export default function LocationsList(){
       }
     };
 
-    if (token){ getLocations() };
+    if (token) {
+      getLocations();
+    }
   }, [token, searchParams]);
 
-    if (loading || isFetching) return <div>Loading...</div>;
-    
-    if (!firebaseUser || !appUser) {
-        return null;  
-    }
+  if (loading || isFetching) return <div>Loading...</div>;
 
-    const role = appUser.role;
+  if (!firebaseUser || !appUser) {
+    return null;
+  }
 
-    const renderRow = (item: LocationsList) => (
+  const role = appUser.role;
+
+  const renderRow = (item: LocationsList) => (
     <tr
       key={item.id}
-      className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-purple-50"
+      className="border-b border-surface-muted even:bg-surface-muted/30 text-sm hover:bg-surface-muted"
     >
       <td className="flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex flex-col">
           <h3 className="font-semibold">{item.name}</h3>
-          <p className="text-xs text-gray-500">{item.company.name}</p>
+          <p className="text-xs text-tx-body-muted">{item.company.name}</p>
         </div>
       </td>
-      <td className="table-cell whitespace-nowrap px-3 py-3">{item?.legalName}</td>
-      <td className="table-cell whitespace-nowrap px-3 py-3">{item?.GSTNumber}</td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">
+        {item?.legalName}
+      </td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">
+        {item?.GSTNumber}
+      </td>
       <td className="table-cell whitespace-nowrap px-3 py-3">{item.email}</td>
       <td className="table-cell whitespace-nowrap px-3 py-3">{item.phone}</td>
       <td className="table-cell whitespace-nowrap px-3 py-3">{item.address}</td>
       <td className="table-cell whitespace-nowrap px-3 py-3">{item.city}</td>
-      <td className="table-cell whitespace-nowrap px-3 py-3">{item.province}</td>
-      <td className="table-cell whitespace-nowrap px-3 py-3">{item.postalCode}</td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">
+        {item.province}
+      </td>
+      <td className="table-cell whitespace-nowrap px-3 py-3">
+        {item.postalCode}
+      </td>
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex justify-end gap-3">
-          <Link 
+          <Link
             href={`locations/${item.id}`}
             className="rounded-md border p-2 hover:bg-gray-100"
           >
-            <EyeIcon className="w-5"  />
+            <EyeIcon className="w-5" />
           </Link>
-          { role === "pharmacy_manager" && (
-            <> 
-              <FormContainer table="location" type="update" token={token} data={item}/>
+          {role === "pharmacy_manager" && (
+            <>
+              <FormContainer
+                table="location"
+                type="update"
+                token={token}
+                data={item}
+              />
             </>
           )}
           {role === "admin" && (
-            <> 
-              <FormContainer table="location" type="update" token={token} data={item}/>
-              <FormContainer table="location" type="delete" token={token} id={item.id}/>
+            <>
+              <FormContainer
+                table="location"
+                type="update"
+                token={token}
+                data={item}
+              />
+              <FormContainer
+                table="location"
+                type="delete"
+                token={token}
+                id={item.id}
+              />
             </>
           )}
         </div>
@@ -198,43 +228,47 @@ export default function LocationsList(){
   return (
     <AuthWrapper allowedRoles={["admin", "pharmacy_manager"]}>
       <div className="p-4 lg:p-8">
-          <h1 className={`font-bold mb-4 text-xl md:text-2xl`}>
-              Locations List
-          </h1>
-          <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-              {/* TOP */}
-              <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-                  <TableSearch placeholder="Search locations..." />
-                  <SortListColumns options={[
-                      { value: 'name:asc', label: 'Company Name ↑' },
-                      { value: 'name:desc', label: 'Company Name ↓' },
-                      { value: 'legalName:asc', label: 'Legal Name ↑' },
-                      { value: 'legalName:desc', label: 'Legal Name ↓' },
-                      { value: 'company:asc', label: 'Company ↑' },
-                      { value: 'company:desc', label: 'Company ↓' },
-                    ]} />
-                { (role === "admin" || role === "pharmacy_manager") && (
-                  <FormContainer table="location" type="create" token={token} />
-                  )}
-              </div>
-
-              {locations.length === 0 ? (
-                <div className="mt-5 flex w-full justify-center text-sm">
-                  No locations found
-                </div>
-              ) : (   
-                <>   
-                  {/* LIST */}
-                  <div style={{overflowX: 'scroll'}}>
-                      <Table columns={columns} renderRow={renderRow} data={locations}/>
-                  </div>
-                  {/* PAGINATION */}
-                  <div className="mt-5 flex w-full justify-center">
-                      <Pagination totalPages={totalPages} />
-                  </div>
-                </>
-              )}
+        <h1 className={`font-bold mb-4 text-xl md:text-2xl`}>Locations List</h1>
+        <div className="bg-surface p-4 rounded-md flex-1 m-4 mt-0">
+          {/* TOP */}
+          <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+            <TableSearch placeholder="Search locations..." />
+            <SortListColumns
+              options={[
+                { value: "name:asc", label: "Company Name ↑" },
+                { value: "name:desc", label: "Company Name ↓" },
+                { value: "legalName:asc", label: "Legal Name ↑" },
+                { value: "legalName:desc", label: "Legal Name ↓" },
+                { value: "company:asc", label: "Company ↑" },
+                { value: "company:desc", label: "Company ↓" },
+              ]}
+            />
+            {(role === "admin" || role === "pharmacy_manager") && (
+              <FormContainer table="location" type="create" token={token} />
+            )}
           </div>
+
+          {locations.length === 0 ? (
+            <div className="mt-5 flex w-full justify-center text-sm">
+              No locations found
+            </div>
+          ) : (
+            <>
+              {/* LIST */}
+              <div style={{ overflowX: "scroll" }}>
+                <Table
+                  columns={columns}
+                  renderRow={renderRow}
+                  data={locations}
+                />
+              </div>
+              {/* PAGINATION */}
+              <div className="mt-5 flex w-full justify-center">
+                <Pagination totalPages={totalPages} />
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </AuthWrapper>
   );

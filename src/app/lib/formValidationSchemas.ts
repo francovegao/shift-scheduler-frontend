@@ -330,3 +330,13 @@ export const generateReportSchema = z.object({
 });
 
 export type GenerateReportSchema = z.infer<typeof generateReportSchema>;
+
+export const shiftWorkLogSchema = z.object({
+  id: z.string().optional(),
+  shiftId: z.string().min(1, { message: "Shift ID is required" }),
+  pharmacistId: z.string().min(1, { message: "Pharmacist ID is required" }),
+  startMinutes: z.string().min(1, { message: "Start time is required." }),
+  endMinutes: z.string().min(1, { message: "End time is required." }),
+});
+
+export type ShiftWorkLogSchema = z.infer<typeof shiftWorkLogSchema>;

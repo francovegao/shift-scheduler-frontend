@@ -95,7 +95,7 @@ export default function FileUploader({
     <div className="flex flex-col gap-2 w-full justify-center">
       {label && (
         <label
-          className="text-xs text-gray-500 flex items-center gap-2"
+          className="text-xs text-tx-body-muted flex items-center gap-2"
           htmlFor="resume"
         >
           <CloudArrowUpIcon className="w-5" />
@@ -124,7 +124,7 @@ export default function FileUploader({
               setErrorMessage(null);
               fileInputRef.current?.click();
             }}
-            className="w-full h-full border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition text-gray-500"
+            className="w-full h-full border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition text-tx-body-muted"
           >
             <span className="text-2xl font-light">+</span>
             <span className="text-[10px] uppercase font-bold">Add File</span>
@@ -171,7 +171,7 @@ export default function FileUploader({
 
       {value && !isCompressing && (
         <div className="flex flex-col gap-2">
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-tx-body-muted">
             {(value.size / (1024 * 1024)).toFixed(2)} MB
           </span>
           <div className="flex gap-2">

@@ -5,10 +5,10 @@ import {
   BuildingOffice2Icon,
   BuildingOfficeIcon,
   UserIcon,
-} from '@heroicons/react/24/outline';
-import { fetchAdminCardsData } from '@/app/lib/data';
-import { useAuth } from '../context/auth-context';
-import { SetStateAction, useEffect, useState } from 'react';
+} from "@heroicons/react/24/outline";
+import { fetchAdminCardsData } from "@/app/lib/data";
+import { useAuth } from "../context/auth-context";
+import { SetStateAction, useEffect, useState } from "react";
 
 const iconMap = {
   pharmacists: UserIcon,
@@ -28,42 +28,64 @@ export default function CardWrapperAdmin() {
   const [draftShifts, setDraftShifts] = useState<number>(0);
 
   // Get token
-    useEffect(() => {
-      if (firebaseUser) {
-        firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
-          setToken(idToken);
-        });
-      }
-    }, [firebaseUser]);
+  useEffect(() => {
+    if (firebaseUser) {
+      firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
+        setToken(idToken);
+      });
+    }
+  }, [firebaseUser]);
 
   // Fetch data when token is ready
-        useEffect(() => {
-          const getData = async () => {
-            setIsFetching(true);
-            try {
-              const cardResponse = await fetchAdminCardsData( token);
-              setShifts(cardResponse.numberOfShifts);
-              setCompanies(cardResponse.numberOfCompanies);
-              setDraftShifts(cardResponse.numberOfDraftShifts);
-              setPharmacists(cardResponse.numberOfPharmacists);
-            } catch (err) {
-              console.error("Failed to fetch cards data", err);
-            } finally {
-              setIsFetching(false);
-            }
-          };
-          if (token){ getData() };
-    }, [ token ]);
-  
-      if (loading || isFetching) return <div>Loading...</div>;
-      if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
-  
+  useEffect(() => {
+    const getData = async () => {
+      setIsFetching(true);
+      try {
+        const cardResponse = await fetchAdminCardsData(token);
+        setShifts(cardResponse.numberOfShifts);
+        setCompanies(cardResponse.numberOfCompanies);
+        setDraftShifts(cardResponse.numberOfDraftShifts);
+        setPharmacists(cardResponse.numberOfPharmacists);
+      } catch (err) {
+        console.error("Failed to fetch cards data", err);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+    if (token) {
+      getData();
+    }
+  }, [token]);
+
+  if (loading || isFetching) return <div>Loading...</div>;
+  if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
+
   return (
     <>
-      <Card title="Pharmacists" value={pharmacists} type="pharmacists" backgroundColor='bg-complementary-two' />
-      <Card title="Companies" value={companies} type="companies" backgroundColor='bg-primary' />
-      <Card title="Shifts" value={shifts} type="shifts" backgroundColor='bg-secondary'/>
-      <Card title="Draft Shifts" value={draftShifts} type="shifts" backgroundColor='bg-complementary-one'/>
+      <Card
+        title="Pharmacists"
+        value={pharmacists}
+        type="pharmacists"
+        backgroundColor="bg-complementary-two"
+      />
+      <Card
+        title="Companies"
+        value={companies}
+        type="companies"
+        backgroundColor="bg-primary"
+      />
+      <Card
+        title="Shifts"
+        value={shifts}
+        type="shifts"
+        backgroundColor="bg-secondary"
+      />
+      <Card
+        title="Draft Shifts"
+        value={draftShifts}
+        type="shifts"
+        backgroundColor="bg-complementary-one"
+      />
     </>
   );
 }
@@ -76,18 +98,22 @@ export function Card({
 }: {
   title: string;
   value: number | string;
-  type: 'pharmacists' | 'companies' | 'locations' | 'shifts';
+  type: "pharmacists" | "companies" | "locations" | "shifts";
   backgroundColor?: string;
 }) {
   const Icon = iconMap[type];
 
   return (
-    <div className={`rounded-xl p-2 shadow-sm flex-1 text-white ${backgroundColor}`}>
+    <div
+      className={`rounded-xl p-2 shadow-sm flex-1 text-white ${backgroundColor}`}
+    >
       <div className="flex p-4">
         {Icon ? <Icon className="h-5 w-5 mt-1 text-white" /> : null}
         <h3 className="ml-2 text-md font-semibold">{title}</h3>
       </div>
-      <p className={`text-black truncate rounded-xl bg-white px-4 py-8 text-center text-2xl font-bold`}>
+      <p
+        className={`text-foreground truncate rounded-xl bg-surface px-4 py-8 text-center text-2xl font-bold`}
+      >
         {value}
       </p>
     </div>

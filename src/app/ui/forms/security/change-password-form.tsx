@@ -5,49 +5,58 @@ import { useAuth } from "../../context/auth-context";
 import { changePassword } from "@/app/lib/firebaseConfig";
 import { toast } from "react-toastify";
 
-export default function ChangePasswordForm({ 
+export default function ChangePasswordForm({
   setOpen,
- }: {
+}: {
   setOpen: Dispatch<SetStateAction<boolean>>;
-  }) {
-    const { firebaseUser, loading } = useAuth()
+}) {
+  const { firebaseUser, loading } = useAuth();
 
-    const [oldPassword, setOldPassword] = useState("");
-    const [newPassword, setNewPassword] = useState("");
-    const [confirmNewPassword, setConfirmNewPassword] = useState('');
-    const [message, setMessage] = useState("");
-    const [error, setError] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
-    useEffect(() => {
-        if (message) {
-            toast(message, {toastId: 'unique-toast'});
-            setOpen(false);
-        }
-    }, [message, setOpen])
+  useEffect(() => {
+    if (message) {
+      toast(message, { toastId: "unique-toast" });
+      setOpen(false);
+    }
+  }, [message, setOpen]);
 
-    if (loading) return <div>Loading...</div>;
-    if (!firebaseUser ) return <div>Please sign in to continue</div>;
+  if (loading) return <div>Loading...</div>;
+  if (!firebaseUser) return <div>Please sign in to continue</div>;
 
-    const handleChangePassword = async (e: React.FormEvent) => {
-        e.preventDefault();
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-        if (newPassword !== confirmNewPassword) {
-          setError("New passwords do not match.");
-          return;
-        }
+    if (newPassword !== confirmNewPassword) {
+      setError("New passwords do not match.");
+      return;
+    }
 
-        const msg = await changePassword(firebaseUser?.email, oldPassword, newPassword, firebaseUser);
-        setMessage(msg)
-    };
-    
+    const msg = await changePassword(
+      firebaseUser?.email,
+      oldPassword,
+      newPassword,
+      firebaseUser,
+    );
+    setMessage(msg);
+  };
+
   return (
-    <form className="flex flex-col gap-6 text-black" onSubmit={handleChangePassword}>
+    <form
+      className="flex flex-col gap-6 text-foreground"
+      onSubmit={handleChangePassword}
+    >
       <h1 className="text-xl font-semibold">Change Password</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-                
         {/* Old Password field */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-gray-500" htmlFor="old-password">Old Password</label>
+          <label className="text-xs text-tx-body-muted" htmlFor="old-password">
+            Old Password
+          </label>
           <input
             id="old-password"
             type="password"
@@ -57,10 +66,12 @@ export default function ChangePasswordForm({
             required
           />
         </div>
-        
+
         {/* New Password field */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-gray-500" htmlFor="new-password">New Password</label>
+          <label className="text-xs text-tx-body-muted" htmlFor="new-password">
+            New Password
+          </label>
           <input
             id="new-password"
             type="password"
@@ -70,10 +81,15 @@ export default function ChangePasswordForm({
             required
           />
         </div>
-        
+
         {/* Confirm New Password field (added field) */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-gray-500" htmlFor="confirm-new-password">Confirm New Password</label>
+          <label
+            className="text-xs text-tx-body-muted"
+            htmlFor="confirm-new-password"
+          >
+            Confirm New Password
+          </label>
           <input
             id="confirm-new-password"
             type="password"
@@ -83,12 +99,12 @@ export default function ChangePasswordForm({
             required
           />
         </div>
-
       </div>
       {error && <p className="text-red-500 text-sm">{error}</p>}
       <button
         type="submit"
-        className="bg-primary text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer">
+        className="bg-primary text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer"
+      >
         Update Password
       </button>
     </form>

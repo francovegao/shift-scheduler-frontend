@@ -69,26 +69,26 @@ export default function ShiftsCalendarList({
     return (
       <div
         onClick={() => handleSelectEvent(event.id)}
-        className="p-5 rounded-md border-2 border-gray-100 border-t-4 odd:border-t-blue-200 even:border-t-purple-200 hover:bg-gray-100"
+        className="p-5 rounded-md border-2 border-surface-muted border-t-4 odd:border-t-[var(--secondary)] even:border-t-[var(--complementary-one)] hover:bg-surface-muted transition-colors cursor-pointer"
         key={event.id}
       >
         <div className="flex items-center items-start">
           <div className="flex flex-col w-2/3">
-            <h1 className="font-semibold text-gray-600 text-sm">
+            <h1 className="font-semibold text-tx-secondary text-sm">
               {event?.location?.name}
             </h1>
-            <h2 className="font-semibold text-gray-600 text-sm">
+            <h2 className="font-semibold text-tx-muted text-sm">
               {event.company.name}
             </h2>
-            <p className="mt-2 text-gray-400 text-xs">{event.title}</p>
-            <p className="mt-2 text-gray-400 text-xs">{event.description}</p>
+            <p className="mt-2 text-tx-disabled text-xs">{event.title}</p>
+            <p className="mt-2 text-tx-disabled text-xs">{event.description}</p>
           </div>
           <div className="flex flex-col w-1/3">
-            <span className="text-gray-500 text-xs">
+            <span className="text-tx-body-muted text-xs">
               {formatInTimeZone(startTime, event.company.timezone, "HH:mm")}-
               {formatInTimeZone(endTime, event.company.timezone, "HH:mm")}
             </span>
-            <span className="text-gray-500 text-xs">
+            <span className="text-tx-body-muted text-xs">
               {formatPayRate(event.payRate)}
               {formatPayRate(event.payRate) !== "No Data" ? " /hr" : ""}
             </span>
@@ -102,7 +102,7 @@ export default function ShiftsCalendarList({
 
         {openEventId === event.id && role === "relief_pharmacist" && (
           <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
-            <div className="bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] max-h-[90vh] overflow-y-auto">
+            <div className="bg-surface p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] max-h-[90vh] overflow-y-auto">
               <TakeShiftForm
                 pharmacistId={pharmacistId}
                 token={token}
@@ -112,7 +112,7 @@ export default function ShiftsCalendarList({
               <div
                 className="absolute top-4 right-4 cursor-pointer"
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevents the click from bubbling up
+                  e.stopPropagation();
                   setOpenEventId(null);
                 }}
               >
@@ -124,7 +124,7 @@ export default function ShiftsCalendarList({
 
         {openEventId === event.id && role !== "relief_pharmacist" && (
           <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
-            <div className="bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] max-h-[90vh] overflow-y-auto">
+            <div className="bg-surface p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] max-h-[90vh] overflow-y-auto">
               <ShiftInfoModal
                 data={event}
                 setOpen={() => setOpenEventId(null)}
@@ -132,7 +132,7 @@ export default function ShiftsCalendarList({
               <div
                 className="absolute top-4 right-4 cursor-pointer"
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevents the click from bubbling up
+                  e.stopPropagation();
                   setOpenEventId(null);
                 }}
               >

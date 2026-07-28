@@ -197,16 +197,16 @@ export default function PharmacistShiftsList() {
   const renderRow = (item: ShiftList) => (
     <tr
       key={item.id}
-      className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-purple-50"
+      className="border-b border-surface-muted even:bg-surface-muted/30 text-sm hover:bg-surface-muted"
     >
       <td className="flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
         {item.location ? (
           <div className="flex flex-col">
             <h3 className="font-semibold">{item.location?.name}</h3>
-            <p className="text-xs text-gray-500">{item.company?.name}</p>
-            <p className="text-xs text-gray-500">{item.location?.email}</p>
-            <p className="text-xs text-gray-500">{item.location?.phone}</p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-tx-body-muted">{item.company?.name}</p>
+            <p className="text-xs text-tx-body-muted">{item.location?.email}</p>
+            <p className="text-xs text-tx-body-muted">{item.location?.phone}</p>
+            <p className="text-xs text-tx-body-muted">
               {getFullAddress(
                 item.location?.address,
                 item.location?.city,
@@ -218,9 +218,9 @@ export default function PharmacistShiftsList() {
         ) : (
           <div className="flex flex-col">
             <h3 className="font-semibold">{item.company?.name}</h3>
-            <p className="text-xs text-gray-500">{item.company?.email}</p>
-            <p className="text-xs text-gray-500">{item.company?.phone}</p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-tx-body-muted">{item.company?.email}</p>
+            <p className="text-xs text-tx-body-muted">{item.company?.phone}</p>
+            <p className="text-xs text-tx-body-muted">
               {getFullAddress(
                 item.company?.address,
                 item.company?.city,
@@ -245,7 +245,7 @@ export default function PharmacistShiftsList() {
         </p>
         <div className="flex flex-col mt-1 min-w-0">
           <h3 className="font-semibold break-words">{item?.title}</h3>
-          <p className="text-xs text-gray-500 break-words">
+          <p className="text-xs text-tx-body-muted break-words">
             {item?.description}
           </p>
         </div>
@@ -258,9 +258,9 @@ export default function PharmacistShiftsList() {
         {item.workLogs?.[0] && (
           <>
             {item.workLogs?.[0]?.clockIn && (
-              <p className="text-sm text-gray-500 font-semibold">
+              <p className="text-sm text-tx-body-muted font-semibold">
                 In:{" "}
-                <span className="text-gray-800">
+                <span className="text-tx-secondary">
                   {formatInTimeZone(
                     item.workLogs?.[0]?.clockIn,
                     item.company?.timezone,
@@ -270,9 +270,9 @@ export default function PharmacistShiftsList() {
               </p>
             )}
             {item.workLogs?.[0]?.clockOut && (
-              <p className="text-sm text-gray-500 font-semibold">
+              <p className="text-sm text-tx-body-muted font-semibold">
                 Out:{" "}
-                <span className="text-gray-800">
+                <span className="text-tx-secondary">
                   {formatInTimeZone(
                     item.workLogs?.[0]?.clockOut,
                     item.company?.timezone,
@@ -301,15 +301,19 @@ export default function PharmacistShiftsList() {
           <h3 className="font-semibold">
             {item.pharmacist?.user.firstName} {item.pharmacist?.user.lastName}
           </h3>
-          <p className="text-xs text-gray-500">{item.pharmacist?.user.email}</p>
-          <p className="text-xs text-gray-500">{item.pharmacist?.user.phone}</p>
+          <p className="text-xs text-tx-body-muted">
+            {item.pharmacist?.user.email}
+          </p>
+          <p className="text-xs text-tx-body-muted">
+            {item.pharmacist?.user.phone}
+          </p>
         </div>
       </td>
     </tr>
   );
 
   const ShiftCard = ({ item }: { item: ShiftList }) => (
-    <div className="bg-white p-4 rounded-xl border border-slate-200 mb-4 shadow-sm">
+    <div className="bg-surface p-4 rounded-xl border border-surface-muted dark:border-zinc-800 mb-4 shadow-sm">
       {/* HEADER: Pay */}
       <div className="flex justify-between items-start mb-3">
         <div className="text-left space-y-0.5 w-full">
@@ -317,9 +321,9 @@ export default function PharmacistShiftsList() {
           {item.workLogs?.[0] && (
             <>
               {item.workLogs?.[0]?.clockIn && (
-                <p className="text-sm text-gray-500 font-semibold">
+                <p className="text-sm text-tx-body-muted font-semibold">
                   In:{" "}
-                  <span className="text-gray-800">
+                  <span className="text-tx-secondary">
                     {formatInTimeZone(
                       item.workLogs?.[0]?.clockIn,
                       item.company?.timezone,
@@ -329,9 +333,9 @@ export default function PharmacistShiftsList() {
                 </p>
               )}
               {item.workLogs?.[0]?.clockOut && (
-                <p className="text-sm text-gray-500 font-semibold">
+                <p className="text-sm text-tx-body-muted font-semibold">
                   Out:{" "}
-                  <span className="text-gray-800">
+                  <span className="text-tx-secondary">
                     {formatInTimeZone(
                       item.workLogs?.[0]?.clockOut,
                       item.company?.timezone,
@@ -343,7 +347,7 @@ export default function PharmacistShiftsList() {
             </>
           )}
         </div>
-        <span className="font-medium text-lg text-green-700">
+        <span className="font-medium text-lg text-tx-primary">
           {formatPayRate(item.payRate)}
         </span>
       </div>
@@ -352,10 +356,10 @@ export default function PharmacistShiftsList() {
         {item.location ? (
           <div className="flex flex-col">
             <h3 className="font-semibold">{item.location?.name}</h3>
-            <p className="text-xs text-gray-500">{item.company?.name}</p>
-            <p className="text-xs text-gray-500">{item.location?.email}</p>
-            <p className="text-xs text-gray-500">{item.location?.phone}</p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-tx-body-muted">{item.company?.name}</p>
+            <p className="text-xs text-tx-body-muted">{item.location?.email}</p>
+            <p className="text-xs text-tx-body-muted">{item.location?.phone}</p>
+            <p className="text-xs text-tx-body-muted">
               {getFullAddress(
                 item.location?.address,
                 item.location?.city,
@@ -367,9 +371,9 @@ export default function PharmacistShiftsList() {
         ) : (
           <div className="flex flex-col">
             <h3 className="font-semibold">{item.company?.name}</h3>
-            <p className="text-xs text-gray-500">{item.company?.email}</p>
-            <p className="text-xs text-gray-500">{item.company?.phone}</p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-tx-body-muted">{item.company?.email}</p>
+            <p className="text-xs text-tx-body-muted">{item.company?.phone}</p>
+            <p className="text-xs text-tx-body-muted">
               {getFullAddress(
                 item.company?.address,
                 item.company?.city,
@@ -382,7 +386,7 @@ export default function PharmacistShiftsList() {
       </div>
 
       {/* SHIFT INFO */}
-      <div className="bg-slate-50 p-3 rounded-lg mb-4">
+      <div className="bg-surface-muted/50 p-3 rounded-lg mb-4">
         <p>
           {formatInTimeZone(
             item.startTime,
@@ -396,7 +400,7 @@ export default function PharmacistShiftsList() {
         </p>
         <div className="flex flex-col mt-1">
           <h3 className="font-semibold">{item?.title}</h3>
-          <p className="text-xs text-gray-500 break-words">
+          <p className="text-xs text-tx-body-muted break-words">
             {item?.description}
           </p>
         </div>
@@ -404,7 +408,7 @@ export default function PharmacistShiftsList() {
 
       {/* ACTIONS */}
       {item.status === "taken" && item.pharmacistId && !item.workLogs?.[0] && (
-        <div className="flex justify-between items-center pt-3 border-t border-slate-100">
+        <div className="flex justify-between items-center pt-3 border-t border-surface-muted">
           <div className="mt-2">
             <SendEmailModal
               type="request_cancellation"
@@ -429,7 +433,7 @@ export default function PharmacistShiftsList() {
     >
       <div className="p-4 lg:p-8">
         <h1 className={`font-semibold mb-4 text-xl md:text-2xl`}>My Shifts</h1>
-        <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
+        <div className="bg-surface p-4 rounded-md flex-1 m-4 mt-0">
           {/* TOP */}
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between gap-2 md:mt-8">
             <TableSearch placeholder="Search shifts..." />
@@ -458,7 +462,7 @@ export default function PharmacistShiftsList() {
             <Pagination totalPages={totalPages} />
           </div>
         </div>
-        <div className="bg-white p-4 rounded-md">
+        <div className="bg-surface p-4 rounded-md">
           <BigCalendarContainer type="dashboard_pharmacist" />
         </div>
       </div>

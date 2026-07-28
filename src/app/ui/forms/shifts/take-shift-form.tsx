@@ -90,10 +90,10 @@ export default function TakeShiftForm({
         </p>
       )}
       <h1 className="text-xl font-semibold">Take Shift</h1>
-      <div className="bg-white p-4 rounded-xl border border-slate-200 mb-4 shadow-sm">
+      <div className="bg-surface p-4 rounded-xl border border-surface-muted mb-4 shadow-sm">
         {/* HEADER: Pay */}
         <div className="flex justify-end items-start mb-3">
-          <span className="font-medium text-lg text-green-700">
+          <span className="font-medium text-lg text-tx-primary">
             {formatPayRate(data.payRate)}
             {formatPayRate(data.payRate) !== "No Data" ? " per hr" : ""}
           </span>
@@ -103,10 +103,14 @@ export default function TakeShiftForm({
           {data.location ? (
             <div className="">
               <h3 className="font-semibold">{data.location?.name}</h3>
-              <p className="text-sm text-gray-500">{data.company?.name}</p>
-              <p className="text-sm text-gray-500">{data.location?.email}</p>
-              <p className="text-sm text-gray-500">{data.location?.phone}</p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-tx-body-muted">{data.company?.name}</p>
+              <p className="text-sm text-tx-body-muted">
+                {data.location?.email}
+              </p>
+              <p className="text-sm text-tx-body-muted">
+                {data.location?.phone}
+              </p>
+              <p className="text-sm text-tx-body-muted">
                 {getFullAddress(
                   data.location?.address,
                   data.location?.city,
@@ -118,9 +122,13 @@ export default function TakeShiftForm({
           ) : (
             <div className="">
               <h3 className="font-semibold">{data.company?.name}</h3>
-              <p className="text-sm text-gray-500">{data.company?.email}</p>
-              <p className="text-sm text-gray-500">{data.company?.phone}</p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-tx-body-muted">
+                {data.company?.email}
+              </p>
+              <p className="text-sm text-tx-body-muted">
+                {data.company?.phone}
+              </p>
+              <p className="text-sm text-tx-body-muted">
                 {getFullAddress(
                   data.company?.address,
                   data.company?.city,
@@ -132,7 +140,7 @@ export default function TakeShiftForm({
           )}
         </div>
         {/* SHIFT INFO */}
-        <div className="bg-slate-50 p-3 rounded-lg mb-4">
+        <div className="bg-surface-muted/50 p-3 rounded-lg mb-4">
           <h3 className="font-semibold">
             {formatInTimeZone(
               data.startTime,
@@ -140,7 +148,7 @@ export default function TakeShiftForm({
               "EEE MMM dd, yyyy",
             )}
           </h3>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-tx-body-muted">
             {formatInTimeZone(data.startTime, data.company?.timezone, "HH:mm")}-
             {formatInTimeZone(
               data.endTime,
@@ -150,7 +158,7 @@ export default function TakeShiftForm({
           </p>
           <div className="flex flex-col mt-2">
             <h3 className="font-semibold">{data.title}</h3>
-            <p className="text-sm text-gray-500">{data.description} </p>
+            <p className="text-sm text-tx-body-muted">{data.description} </p>
           </div>
         </div>
       </div>

@@ -59,9 +59,9 @@ export default function ReportForm({
   const isDisabled = !filters.startDate || !filters.endDate;
 
   return (
-    <form className="flex flex-col gap-8 text-black" onSubmit={onSubmit}>
+    <form className="flex flex-col gap-8 text-foreground" onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold">Create a {reportType} report</h1>
-      <span className="text-sm text-gray-600 font-medium">
+      <span className="text-sm text-tx-muted font-medium">
         You will generate a {reportType} report with the next parameters:
       </span>
       <div className="flex justify-between flex-wrap gap-4">
@@ -73,7 +73,7 @@ export default function ReportForm({
         />
 
         <div className="flex flex-col gap-2 w-full md:w-1/4">
-          <label className="text-gray-500">From:</label>
+          <label className="text-tx-body-muted">From:</label>
           <input
             value={filters.startDate}
             defaultValue={filters.startDate}
@@ -82,7 +82,7 @@ export default function ReportForm({
           />
         </div>
         <div className="flex flex-col gap-2 w-full md:w-1/4">
-          <label className="text-gray-500">To:</label>
+          <label className="text-tx-body-muted">To:</label>
           <input
             value={filters.endDate}
             defaultValue={filters.endDate}

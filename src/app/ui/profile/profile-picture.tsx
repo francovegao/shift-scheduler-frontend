@@ -23,7 +23,7 @@ export default function ProfilePicture({
 
   return (
     <div className="p-2">
-      <div className="flex flex-col gap-2 text-black">
+      <div className="flex flex-col gap-2 text-foreground">
         {/*Title and Edit Button */}
         <div className="flex items-center justify-start gap-4">
           <h1 className="text-xl font-semibold">Profile Picture</h1>
@@ -55,13 +55,15 @@ export default function ProfilePicture({
         </div>
 
         {/*Information */}
-        <div className="flex justify-between flex-wrap p-4 gap-4 bg-white rounded-md shadow-sm">
+        <div className="flex justify-between flex-wrap p-4 gap-4 bg-surface rounded-md shadow-sm">
           <div className="grid grid-cols-1 gap-4 w-full">
             <div className="flex flex-col">
-              <label className="text-gray-500">Uploaded Profile Picture:</label>
+              <label className="text-tx-body-muted">
+                Uploaded Profile Picture:
+              </label>
               {profilePicture ? (
                 <div className="flex items-center gap-4">
-                  <div className="relative w-16 h-16 flex-shrink-0 rounded-full overflow-hidden border border-gray-200 shadow-sm">
+                  <div className="relative w-16 h-16 flex-shrink-0 rounded-full overflow-hidden border border-surface-muted shadow-sm">
                     <Image
                       src={profilePicture.fileUrl}
                       alt="Profile picture"
@@ -72,7 +74,7 @@ export default function ProfilePicture({
                   </div>
 
                   <div className="min-w-0">
-                    <span className="text-sm font-medium italic text-gray-700 block truncate">
+                    <span className="text-sm font-medium italic text-tx-tertiary block truncate">
                       {getDisplayFileName(profilePicture.fileName)}
                     </span>
                     <button
@@ -84,7 +86,7 @@ export default function ProfilePicture({
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-sm text-gray-400">
+                <div className="flex items-center gap-2 text-sm text-tx-disabled">
                   <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center border-2 border-dashed">
                     <span className="text-xs">No Photo</span>
                   </div>

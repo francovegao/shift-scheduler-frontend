@@ -163,18 +163,20 @@ export default function FileForm({
   }, [state, type, setOpen]);
 
   return (
-    <form className="flex flex-col gap-8 text-black" onSubmit={onSubmit}>
+    <form className="flex flex-col gap-8 text-foreground" onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold">
         {type === "upload"
           ? `Upload ${fileType === "profilePicture" ? "profile picture" : fileType}`
           : `Replace ${fileType === "profilePicture" ? "profile picture" : fileType}`}
       </h1>
       {data ? (
-        <span className="text-xs text-gray-400 font-medium">
+        <span className="text-xs text-tx-disabled font-medium">
           Select File to Replace: {getDisplayFileName(data.fileName)}
         </span>
       ) : (
-        <span className="text-xs text-gray-400 font-medium">Select File</span>
+        <span className="text-xs text-tx-disabled font-medium">
+          Select File
+        </span>
       )}
 
       <div className="flex justify-between flex-wrap gap-4">

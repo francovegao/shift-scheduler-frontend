@@ -143,17 +143,20 @@ export default function UsersList() {
   const renderRow = (item: UserList) => (
     <tr
       key={item.id}
-      className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-purple-50"
+      className="border-b border-surface-muted even:bg-surface-muted/30 text-sm hover:bg-surface-muted"
     >
       <td className="min-w-0 py-3 pl-6 pr-3 overflow-hidden">
         <div className="flex flex-col">
           <h3 className="font-semibold">
             {item.firstName} {item?.lastName}
           </h3>
-          <p className="text-xs text-gray-500 break-all" title={item.email}>
+          <p
+            className="text-xs text-tx-body-muted break-all"
+            title={item.email}
+          >
             {item.email}
           </p>
-          <p className="text-xs text-gray-500">{item.phone}</p>
+          <p className="text-xs text-tx-body-muted">{item.phone}</p>
         </div>
       </td>
       <td className="table-cell whitespace-nowrap px-3 py-3">
@@ -163,7 +166,7 @@ export default function UsersList() {
             {item?.company ? (
               <>
                 <h3 className="font-medium">{item?.company?.name}</h3>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-tx-body-muted">
                   Managed Pharmacies: {item?.allowedCompanies.length + 1}
                 </p>
               </>
@@ -181,7 +184,9 @@ export default function UsersList() {
             {item?.company ? (
               <>
                 <h3 className="font-semibold">{item?.location?.name}</h3>
-                <p className="text-xs text-gray-500">{item?.company?.name}</p>
+                <p className="text-xs text-tx-body-muted">
+                  {item?.company?.name}
+                </p>
               </>
             ) : (
               <RelatedDataModal
@@ -254,25 +259,25 @@ export default function UsersList() {
   );
 
   const UserCard = ({ item }: { item: UserList }) => (
-    <div className="bg-white p-4 rounded-xl border border-slate-200 mb-4 shadow-sm">
+    <div className="bg-surface p-4 rounded-xl border border-surface-muted dark:border-zinc-800 mb-4 shadow-sm">
       {/* BODY: User Info*/}
       <div className="mb-4">
         <h3 className="font-semibold">
           {item.firstName} {item?.lastName}
         </h3>
-        <p className="text-xs text-gray-500 break-all">{item.email}</p>
-        <p className="text-xs text-gray-500 mt-1">{item.phone}</p>
+        <p className="text-xs text-tx-body-muted break-all">{item.email}</p>
+        <p className="text-xs text-tx-body-muted mt-1">{item.phone}</p>
       </div>
 
       {/* ROLE*/}
-      <div className="bg-slate-50 p-3 rounded-lg mb-4">
+      <div className="bg-surface-muted/50 p-3 rounded-lg mb-4">
         <p className="font-semibold">{displayRole(item.role)} </p>
         {item.role === "pharmacy_manager" && (
           <div className="flex flex-col">
             {item?.company ? (
               <>
                 <h3 className="font-medium">{item?.company?.name}</h3>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-tx-body-muted">
                   Managed Pharmacies: {item?.allowedCompanies.length + 1}
                 </p>
               </>
@@ -290,7 +295,9 @@ export default function UsersList() {
             {item?.company ? (
               <>
                 <h3 className="font-semibold">{item?.location?.name}</h3>
-                <p className="text-xs text-gray-500">{item?.company?.name}</p>
+                <p className="text-xs text-tx-body-muted">
+                  {item?.company?.name}
+                </p>
               </>
             ) : (
               <RelatedDataModal
@@ -325,7 +332,7 @@ export default function UsersList() {
       </div>
 
       {/* ACTIONS */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pt-3 border-t border-slate-100">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pt-3 border-t border-surface-muted">
         <div className="flex flex-wrap items-center gap-2">
           {item.role === "pharmacy_manager" && item?.company && (
             <div className="w-full sm:w-auto">
@@ -372,7 +379,7 @@ export default function UsersList() {
     <AuthWrapper allowedRoles={["admin"]}>
       <div className="p-4 lg:p-8">
         <h1 className={`font-bold mb-4 text-xl md:text-2xl`}>Users List</h1>
-        <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
+        <div className="bg-surface p-4 rounded-md flex-1 m-4 mt-0">
           {/* TOP */}
           <div className="mt-2 flex items-center justify-between gap-4 md:mt-2">
             <TableSearch placeholder="Search users..." />

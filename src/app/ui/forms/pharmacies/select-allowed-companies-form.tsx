@@ -183,7 +183,7 @@ export default function SelectAllowedCompaniesForm({
     <form onSubmit={onSubmit}>
       <div className="p-4 flex flex-col gap-4 w-full md:min-w-[500px]">
         <h2 className="text-md font-semibold mb-2">{config.title}</h2>
-        {/* <p className="text-sm text-gray-500 mb-2 w-full break-words whitespace-normal">{config.description}</p> */}
+        {/* <p className="text-sm text-tx-body-muted mb-2 w-full break-words whitespace-normal">{config.description}</p> */}
         <input {...register("id")} hidden />
         <ul className="space-y-2 max-h-[30vh] md:max-h-[400px] overflow-y-auto border p-2 rounded-md">
           {companies.map((company) => {
@@ -208,7 +208,7 @@ export default function SelectAllowedCompaniesForm({
                       className="form-checkbox h-5 w-5 flex-shrink-0 text-indigo-600 transition duration-150 ease-in-out"
                     />
                   )}
-                  <label className="ml-2 text-gray-700 flex-1 min-w-0">
+                  <label className="ml-2 text-tx-tertiary flex-1 min-w-0">
                     <p className="text-sm font-semibold">{company?.name}</p>
                     {company?.legalName && (
                       <p className="text-sm font-semibold">
@@ -227,7 +227,7 @@ export default function SelectAllowedCompaniesForm({
                 </div>
                 {/* Bottom Row: Conditional Permission Checkbox */}
                 {isSelected && type !== "set_allowed_companies" && (
-                  <div className="ml-7 mt-1 flex items-center gap-2 bg-gray-50 p-1 rounded">
+                  <div className="ml-7 mt-1 flex items-center gap-2 bg-surface-muted p-1 rounded">
                     <input
                       type="checkbox"
                       {...register(
@@ -235,7 +235,7 @@ export default function SelectAllowedCompaniesForm({
                       )}
                       className="h-4 w-4"
                     />
-                    <span className="text-xs font-medium text-gray-600">
+                    <span className="text-xs font-medium text-primary">
                       Can view Pay Rate?
                     </span>
                   </div>
@@ -245,11 +245,11 @@ export default function SelectAllowedCompaniesForm({
           })}
         </ul>
         {type !== "set_allowed_pay_rates" && (
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-tx-muted">
             Pharmacies Selected: {fields.length}
           </p>
         )}
-        <span className="text-sm font-medium text-gray-700 w-full break-words whitespace-normal">
+        <span className="text-sm font-medium text-tx-tertiary w-full break-words whitespace-normal">
           {config.footerNote}
         </span>
         {errors.id?.message && (

@@ -25,7 +25,7 @@ export default function PharmacistResume({
 
   return (
     <div className="p-2">
-      <div className="flex flex-col gap-2 text-black">
+      <div className="flex flex-col gap-2 text-foreground">
         {/*Title and Edit Button */}
         <div className="flex items-center justify-start gap-4">
           <h1 className="text-xl font-semibold">Resume</h1>
@@ -57,14 +57,14 @@ export default function PharmacistResume({
         </div>
 
         {/*Information */}
-        <div className="flex justify-between flex-wrap p-4 gap-4 bg-white rounded-md shadow-sm">
+        <div className="flex justify-between flex-wrap p-4 gap-4 bg-surface rounded-md shadow-sm">
           <div className="grid grid-cols-1 gap-4 w-full">
             <div className="flex flex-col">
-              <label className="text-gray-500">Uploaded Resume:</label>
+              <label className="text-tx-body-muted">Uploaded Resume:</label>
               {resume ? (
                 <div className="flex items-center gap-4">
                   <div className="min-w-0">
-                    <span className="text-md font-medium italic text-gray-700 block truncate">
+                    <span className="text-md font-medium italic text-tx-tertiary block truncate">
                       {getDisplayFileName(resume.fileName)}
                     </span>
                     <button

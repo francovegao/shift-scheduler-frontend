@@ -1,16 +1,16 @@
 "use client";
 
-import { Pie, PieChart, ResponsiveContainer } from 'recharts';
-import Status from '../list/status';
-import { useAuth } from '../context/auth-context';
-import { SetStateAction, useEffect, useState } from 'react';
-import { fetchMonthCounts } from '@/app/lib/data';
+import { Pie, PieChart, ResponsiveContainer } from "recharts";
+import Status from "../list/status";
+import { useAuth } from "../context/auth-context";
+import { SetStateAction, useEffect, useState } from "react";
+import { fetchMonthCounts } from "@/app/lib/data";
 
 const style = {
-  top: '50%',
+  top: "50%",
   right: 0,
-  transform: 'translate(0, -50%)',
-  lineHeight: '24px',
+  transform: "translate(0, -50%)",
+  lineHeight: "24px",
 };
 
 const months = [
@@ -28,9 +28,11 @@ const months = [
   { value: "12", label: "December" },
 ];
 
-export const MonthShiftCounts = (
-  { isAnimationActive = true }: { isAnimationActive?: boolean }
-) => {
+export const MonthShiftCounts = ({
+  isAnimationActive = true,
+}: {
+  isAnimationActive?: boolean;
+}) => {
   const { firebaseUser, appUser, loading } = useAuth();
   const [isFetching, setIsFetching] = useState(true);
   const [token, setToken] = useState("");
@@ -38,7 +40,7 @@ export const MonthShiftCounts = (
 
   const now = new Date();
   const [selectedMonth, setSelectedMonth] = useState(
-    String(now.getMonth() + 1).padStart(2, "0")
+    String(now.getMonth() + 1).padStart(2, "0"),
   );
   const [selectedYear, setSelectedYear] = useState(String(now.getFullYear()));
 
@@ -47,16 +49,16 @@ export const MonthShiftCounts = (
 
   // Get token
   useEffect(() => {
-      if (firebaseUser) {
+    if (firebaseUser) {
       firebaseUser.getIdToken().then((idToken: SetStateAction<string>) => {
-          setToken(idToken);
+        setToken(idToken);
       });
-      }
+    }
   }, [firebaseUser]);
 
   // Fetch counts when token is ready
   useEffect(() => {
-  const getCounts = async () => {
+    const getCounts = async () => {
       setIsFetching(true);
       try {
         const month = `${selectedYear}-${selectedMonth}`;
@@ -67,29 +69,31 @@ export const MonthShiftCounts = (
       } finally {
         setIsFetching(false);
       }
-  };
-  if (token){ getCounts() };
+    };
+    if (token) {
+      getCounts();
+    }
   }, [token, selectedMonth, selectedYear]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
 
-const data = [
-  { name: 'Open', value: counts.open, fill: '#64748B' },
-  { name: 'Completed', value: counts.completed, fill: '#48BB78' },
-  { name: 'Assigned', value: counts.taken, fill: '#3b82f6' },
-  { name: 'Cancelled', value: counts.cancelled, fill: '#ef4444' },
-];
+  const data = [
+    { name: "Open", value: counts.open, fill: "#64748B" },
+    { name: "Completed", value: counts.completed, fill: "#48BB78" },
+    { name: "Assigned", value: counts.taken, fill: "#3b82f6" },
+    { name: "Cancelled", value: counts.cancelled, fill: "#ef4444" },
+  ];
 
-const stats = [
-  { label: "Open", value: counts.open, status: "open" },
-  { label: "Assigned", value: counts.taken, status: "taken" },
-  { label: "Completed", value: counts.completed, status: "completed" },
-  { label: "Cancelled", value: counts.cancelled, status: "cancelled" },
-];
+  const stats = [
+    { label: "Open", value: counts.open, status: "open" },
+    { label: "Assigned", value: counts.taken, status: "taken" },
+    { label: "Completed", value: counts.completed, status: "completed" },
+    { label: "Cancelled", value: counts.cancelled, status: "cancelled" },
+  ];
 
   return (
-    <div className="bg-white p-4 rounded-md min-h-[320px] @container flex flex-col">
+    <div className="bg-surface p-4 rounded-md min-h-[320px] @container flex flex-col">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Monthly Breakdown</h1>
       </div>
@@ -119,7 +123,7 @@ const stats = [
         </select>
       </div>
       {/* CHART */}
-      <div className='w-full h-[250px]'>
+      <div className="w-full h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -137,7 +141,7 @@ const stats = [
               y="50%"
               textAnchor="middle"
               dominantBaseline="middle"
-              className="fill-gray-800 text-xl font-semibold"
+              className="fill-tx-secondary text-xl font-semibold"
             >
               {counts.total}
             </text>
@@ -145,7 +149,7 @@ const stats = [
               x="50%"
               y="58%"
               textAnchor="middle"
-              className="fill-gray-500 text-sm"
+              className="fill-tx-body-muted text-sm"
             >
               Total Shifts
             </text>
@@ -154,18 +158,18 @@ const stats = [
       </div>
       {/* BOTTOM */}
       <div className="grid grid-cols-1 gap-1">
-          {stats.map((item) => (
-            <div
-              key={item.status}
-              className="flex items-center justify-between rounded-md border p-1"
-            >
-              <div className="flex items-center gap-2 text-sm ">
-                <Status status={item.status as any} />
-              </div>
-              <span className="text-lg font-medium">{item.value}</span>
+        {stats.map((item) => (
+          <div
+            key={item.status}
+            className="flex items-center justify-between rounded-md border p-1"
+          >
+            <div className="flex items-center gap-2 text-sm ">
+              <Status status={item.status as any} />
             </div>
-          ))}
-        </div>
+            <span className="text-lg font-medium">{item.value}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

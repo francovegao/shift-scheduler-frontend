@@ -204,16 +204,16 @@ export default function OpenShiftsList() {
   const renderRow = (item: ShiftList) => (
     <tr
       key={item.id}
-      className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-purple-50"
+      className="border-b border-surface-muted even:bg-surface-muted/30 text-sm hover:bg-surface-muted"
     >
       <td className="flex items-center gap-4 whitespace-nowrap py-3 pl-6 pr-3">
         {item.location ? (
           <div className="flex flex-col">
             <h3 className="font-semibold">{item.location?.name}</h3>
-            <p className="text-xs text-gray-500">{item.company?.name}</p>
-            <p className="text-xs text-gray-500">{item.location?.email}</p>
-            <p className="text-xs text-gray-500">{item.location?.phone}</p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-tx-body-muted">{item.company?.name}</p>
+            <p className="text-xs text-tx-body-muted">{item.location?.email}</p>
+            <p className="text-xs text-tx-body-muted">{item.location?.phone}</p>
+            <p className="text-xs text-tx-body-muted">
               {getFullAddress(
                 item.location?.address,
                 item.location?.city,
@@ -225,9 +225,9 @@ export default function OpenShiftsList() {
         ) : (
           <div className="flex flex-col">
             <h3 className="font-semibold">{item.company?.name}</h3>
-            <p className="text-xs text-gray-500">{item.company?.email}</p>
-            <p className="text-xs text-gray-500">{item.company?.phone}</p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-tx-body-muted">{item.company?.email}</p>
+            <p className="text-xs text-tx-body-muted">{item.company?.phone}</p>
+            <p className="text-xs text-tx-body-muted">
               {getFullAddress(
                 item.company?.address,
                 item.company?.city,
@@ -252,7 +252,7 @@ export default function OpenShiftsList() {
         </p>
         <div className="flex flex-col mt-1 min-w-0">
           <h3 className="font-semibold break-words">{item?.title}</h3>
-          <p className="text-xs text-gray-500 break-words">
+          <p className="text-xs text-tx-body-muted break-words">
             {item?.description}
           </p>
         </div>
@@ -280,10 +280,10 @@ export default function OpenShiftsList() {
   );
 
   const ShiftCard = ({ item }: { item: ShiftList }) => (
-    <div className="bg-white p-4 rounded-xl border border-slate-200 mb-4 shadow-sm">
+    <div className="bg-surface p-4 rounded-xl border border-surface-muted mb-4 shadow-sm">
       {/* HEADER: Pay */}
       <div className="flex justify-end items-start mb-3">
-        <span className="font-medium text-lg text-green-700">
+        <span className="font-medium text-lg text-tx-primary">
           {formatPayRate(item.payRate)}
         </span>
       </div>
@@ -292,10 +292,10 @@ export default function OpenShiftsList() {
         {item.location ? (
           <div className="flex flex-col">
             <h3 className="font-semibold">{item.location?.name}</h3>
-            <p className="text-xs text-gray-500">{item.company?.name}</p>
-            <p className="text-xs text-gray-500">{item.location?.email}</p>
-            <p className="text-xs text-gray-500">{item.location?.phone}</p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-tx-body-muted">{item.company?.name}</p>
+            <p className="text-xs text-tx-body-muted">{item.location?.email}</p>
+            <p className="text-xs text-tx-body-muted">{item.location?.phone}</p>
+            <p className="text-xs text-tx-body-muted">
               {getFullAddress(
                 item.location?.address,
                 item.location?.city,
@@ -307,9 +307,9 @@ export default function OpenShiftsList() {
         ) : (
           <div className="flex flex-col">
             <h3 className="font-semibold">{item.company?.name}</h3>
-            <p className="text-xs text-gray-500">{item.company?.email}</p>
-            <p className="text-xs text-gray-500">{item.company?.phone}</p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-tx-body-muted">{item.company?.email}</p>
+            <p className="text-xs text-tx-body-muted">{item.company?.phone}</p>
+            <p className="text-xs text-tx-body-muted">
               {getFullAddress(
                 item.company?.address,
                 item.company?.city,
@@ -322,7 +322,7 @@ export default function OpenShiftsList() {
       </div>
 
       {/* SHIFT INFO */}
-      <div className="bg-slate-50 p-3 rounded-lg mb-4">
+      <div className="bg-surface-muted/50 p-3 rounded-lg mb-4">
         <p>
           {formatInTimeZone(
             item.startTime,
@@ -336,14 +336,14 @@ export default function OpenShiftsList() {
         </p>
         <div className="flex flex-col mt-1">
           <h3 className="font-semibold">{item?.title}</h3>
-          <p className="text-xs text-gray-500 break-words">
+          <p className="text-xs text-tx-body-muted break-words">
             {item?.description}
           </p>
         </div>
       </div>
 
       {/* ACTIONS */}
-      <div className="flex justify-between items-center pt-3 border-t border-slate-100">
+      <div className="flex justify-between items-center pt-3 border-t border-surface-muted">
         <div className="flex justify-start gap-3">
           {role === "relief_pharmacist" && (
             <>
@@ -373,7 +373,7 @@ export default function OpenShiftsList() {
           <h1 className={`font-semibold mb-4 text-xl md:text-2xl`}>
             Open Shifts List
           </h1>
-          <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
+          <div className="bg-surface p-4 rounded-md flex-1 m-4 mt-0">
             {/* TOP */}
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between gap-2 md:mt-8">
               <TableSearch placeholder="Search shifts..." />
@@ -396,14 +396,14 @@ export default function OpenShiftsList() {
               <Pagination totalPages={totalPages} />
             </div>
           </div>
-          <div className="bg-white p-4 rounded-md">
+          <div className="bg-surface p-4 rounded-md">
             <BigCalendar
               token={token}
               data={data}
               pharmacistId={pharmacistId}
               action="takeShift"
             />
-            <p className="text-gray-500 text-sm flex justify-end">
+            <p className="text-tx-body-muted text-sm flex justify-end">
               Click on any open shift to take it.
             </p>
           </div>

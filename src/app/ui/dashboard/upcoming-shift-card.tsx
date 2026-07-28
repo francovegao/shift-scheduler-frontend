@@ -74,13 +74,13 @@ export default function UpcomingShiftCard({ shift, token }: any) {
   if (isTomorrow) dateBadge = "Tomorrow";
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-200 hover:shadow-md transition-shadow">
+    <div className="bg-surface rounded-xl shadow-sm p-4 border border-surface-muted hover:shadow-md transition-shadow">
       <div className="flex flex-col sm:flex-row md:flex-col justify-between h-full gap-4">
         <div>
           {shift.location ? (
             <div className="flex flex-col mb-3">
               <p className="font-semibold">{shift.location?.name}</p>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-tx-body-muted mt-0.5">
                 {getFullAddress(
                   shift.location?.address,
                   shift.location?.city,
@@ -92,7 +92,7 @@ export default function UpcomingShiftCard({ shift, token }: any) {
           ) : (
             <div className="flex flex-col mb-2">
               <p className="font-semibold">{shift.company?.name}</p>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-tx-body-muted mt-0.5">
                 {getFullAddress(
                   shift.company?.address,
                   shift.company?.city,
@@ -115,7 +115,7 @@ export default function UpcomingShiftCard({ shift, token }: any) {
               >
                 {dateBadge}
               </span>
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-tx-tertiary">
                 {formatInTimeZone(
                   shift.startTime,
                   shift.company?.timezone,
@@ -124,7 +124,7 @@ export default function UpcomingShiftCard({ shift, token }: any) {
               </p>
             </div>
 
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-tx-body-muted">
               {formatInTimeZone(
                 shift.startTime,
                 shift.company?.timezone,
@@ -139,10 +139,10 @@ export default function UpcomingShiftCard({ shift, token }: any) {
             </p>
           </div>
           <div className="flex flex-col border-t border-gray-50 pt-2">
-            <h3 className="text-sm font-semibold text-gray-800">
+            <h3 className="text-sm font-semibold text-tx-secondary">
               {shift?.title}
             </h3>
-            <p className="text-xs text-gray-400 break-words mt-0.5 line-clamp-3">
+            <p className="text-xs text-tx-disabled break-words mt-0.5 line-clamp-3">
               {shift?.description}
             </p>
           </div>
@@ -161,7 +161,7 @@ export default function UpcomingShiftCard({ shift, token }: any) {
                 </button>
               ) : (
                 <div className="flex flex-col gap-2 items-center w-full">
-                  <p className="text-sm text-gray-600 text-center">
+                  <p className="text-sm text-tx-muted text-center">
                     Clock in at{" "}
                     <span className="font-semibold">
                       {formatInTimeZone(
@@ -182,7 +182,7 @@ export default function UpcomingShiftCard({ shift, token }: any) {
                     </button>
                     <button
                       onClick={() => setConfirming(false)}
-                      className="px-3 py-1 border border-gray-300 text-gray-600 text-sm rounded hover:bg-gray-50 font-medium transition-colors"
+                      className="px-3 py-1 border border-gray-300 text-tx-muted text-sm rounded hover:bg-gray-50 font-medium transition-colors"
                     >
                       Cancel
                     </button>
@@ -195,9 +195,9 @@ export default function UpcomingShiftCard({ shift, token }: any) {
           {isClockedIn && (
             <div className="w-full">
               <div className="mb-2 text-right sm:text-left md:text-right">
-                <p className="text-sm text-gray-500 font-semibold">
+                <p className="text-sm text-tx-body-muted font-semibold">
                   Clocked In:{" "}
-                  <span className="text-gray-800">
+                  <span className="text-tx-secondary">
                     {formatInTimeZone(
                       workLog?.clockIn,
                       shift.company?.timezone,
@@ -215,7 +215,7 @@ export default function UpcomingShiftCard({ shift, token }: any) {
                 </button>
               ) : (
                 <div className="flex flex-col gap-2 items-center w-full">
-                  <p className="text-sm text-gray-600 text-center">
+                  <p className="text-sm text-tx-muted text-center">
                     Clock out at{" "}
                     <span className="font-semibold">
                       {formatInTimeZone(
@@ -236,7 +236,7 @@ export default function UpcomingShiftCard({ shift, token }: any) {
                     </button>
                     <button
                       onClick={() => setConfirming(false)}
-                      className="px-3 py-1 border border-gray-300 text-gray-600 text-sm rounded hover:bg-gray-50 font-medium transition-colors"
+                      className="px-3 py-1 border border-gray-300 text-tx-muted text-sm rounded hover:bg-gray-50 font-medium transition-colors"
                     >
                       Cancel
                     </button>
@@ -248,9 +248,9 @@ export default function UpcomingShiftCard({ shift, token }: any) {
 
           {isWorkLogCompleted && (
             <div className="text-right sm:text-left md:text-right space-y-0.5 w-full">
-              <p className="text-sm text-gray-500 font-semibold">
+              <p className="text-sm text-tx-body-muted font-semibold">
                 In:{" "}
-                <span className="text-gray-800">
+                <span className="text-tx-secondary">
                   {formatInTimeZone(
                     workLog?.clockIn,
                     shift.company?.timezone,
@@ -258,9 +258,9 @@ export default function UpcomingShiftCard({ shift, token }: any) {
                   )}
                 </span>
               </p>
-              <p className="text-sm text-gray-500 font-semibold">
+              <p className="text-sm text-tx-body-muted font-semibold">
                 Out:{" "}
-                <span className="text-gray-800">
+                <span className="text-tx-secondary">
                   {formatInTimeZone(
                     workLog?.clockOut,
                     shift.company?.timezone,

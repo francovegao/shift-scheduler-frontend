@@ -65,7 +65,7 @@ export default function RequestCancelShiftForm({
   return (
     <form className="flex flex-col gap-8" onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold">Request Shift Cancellation</h1>
-      <span className="text-sm text-gray-600 font-medium">
+      <span className="text-sm text-tx-muted font-medium">
         A request to cancel this shift will be sent to the pharmacy's contact
         person.
       </span>
@@ -84,7 +84,7 @@ export default function RequestCancelShiftForm({
           error={errors?.cancelReason}
           containerClassName="w-full"
         />
-        <span className="text-sm text-gray-600 font-medium">
+        <span className="text-sm text-tx-muted font-medium">
           Please note that sending this request does not relieve you from this
           shift's duties until you receive the shift's cancellation confirmation
           from the pharmacy.
@@ -98,7 +98,7 @@ export default function RequestCancelShiftForm({
           />
           <label
             htmlFor="confirm-check"
-            className="text-md font-semibold cursor-pointer text-black"
+            className="text-md font-semibold cursor-pointer text-foreground"
           >
             I understand
           </label>

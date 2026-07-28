@@ -12,13 +12,13 @@ import { formatInTimeZone } from "date-fns-tz";
 
 const companyColors: Record<string, string> = {
   "Create Compounding": "bg-[rgb(104,163,67)] text-white",
-  "Curis Seton": "bg-[rgb(255,222,33)] text-black",
-  "Curis Mahogany": "bg-[rgb(178,255,255)] text-black",
+  "Curis Seton": "bg-[rgb(255,222,33)] text-foreground",
+  "Curis Mahogany": "bg-[rgb(178,255,255)] text-foreground",
   Grassroots: "bg-[rgb(99,107,47)] text-white",
   "Curis Kingsland": "bg-[rgb(255,70,162)] text-white",
-  "Curis Harmony": "bg-[rgb(144,213,255)] text-black",
-  "Curis Trinity Hills": "bg-[rgb(224,176,255)] text-black",
-  "Pharm Drugstore": "bg-[rgb(239,191,4)] text-black",
+  "Curis Harmony": "bg-[rgb(144,213,255)] text-foreground",
+  "Curis Trinity Hills": "bg-[rgb(224,176,255)] text-foreground",
+  "Pharm Drugstore": "bg-[rgb(239,191,4)] text-foreground",
   Default: "bg-primary text-white",
 };
 
@@ -91,15 +91,15 @@ export default function LatestShifts() {
         <h1 className="text-xl font-semibold">Latest Posted Shifts</h1>
         <Link
           href="/dashboard/shifts"
-          className="text-gray-500 text-xs hover:bg-gray-100 hover:text-blue-600"
+          className="text-tx-body-muted text-xs hover:bg-gray-100 hover:text-blue-600"
         >
           View All
         </Link>
       </div>
-      <div className="flex grow flex-col justify-between rounded-md shadow-sm bg-white">
-        <div className="bg-white divide-y-4 rounded-md p-4">
+      <div className="flex grow flex-col justify-between rounded-md shadow-sm bg-surface">
+        <div className="bg-surface divide-y-4 rounded-md p-4">
           {latestShifts.length === 0 && (
-            <p className="text-gray-500 text-center py-6">
+            <p className="text-tx-body-muted text-center py-6">
               No recent shifts available.
             </p>
           )}
@@ -171,7 +171,7 @@ export default function LatestShifts() {
                 </div>
                 {openEventId === item.id && role !== "relief_pharmacist" && (
                   <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
-                    <div className="bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] max-h-[90vh] overflow-y-auto">
+                    <div className="bg-surface p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] max-h-[90vh] overflow-y-auto">
                       <ShiftInfoModal
                         data={item}
                         setOpen={() => setOpenEventId(null)}
@@ -183,7 +183,7 @@ export default function LatestShifts() {
                           setOpenEventId(null);
                         }}
                       >
-                        <XMarkIcon className="w-6 text-black" />
+                        <XMarkIcon className="w-6 text-foreground" />
                       </div>
                     </div>
                   </div>
@@ -193,7 +193,7 @@ export default function LatestShifts() {
           })}
         </div>
 
-        <div className="flex items-center pb-3 pt-2 px-4 text-gray-500">
+        <div className="flex items-center pb-3 pt-2 px-4 text-tx-body-muted">
           <ArrowPathIcon className="h-5 w-5" />
           <h3 className="ml-2 text-sm">Updated just now</h3>
         </div>

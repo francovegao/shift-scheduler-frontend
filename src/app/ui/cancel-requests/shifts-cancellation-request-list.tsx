@@ -145,17 +145,19 @@ export default function ShiftCancellationRequestsList({
   const renderRow = (item: ShiftCancellationRequestList) => (
     <tr
       key={item.id}
-      className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-purple-50"
+      className="border-b border-surface-muted even:bg-surface-muted/30 text-sm hover:bg-surface-muted"
     >
       <td className="table-cell flex items-center gap-4 py-3 pl-6 pr-3 max-w-[180px] overflow-hidden">
         <div className="flex flex-col">
           <h3 className="font-semibold">
             {item.pharmacist?.user.firstName} {item.pharmacist?.user.lastName}
           </h3>
-          <p className="text-xs text-gray-500 truncate w-full">
+          <p className="text-xs text-tx-body-muted truncate w-full">
             {item.pharmacist?.user.email}
           </p>
-          <p className="text-xs text-gray-500">{item.pharmacist?.user.phone}</p>
+          <p className="text-xs text-tx-body-muted">
+            {item.pharmacist?.user.phone}
+          </p>
         </div>
       </td>
       <td className="table-cell flex items-center justify-center gap-4 py-3 pl-6 pr-3">
@@ -164,7 +166,9 @@ export default function ShiftCancellationRequestsList({
             {item.shift?.location?.name || item.shift?.company?.name}
           </h3>
           {item.shift?.location && (
-            <p className="text-xs text-gray-500">{item.shift?.company?.name}</p>
+            <p className="text-xs text-tx-body-muted">
+              {item.shift?.company?.name}
+            </p>
           )}
           <span className="font-medium">
             {formatInTimeZone(
@@ -173,7 +177,7 @@ export default function ShiftCancellationRequestsList({
               "MMM dd, yyyy",
             )}
           </span>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-tx-body-muted">
             {formatInTimeZone(
               item.shift.startTime,
               item.shift.company?.timezone,
@@ -186,7 +190,7 @@ export default function ShiftCancellationRequestsList({
               "HH:mm",
             )}
           </span>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-tx-body-muted">
             ${parseFloat(item.shift.payRate).toFixed(2)} /hr
           </span>
         </div>
@@ -209,14 +213,14 @@ export default function ShiftCancellationRequestsList({
         )}
         {item.status === "rejected" && (
           <div className="flex flex-col">
-            <p className="text-xs text-gray-500 break-words">
+            <p className="text-xs text-tx-body-muted break-words">
               No changes made to shift
             </p>
           </div>
         )}
         {item.status === "approved" && (
           <div className="flex flex-col">
-            <p className="text-xs text-gray-500 break-words">
+            <p className="text-xs text-tx-body-muted break-words">
               {item.pharmacist?.user.firstName} {item.pharmacist?.user.lastName}{" "}
               is no longer assigned to this shift
             </p>
@@ -231,7 +235,7 @@ export default function ShiftCancellationRequestsList({
   }: {
     item: ShiftCancellationRequestList;
   }) => (
-    <div className="bg-white p-4 rounded-xl border border-slate-200 mb-4 shadow-sm">
+    <div className="bg-surface p-4 rounded-xl border border-surface-muted mb-4 shadow-sm">
       {/* HEADER: Status & Pay */}
       <div className="flex justify-between items-start mb-3">
         <Status status={item.status} />
@@ -242,19 +246,23 @@ export default function ShiftCancellationRequestsList({
         <h3 className="font-semibold">
           {item.pharmacist?.user.firstName} {item.pharmacist?.user.lastName}
         </h3>
-        <p className="text-xs text-gray-500 truncate w-full">
+        <p className="text-xs text-tx-body-muted truncate w-full">
           {item.pharmacist?.user.email}
         </p>
-        <p className="text-xs text-gray-500">{item.pharmacist?.user.phone}</p>
+        <p className="text-xs text-tx-body-muted">
+          {item.pharmacist?.user.phone}
+        </p>
       </div>
 
       {/* SHIFT INFO */}
-      <div className="bg-slate-50 p-3 rounded-lg mb-4">
+      <div className="bg-surface-muted/50 p-3 rounded-lg mb-4">
         <h3 className="font-semibold">
           {item.shift?.location?.name || item.shift?.company?.name}
         </h3>
         {item.shift?.location && (
-          <p className="text-xs text-gray-500">{item.shift?.company?.name}</p>
+          <p className="text-xs text-tx-body-muted">
+            {item.shift?.company?.name}
+          </p>
         )}
         <p className="font-medium">
           {formatInTimeZone(
@@ -263,7 +271,7 @@ export default function ShiftCancellationRequestsList({
             "MMM dd, yyyy",
           )}
         </p>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-tx-body-muted">
           {formatInTimeZone(
             item.shift.startTime,
             item.shift.company?.timezone,
@@ -276,18 +284,18 @@ export default function ShiftCancellationRequestsList({
             "HH:mm",
           )}
         </p>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-tx-body-muted">
           ${parseFloat(item.shift.payRate).toFixed(2)} /hr
         </p>
       </div>
 
       {/* Reason */}
-      <div className="bg-slate-50 p-3 rounded-lg mb-4">
+      <div className="bg-surface-muted/50 p-3 rounded-lg mb-4">
         <p className="text-sm break-words">{item?.reason}</p>
       </div>
 
       {/* ACTIONS */}
-      <div className="flex justify-between items-center pt-3 border-t border-slate-100">
+      <div className="flex justify-between items-center pt-3 border-t border-surface-muted">
         <div className="flex gap-2">
           {appUser.role === "admin" && item.status === "pending" && (
             <ProcessCancelRequestModal
@@ -298,14 +306,14 @@ export default function ShiftCancellationRequestsList({
           )}
           {item.status === "rejected" && (
             <div className="flex flex-col">
-              <p className="text-xs text-gray-500 break-words">
+              <p className="text-xs text-tx-body-muted break-words">
                 No changes made to shift
               </p>
             </div>
           )}
           {item.status === "approved" && (
             <div className="flex flex-col">
-              <p className="text-sm text-gray-500 break-words">
+              <p className="text-sm text-tx-body-muted break-words">
                 {item.pharmacist?.user.firstName}{" "}
                 {item.pharmacist?.user.lastName} is no longer assigned to this
                 shift
@@ -322,7 +330,7 @@ export default function ShiftCancellationRequestsList({
       <h1 className={`font-bold mb-4 text-xl md:text-2xl`}>
         Shift Cancellation Requests
       </h1>
-      <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
+      <div className="bg-surface p-4 rounded-md flex-1 m-4 mt-0">
         {/* LIST */}
         <div className="block lg:hidden mt-6">
           {shiftCancellationRequests.map((item) => (

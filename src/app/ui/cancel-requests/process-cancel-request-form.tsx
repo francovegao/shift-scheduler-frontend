@@ -109,7 +109,7 @@ export default function ProcessCancelRequestForm({
       </h1>
       <div className="flex flex-col md:flex-row gap-4 items-start w-full">
         <div className="flex flex-col gap-2 w-full md:flex-1">
-          <label className="text-xs text-gray-500 font-medium">
+          <label className="text-xs text-tx-body-muted font-medium">
             Request Action
           </label>
           <div className="flex flex-col gap-2 p-1">
@@ -140,7 +140,9 @@ export default function ProcessCancelRequestForm({
         </div>
         {currentStatus === "approved" && (
           <div className="flex flex-col gap-2 w-full md:flex-1">
-            <label className="text-xs text-gray-500">Shift's New Status</label>
+            <label className="text-xs text-tx-body-muted">
+              Shift's New Status
+            </label>
             <select
               className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
               {...register("newShiftStatus")}
@@ -158,9 +160,11 @@ export default function ProcessCancelRequestForm({
         )}
         {currentStatus === "approved" && currentNewShiftStatus === "taken" && (
           <div className="flex flex-col gap-2 w-full md:flex-1">
-            <label className="text-xs text-gray-500">Relief Pharmacist</label>
+            <label className="text-xs text-tx-body-muted">
+              Relief Pharmacist
+            </label>
             <select
-              className={`ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full transition-colors bg-white
+              className={`ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full transition-colors bg-surface
           }`}
               {...register("pharmacistId")}
               //defaultValue={data?.pharmacistId}

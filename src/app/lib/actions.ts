@@ -13,6 +13,7 @@ import {
   UserSchema,
   ProcessCancelRequestSchema,
   GenerateReportSchema,
+  ShiftWorkLogSchema,
 } from "./formValidationSchemas";
 import { timeToMinutes } from "./utils";
 
@@ -1112,6 +1113,49 @@ export const clockOutShift = async (token: string, id: String) => {
   }
 
   return response.json().catch(() => ({ success: true }));
+};
+
+export const upsertShiftWorKLog = async (
+  token: string,
+  currentState: any,
+  data: ShiftWorkLogSchema,
+) => {
+  try {
+    console.log("Upserting shift worklog...");
+
+    const body = {
+      id: data.id ? data.id : null,
+      shiftId: data.shiftId,
+      pharmacistId: data.pharmacistId,
+      startMinutes: timeToMinutes(data.startMinutes),
+      endMinutes: timeToMinutes(data.endMinutes),
+    };
+
+    const response = await fetch(
+      `${CURRENT_URL}/shift-work-logs/admin-upsert`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || `HTTP error! Status: ${response.status}`,
+      );
+    }
+
+    return { success: true, error: false };
+    //return response.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
 };
 
 export const sendOpenShiftNotificationEmail = async (

@@ -172,8 +172,8 @@ export default function BigCalendar({
   const role = appUser.role;
 
   return (
-    <div className="h-full bg-white p-4 rounded-md">
-      <div className="h-full bg-white p-4 rounded-md grid grid-cols-4 gap-y-4 gap-x-2 items-center md:w-[80%] lg:w-[60%] 2xl:w-[50%]">
+    <div className="h-full bg-surface p-4 rounded-md">
+      <div className="h-full bg-surface p-4 rounded-md grid grid-cols-4 gap-y-4 gap-x-2 items-center md:w-[80%] lg:w-[60%] 2xl:w-[50%]">
         <ColorCodes label="Create" color="green" />
         <ColorCodes label="Seton" color="yellow" />
         <ColorCodes label="Mahogany" color="blue" />
@@ -212,7 +212,7 @@ export default function BigCalendar({
 
         {open && selectedShift && action === "takeShift" && (
           <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
-            <div className="bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]  max-h-[90vh] overflow-y-auto">
+            <div className="bg-surface p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]  max-h-[90vh] overflow-y-auto">
               <TakeShiftForm
                 pharmacistId={pharmacistId}
                 token={token}
@@ -231,7 +231,7 @@ export default function BigCalendar({
 
         {open && selectedShift && action !== "takeShift" && (
           <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center ">
-            <div className="bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] max-h-9/10 overflow-y-scroll">
+            <div className="bg-surface p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] max-h-9/10 overflow-y-scroll">
               <ShiftInfoModal
                 data={selectedShift}
                 setOpen={() => setOpen(false)}
@@ -280,7 +280,7 @@ export default function BigCalendar({
 
         {open && selectedSlotStart && action === "createShift" && (
           <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
-            <div className="bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]">
+            <div className="bg-surface p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]">
               <div className="p-4 flex flex-col gap-4">
                 <h1 className="text-xl font-semibold">
                   Calendar slot selected
@@ -294,7 +294,7 @@ export default function BigCalendar({
                     <span className="font-semibold">Time:</span>{" "}
                     {format(selectedSlotStart, "h:mmaaa").toLowerCase()}
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-tx-body-muted">
                     Click the button below to add a shift in this slot
                   </p>
                 </div>
