@@ -417,6 +417,7 @@ export async function fetchPharmacists(
   currentPage: number,
   queryParams: Object,
   token: string,
+  limit?: number,
 ) {
   try {
     console.log("Fetching pharmacists data...");
@@ -424,7 +425,9 @@ export async function fetchPharmacists(
     const url = new URL(`${CURRENT_URL}/users/pharmacists`);
     url.searchParams.append("search", query);
     url.searchParams.append("page", currentPage.toString());
-    url.searchParams.append("limit", ITEMS_PER_PAGE.toString());
+
+    const finalLimit = limit ?? ITEMS_PER_PAGE;
+    url.searchParams.append("limit", finalLimit.toString());
 
     if (queryParams) {
       for (const [key, value] of Object.entries(queryParams)) {

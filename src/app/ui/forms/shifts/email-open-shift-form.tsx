@@ -69,7 +69,7 @@ export default function NotifyOpenShiftForm({
       setIsFetching(true);
       try {
         if (type === "open_shift") {
-          const pharmacistsRes = await fetchPharmacists("", 1, {}, token);
+          const pharmacistsRes = await fetchPharmacists("", 1, {}, token, 50); //TODO: Update this fetch to get all the pharmacists without a pharmacist profile and not just the limited by page
           setPharmacistsList(pharmacistsRes?.data ?? []);
         }
       } catch (err) {

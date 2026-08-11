@@ -58,7 +58,7 @@ export default function ProcessCancelRequestForm({
     const fetchData = async () => {
       setIsFetching(true);
       try {
-        const pharmacistsRes = await fetchPharmacists("", 1, {}, token); //TODO: Update this fetch to get all the pharmacists without a pharmacist profile and not just the limited by page
+        const pharmacistsRes = await fetchPharmacists("", 1, {}, token, 50); //TODO: Update this fetch to get all the pharmacists without a pharmacist profile and not just the limited by page
         setPharmacists(pharmacistsRes?.data ?? []);
       } catch (err) {
         console.error("Failed to fetch related data", err);
