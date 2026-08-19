@@ -18,6 +18,7 @@ import {
   deleteShift,
   deleteShiftSeries,
   deleteUser,
+  deleteAddPharmacistRequest,
 } from "@/app/lib/actions";
 import { FormContainerProps } from "./form-container";
 
@@ -29,6 +30,7 @@ const deleteActionMap = {
   shift: deleteShift,
   shiftSeries: deleteShiftSeries,
   file: deleteShift,
+  addPharmacistRequest: deleteAddPharmacistRequest,
 };
 
 const UserForm = dynamic(() => import("../forms/users/user-form"), {
@@ -52,6 +54,12 @@ const LocationForm = dynamic(
 const ShiftForm = dynamic(() => import("../forms/shifts/shift-form"), {
   loading: () => <h1>Loading...</h1>,
 });
+const AddPharmacistRequestForm = dynamic(
+  () => import("../forms/pharmacists/add-pharmacist-request-form"),
+  {
+    loading: () => <h1>Loading...</h1>,
+  },
+);
 
 const forms: {
   [key: string]: (
@@ -107,6 +115,15 @@ const forms: {
       token={token}
       relatedData={relatedData}
       initialDate={initialDate}
+    />
+  ),
+  addPharmacistRequest: (setOpen, type, token, data, relatedData) => (
+    <AddPharmacistRequestForm
+      type={type}
+      data={data}
+      setOpen={setOpen}
+      token={token}
+      relatedData={relatedData}
     />
   ),
 };
@@ -252,8 +269,17 @@ export default function FormModal({
       >
         {type === "create" ? (
           <>
-            <span className="hidden md:block">Add {table}</span>{" "}
-            <PlusIcon className="h-5 md:ml-4" />
+            {table === "addPharmacistRequest" ? (
+              <>
+                <span className="hidden md:block">Request Add Pharmacist</span>{" "}
+                <PlusIcon className="h-5 md:ml-4" />
+              </>
+            ) : (
+              <>
+                <span className="hidden md:block">Add {table}</span>{" "}
+                <PlusIcon className="h-5 md:ml-4" />
+              </>
+            )}
           </>
         ) : null}
         {type === "update" ? (

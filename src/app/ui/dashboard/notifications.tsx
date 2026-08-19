@@ -79,7 +79,7 @@ export default function Notifications() {
         return (
           <Link
             {...commonLinkProps}
-            href={`/dashboard/reports?cancellationRequestId=${notification.actionUrl}`}
+            href={`/dashboard/shifts/cancellation-requests?cancellationRequestId=${notification.actionUrl}`}
           >
             View Request
           </Link>
@@ -93,6 +93,30 @@ export default function Notifications() {
             href={`/dashboard/myShifts?shiftId=${notification.actionUrl}`}
           >
             View More Info
+          </Link>
+        );
+      }
+    }
+
+    if (notification.type === "pharmacistRequest" && notification.actionUrl) {
+      if (role === "admin") {
+        return (
+          <Link
+            {...commonLinkProps}
+            href={`/dashboard/relief_pharmacist/pharmacist-requests?pharmacistRequestId=${notification.actionUrl}`}
+          >
+            View Request
+          </Link>
+        );
+      }
+
+      if (role === "pharmacy_manager") {
+        return (
+          <Link
+            {...commonLinkProps}
+            href={`/dashboard/list/pharmacists/${notification.actionUrl}`}
+          >
+            View Pharmacist
           </Link>
         );
       }

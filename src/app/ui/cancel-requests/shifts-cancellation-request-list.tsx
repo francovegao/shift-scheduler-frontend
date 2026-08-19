@@ -5,7 +5,7 @@ import Status from "../list/status";
 import { formatInTimeZone } from "date-fns-tz";
 import { useSearchParams } from "next/navigation";
 import { fetchShiftCancellationRequests } from "@/app/lib/data";
-import ProcessCancelRequestModal from "./process-cancel-request-modal";
+import AdminProcessRequestModal from "../admin-requests/admin-process-request-modal";
 
 type ShiftCancellationRequestList = ShiftCancellationRequest & {
   shift: Shift & { company: Company } & { location: Location };
@@ -114,7 +114,7 @@ export default function ShiftCancellationRequestsList({
 
   const searchParams = useSearchParams();
 
-  // Fetch shifts when token is ready
+  // Fetch requests when token is ready
   useEffect(() => {
     const getShiftCancellationRequests = async () => {
       setIsFetching(true);
@@ -130,7 +130,7 @@ export default function ShiftCancellationRequestsList({
         );
         setTotalPages(shiftCancellationRequestsResponse?.meta?.totalPages ?? 1);
       } catch (err) {
-        console.error("Failed to fetch shifts", err);
+        console.error("Failed to fetch shift cancellation requests", err);
       } finally {
         setIsFetching(false);
       }
@@ -138,7 +138,7 @@ export default function ShiftCancellationRequestsList({
     if (token) {
       getShiftCancellationRequests();
     }
-  }, [token]);
+  }, [token, searchParams]);
 
   if (isFetching) return <div>Loading...</div>;
 
@@ -202,10 +202,18 @@ export default function ShiftCancellationRequestsList({
       </td>
       <td className=" px-3 py-3">
         <Status status={item.status} />
+        {item.status !== "pending" && (
+          <div className="mt-1">
+            <div className="text-xs text-tx-body-muted">
+              By: {item.reviewedBy}
+            </div>
+          </div>
+        )}
       </td>
       <td className="table-cell flex items-center gap-4 py-3 pl-6 pr-3 w-48">
         {appUser.role === "admin" && item.status === "pending" && (
-          <ProcessCancelRequestModal
+          <AdminProcessRequestModal
+            type={"cancel_shift"}
             token={token}
             data={item}
             adminName={`${appUser.firstName} ${appUser.lastName}`}
@@ -298,7 +306,8 @@ export default function ShiftCancellationRequestsList({
       <div className="flex justify-between items-center pt-3 border-t border-surface-muted">
         <div className="flex gap-2">
           {appUser.role === "admin" && item.status === "pending" && (
-            <ProcessCancelRequestModal
+            <AdminProcessRequestModal
+              type={"cancel_shift"}
               token={token}
               data={item}
               adminName={`${appUser.firstName} ${appUser.lastName}`}

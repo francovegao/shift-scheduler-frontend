@@ -340,3 +340,57 @@ export const shiftWorkLogSchema = z.object({
 });
 
 export type ShiftWorkLogSchema = z.infer<typeof shiftWorkLogSchema>;
+
+export const addPharmacistRequestSchema = z.object({
+  id: z.string().optional(),
+
+  firstName: z.string().min(1, { message: "First name is required." }),
+  lastName: z.string().min(1, { message: "Last name is required." }),
+  email: z.email({ message: "Invalid email address." }),
+  phone: z.string().optional(),
+
+  licenseNumber: z.string().optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  province: z.string().min(2, { message: "Province is required." }),
+  postalCode: z.string().optional(),
+  eTransferEmail: z
+    .email({ message: "Invalid email address!" })
+    .optional()
+    .or(z.literal("")),
+  bio: z.string().optional(),
+  experienceYears: z.coerce.number().optional(),
+});
+
+export type AddPharmacistRequestSchema = z.infer<
+  typeof addPharmacistRequestSchema
+>;
+
+export const processAddPharmacistRequestSchema = z.discriminatedUnion(
+  "status",
+  [
+    z.object({
+      id: z.string().min(1, { message: "Request ID is required" }),
+      status: z.literal("rejected"),
+      rejectionReason: z
+        .string()
+        .min(1, { message: "Enter a rejection reason" }),
+    }),
+
+    z.object({
+      id: z.string().min(1, { message: "Request ID is required" }),
+      status: z.literal("approved"),
+      approved: z.coerce.boolean({ message: "Status is required." }),
+      canViewAllCompanies: z.coerce.boolean({
+        message: "View all Pharmacies? is required.",
+      }),
+      canViewPayRates: z.coerce.boolean({
+        message: "View all Pay Rates? is required.",
+      }),
+    }),
+  ],
+);
+
+export type ProcessAddPharmacistRequestSchema = z.infer<
+  typeof processAddPharmacistRequestSchema
+>;

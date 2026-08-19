@@ -562,6 +562,13 @@ export default function PharmacistsList() {
                 { value: "lastName:desc", label: "Last Name ↓" },
               ]}
             />
+            {role === "pharmacy_manager" && (
+              <FormContainer
+                table="addPharmacistRequest"
+                type="create"
+                token={token}
+              />
+            )}
           </div>
           {/* LIST */}
           <div className="block xl:hidden mt-6">

@@ -12,6 +12,7 @@ import {
   XCircleIcon,
   ChevronDoubleRightIcon,
   ChevronDoubleLeftIcon,
+  UserPlusIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -101,6 +102,12 @@ const links = [
         href: "/dashboard/list/pharmacists",
         icon: UserIcon,
         visible: ["admin", "pharmacy_manager", "location_manager"],
+      },
+      {
+        name: "Pharmacist Requests",
+        href: "/dashboard/relief_pharmacist/pharmacist-requests",
+        icon: UserPlusIcon,
+        visible: ["admin"],
       },
     ],
   },

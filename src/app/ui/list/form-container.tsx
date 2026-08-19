@@ -17,7 +17,8 @@ export type FormContainerProps = {
     | "company"
     | "location"
     | "shiftSeries"
-    | "file";
+    | "file"
+    | "addPharmacistRequest";
   type: "create" | "update" | "delete";
   token: string;
   data?: any;
@@ -126,6 +127,8 @@ export default function FormContainer({
             break;
           case "user":
             //Do not fetch companies or locations because we dont know the user type to be created
+            break;
+          case "addPharmacistRequest":
             break;
         }
       } catch (err) {

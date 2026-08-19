@@ -14,6 +14,8 @@ import {
   ProcessCancelRequestSchema,
   GenerateReportSchema,
   ShiftWorkLogSchema,
+  AddPharmacistRequestSchema,
+  ProcessAddPharmacistRequestSchema,
 } from "./formValidationSchemas";
 import { timeToMinutes } from "./utils";
 
@@ -1539,6 +1541,193 @@ export const generateAdminReport = async (
       error: false,
       url: result.url,
     };
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const createAddPharmacistRequest = async (
+  token: string,
+  currentState: CurrentState,
+  data: AddPharmacistRequestSchema,
+) => {
+  try {
+    console.log("Creating new add pharmacist request...");
+
+    const body = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      phone: data.phone,
+
+      licenseNumber: data.licenseNumber,
+      address: data.address,
+      city: data.city,
+      province: data.province,
+      postalCode: data.postalCode,
+      eTransferEmail: data.eTransferEmail,
+      bio: data.bio,
+      experienceYears: data.experienceYears,
+    };
+
+    const response = await fetch(`${CURRENT_URL}/pharmacist-requests`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    return { success: true, error: false };
+    //return response.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const updateAddPharmacistRequest = async (
+  token: string,
+  currentState: CurrentState,
+  data: AddPharmacistRequestSchema,
+) => {
+  try {
+    console.log("Updating add pharmacist request...");
+
+    const body = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      phone: data.phone,
+
+      licenseNumber: data.licenseNumber,
+      address: data.address,
+      city: data.city,
+      province: data.province,
+      postalCode: data.postalCode,
+      eTransferEmail: data.eTransferEmail,
+      bio: data.bio,
+      experienceYears: data.experienceYears,
+    };
+
+    const response = await fetch(
+      `${CURRENT_URL}/pharmacist-requests/${data.id}`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      },
+    );
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    return { success: true, error: false };
+    //return response.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const deleteAddPharmacistRequest = async (
+  token: string,
+  currentState: CurrentState,
+  data: FormData,
+) => {
+  const id = data.get("id") as string;
+
+  try {
+    console.log("Deleting add pharmacist request...");
+
+    const response = await fetch(`${CURRENT_URL}/pharmacist-requests/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    return { success: true, error: false };
+    //return response.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const processAddPharmacistRequest = async (
+  token: string,
+  currentState: CurrentState,
+  data: ProcessAddPharmacistRequestSchema,
+) => {
+  try {
+    console.log("Processing add pharmacist request...");
+
+    let body: any = undefined;
+    let url = undefined;
+
+    if (data.status === "approved") {
+      body = {
+        approved: data.approved,
+        canViewAllCompanies: data.canViewAllCompanies,
+        canViewPayRates: data.canViewPayRates,
+      };
+
+      url = new URL(`${CURRENT_URL}/pharmacist-requests/${data.id}/approve`);
+    } else {
+      body = {
+        rejectionReason: data.rejectionReason,
+      };
+
+      url = new URL(`${CURRENT_URL}/pharmacist-requests/${data.id}/reject`);
+    }
+
+    const response = await fetch(url.toString(), {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    return { success: true, error: false };
+    //return response.json();
   } catch (error) {
     console.error("API Error:", error);
     return { success: false, error: true };
