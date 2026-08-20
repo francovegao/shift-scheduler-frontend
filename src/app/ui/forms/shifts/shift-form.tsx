@@ -149,13 +149,6 @@ export default function ShiftForm({
       shiftSeriesId: data?.seriesId, // from initial data prop
     };
 
-    // const result = shiftSchema.safeParse(data);
-
-    // if (!result.success) {
-    //   console.log("ZOD ERRORS", result.error.flatten());
-    //   return;
-    // }
-
     formAction(finalData);
   });
 
