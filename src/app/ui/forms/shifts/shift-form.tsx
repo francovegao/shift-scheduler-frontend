@@ -21,6 +21,7 @@ import { useSelectedCompany } from "@/app/lib/useSelectedCompany";
 import { formatInTimeZone } from "date-fns-tz";
 import { addHours, format } from "date-fns";
 import React from "react";
+import { usePathname } from "next/navigation";
 
 // Infer the input and output types from the schema
 type FormInput = z.input<typeof shiftSchema>;
@@ -42,6 +43,9 @@ export default function ShiftForm({
   initialDate?: Date;
 }) {
   const { appUser, loading } = useAuth();
+  const pathname = usePathname();
+
+  const { pharmacists, companies, locations } = relatedData;
 
   const [step, setStep] = useState(data ? 2 : 1);
   const [companyApproved, setCompanyApproved] = useState(true);
@@ -67,6 +71,19 @@ export default function ShiftForm({
   const [shiftSeriesSelectedOption, setShiftSeriesSelectedOption] =
     useState("current");
 
+  const isPharmacistRoute = pathname.includes("/dashboard/list/pharmacists");
+
+  const pharmacistRouteId = isPharmacistRoute
+    ? pathname.split("/").pop()
+    : null;
+
+  const paramsPharmacist =
+    isPharmacistRoute && pharmacists
+      ? pharmacists.find((p: any) => p.id === pharmacistRouteId)
+      : null;
+
+  const paramsPharmacistId = paramsPharmacist?.pharmacistProfile?.id || "";
+
   const {
     register,
     watch,
@@ -78,7 +95,7 @@ export default function ShiftForm({
     resolver: zodResolver(shiftSchema),
     defaultValues: {
       repeatType: "NONE",
-      pharmacistId: data?.pharmacistId || "",
+      pharmacistId: data?.pharmacistId || paramsPharmacistId || "",
       status: data?.status || "open",
       dates: [] as { value: string }[],
     },
@@ -175,8 +192,6 @@ export default function ShiftForm({
 
     return formatInTimeZone(isoString, timeZone, "HH:mm");
   };
-
-  const { pharmacists, companies, locations } = relatedData;
 
   if (loading) return <div>Loading...</div>;
   if (!appUser) return <div>Please sign in to continue</div>;
@@ -788,7 +803,7 @@ export default function ShiftForm({
                 }`}
                 {...register("pharmacistId")}
                 disabled={!isPublished}
-                defaultValue={data?.pharmacistId}
+                //defaultValue={data?.pharmacistId}
               >
                 <option value=""></option>
                 {pharmacists
@@ -905,7 +920,9 @@ export default function ShiftForm({
             )}
           </div>
           {state.error && (
-            <span className="text-red-500">Something went wrong!</span>
+            <span className="text-red-500">
+              {state.error || "Something went wrong!"}
+            </span>
           )}
           <button className="bg-primary text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer">
             {type === "create" ? "Create" : "Update"}
