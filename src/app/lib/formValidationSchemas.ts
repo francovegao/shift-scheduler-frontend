@@ -5,7 +5,7 @@ export const userSchema = z.object({
   email: z.email({ message: "Invalid email address." }),
   password: z
     .string()
-    .min(6, { message: "Password must be at least 6 characters long!" }),
+    .optional(),
   firstName: z.string().min(1, { message: "First name is required." }),
   lastName: z.string().min(1, { message: "Last name is required." }),
   phone: z.string().optional(),
@@ -393,4 +393,22 @@ export const processAddPharmacistRequestSchema = z.discriminatedUnion(
 
 export type ProcessAddPharmacistRequestSchema = z.infer<
   typeof processAddPharmacistRequestSchema
+>;
+
+export const createPharmacistCommentSchema = z.object({
+  pharmacistId: z.string({ message: "Pharmacist ID is required" }),
+  comment: z.string().min(1, { message: "Comment is required" }),
+});
+
+export type CreatePharmacistCommentSchema = z.infer<
+  typeof createPharmacistCommentSchema
+>;
+
+export const updatePharmacistCommentSchema = z.object({
+  id: z.string({ message: "Comment ID is required" }),
+  comment: z.string().min(1, { message: "Comment is required" }),
+});
+
+export type UpdatePharmacistCommentSchema = z.infer<
+  typeof updatePharmacistCommentSchema
 >;

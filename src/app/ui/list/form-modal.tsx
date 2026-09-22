@@ -19,6 +19,7 @@ import {
   deleteShiftSeries,
   deleteUser,
   deleteAddPharmacistRequest,
+  deleteFileRecord,
 } from "@/app/lib/actions";
 import { FormContainerProps } from "./form-container";
 
@@ -29,7 +30,7 @@ const deleteActionMap = {
   pharmacist: deletePharmacist,
   shift: deleteShift,
   shiftSeries: deleteShiftSeries,
-  file: deleteShift,
+  file: deleteFileRecord,
   addPharmacistRequest: deleteAddPharmacistRequest,
 };
 

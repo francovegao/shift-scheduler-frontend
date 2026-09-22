@@ -16,6 +16,8 @@ import {
   ShiftWorkLogSchema,
   AddPharmacistRequestSchema,
   ProcessAddPharmacistRequestSchema,
+  CreatePharmacistCommentSchema,
+  UpdatePharmacistCommentSchema,
 } from "./formValidationSchemas";
 import { timeToMinutes } from "./utils";
 
@@ -26,6 +28,39 @@ if (!CURRENT_URL) {
 }
 
 type CurrentState = { success: boolean; error: boolean };
+
+export async function requestPasswordReset(
+  email: string,
+): Promise<{ success: boolean; error: boolean; message?: string }> {
+  try {
+    const response = await fetch(`${CURRENT_URL}/auth/forgot-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: true,
+        message: data.message || "Failed to send reset email",
+      };
+    }
+
+    return { success: true, error: false, message: data.message };
+  } catch (error) {
+    console.error("Password reset request error:", error);
+    return {
+      success: false,
+      error: true,
+      message: "An unexpected error occurred",
+    };
+  }
+}
 
 export async function markAsReadNotification(
   id: string,
@@ -69,8 +104,7 @@ export const createUser = async (
   try {
     console.log("Creating new user...");
 
-    //Send data to register user in Firebase
-    const firebaseResponse = await fetch(`${CURRENT_URL}/users/firebase`, {
+    const response = await fetch(`${CURRENT_URL}/users/invite`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -78,39 +112,11 @@ export const createUser = async (
       },
       body: JSON.stringify({
         email: data.email,
-        password: data.password,
         firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone,
+        role: data.role,
       }),
-    });
-
-    if (!firebaseResponse.ok) {
-      const errorData = await firebaseResponse.json();
-      throw new Error(
-        `Firebase error! ${errorData.message || "Unknown error"}`,
-      );
-    }
-
-    const firebaseUser = await firebaseResponse.json();
-    const firebaseUid = firebaseUser.uid;
-    console.log("User registered");
-
-    //Prepare payload for API request
-    const body = {
-      firebaseUid: firebaseUid,
-      email: data.email,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      phone: data.phone,
-      role: data.role,
-    };
-
-    const response = await fetch(`${CURRENT_URL}/users`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
@@ -125,7 +131,114 @@ export const createUser = async (
     return { success: true, error: false };
     //return response.json();
   } catch (error) {
-    console.error("An error occurred during user creation:", error);
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const createPharmacistComment = async (
+  token: string,
+  currentState: CurrentState,
+  data: CreatePharmacistCommentSchema,
+) => {
+  try {
+    console.log("Creating pharmacist comment...");
+
+    const body = {
+      pharmacistId: data.pharmacistId,
+      comment: data.comment,
+    };
+
+    const response = await fetch(`${CURRENT_URL}/pharmacist-comments`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    return { success: true, error: false };
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const updatePharmacistComment = async (
+  token: string,
+  currentState: CurrentState,
+  data: UpdatePharmacistCommentSchema,
+) => {
+  try {
+    console.log("Updating pharmacist comment...");
+
+    const body = {
+      comment: data.comment,
+    };
+
+    const response = await fetch(
+      `${CURRENT_URL}/pharmacist-comments/${data.id}`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    return { success: true, error: false };
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const deletePharmacistComment = async (
+  token: string,
+  currentState: CurrentState,
+  commentId: string,
+) => {
+  try {
+    console.log("Deleting pharmacist comment...");
+
+    const response = await fetch(
+      `${CURRENT_URL}/pharmacist-comments/${commentId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    return { success: true, error: false };
+  } catch (error) {
+    console.error("API Error:", error);
     return { success: false, error: true };
   }
 };

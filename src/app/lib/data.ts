@@ -894,3 +894,38 @@ export async function fetchAddPharmacistRequests(
     return null;
   }
 }
+
+export async function fetchPharmacistComments(
+  pharmacistId: string,
+  token: string,
+  page = 1,
+  limit = 10,
+) {
+  try {
+    console.log("Fetching pharmacist comments...");
+
+    const url = new URL(
+      `${CURRENT_URL}/pharmacist-comments/pharmacist/${pharmacistId}`,
+    );
+    url.searchParams.append("page", page.toString());
+    url.searchParams.append("limit", limit.toString());
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    return null;
+  }
+}

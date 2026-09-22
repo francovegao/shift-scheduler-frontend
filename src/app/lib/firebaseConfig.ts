@@ -6,7 +6,7 @@ import {
   getAuth,
   GoogleAuthProvider,
   reauthenticateWithCredential,
-  sendPasswordResetEmail,
+  confirmPasswordReset,
   signInWithEmailAndPassword,
   signInWithPopup,
   updatePassword,
@@ -42,9 +42,9 @@ export const logout = () => {
     return auth.signOut();
 }
 
-export const resetPasswordEmail = (email: string) => {
-  return sendPasswordResetEmail(auth, email);
-}
+export const confirmPasswordResetLink = (oobCode: string, newPassword: string) => {
+  return confirmPasswordReset(auth, oobCode, newPassword);
+};
 
 export const changePassword = async (email: string, oldPassword: string, newPassword: string, firebaseUser: User ) => {
     try {

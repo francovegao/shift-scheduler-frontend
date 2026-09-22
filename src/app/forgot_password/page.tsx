@@ -1,24 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import { resetPasswordEmail } from "../lib/firebaseConfig";
+import { requestPasswordReset } from "../lib/actions";
 import Link from "next/link";
 import SchedulerLogo from "../ui/scheduler-logo";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage("");
     try {
-      await resetPasswordEmail(email);
-      setMessage(
-        "If it matches an account, a password reset email has been sent to " +
-          email,
-      );
+      const result = await requestPasswordReset(email);
+      if (result.success) {
+        setMessage(result.message || "If an account exists for this email, a password reset link has been sent.");
+      } else {
+        setMessage(result.message || "Failed to send reset email. Please try again.");
+      }
     } catch (err: any) {
-      setMessage(err.message);
+      setMessage(err.message || "An unexpected error occurred");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,10 +61,11 @@ export default function ForgotPassword() {
           </div>
 
           <button
-            className="w-full h-12 rounded-full text-white bg-primary font-medium text-base transition-colors hover:bg-primary-100"
+            className="w-full h-12 rounded-full text-white bg-primary font-medium text-base transition-colors hover:bg-primary-100 disabled:opacity-50 disabled:cursor-not-allowed"
             type="submit"
+            disabled={loading}
           >
-            Send Reset Email
+            {loading ? "Sending..." : "Send Reset Email"}
           </button>
         </form>
         <Link

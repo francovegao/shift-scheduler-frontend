@@ -1,6 +1,7 @@
 "use client";
 
 import ShiftsGraph from "@/app/ui/list/shifts-graph";
+import PharmacistComments from "@/app/ui/list/pharmacist-comments";
 import {
   UserCircleIcon,
   PhoneIcon,
@@ -82,7 +83,7 @@ export default function SinglePharmacistPage({
     }
   }
 
-  const role = appUser.role;
+  const role = appUser.role ?? "";
   const resume = pharmacist?.files.find(
     (file: { type: string }) => file.type === "resume",
   );
@@ -357,6 +358,12 @@ export default function SinglePharmacistPage({
           </div>
         </div>
         <ShiftsGraph data={counts?.monthlyCounts} />
+        <PharmacistComments
+          pharmacistId={pharmacist.pharmacistProfile.id}
+          token={token}
+          userRole={role}
+          userId={appUser.id}
+        />
       </div>
     </div>
   );
