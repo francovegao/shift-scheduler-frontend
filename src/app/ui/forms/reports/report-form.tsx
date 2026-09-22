@@ -90,8 +90,6 @@ export default function ReportForm({
   }, [state, setOpen]);
 
   if (!filters) return <div>Loading...</div>;
-  if (reportType === "company" && loadingCompanies)
-    return <div>Loading...</div>;
   const isDisabled = !filters.startDate || !filters.endDate;
 
   const showCompanySelect = reportType === "company";
