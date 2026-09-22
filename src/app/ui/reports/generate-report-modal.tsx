@@ -9,7 +9,7 @@ export default function GenerateReportModal({
   token,
   filters,
 }: {
-  reportType: "shifts" | "companies" | "pharmacists";
+  reportType: "shifts" | "company" | "pharmacist";
   token: string;
   filters: {
     startDate?: string;
@@ -21,25 +21,39 @@ export default function GenerateReportModal({
   const { appUser, loading } = useAuth();
 
   const Form = () => {
-    return reportType === "shifts" ? (
-      <>
-        {filters.startDate && filters.endDate ? (
-          <ReportForm
-            reportType={reportType}
-            token={token}
-            setOpen={setOpen}
-            filters={filters}
-          />
-        ) : (
-          <div className="text-sm text-tx-tertiary font-semibold p-10">
-            Please select "From" and "To" dates.
-          </div>
-        )}
-      </>
-    ) : (
+    if (reportType === "shifts") {
+      return filters.startDate && filters.endDate ? (
+        <ReportForm
+          reportType={reportType}
+          token={token}
+          setOpen={setOpen}
+          filters={filters}
+        />
+      ) : (
+        <div className="text-sm text-tx-tertiary font-semibold p-10">
+          Please select "From" and "To" dates.
+        </div>
+      );
+    }
+
+    if (reportType === "company") {
+      return filters.startDate && filters.endDate ? (
+        <ReportForm
+          reportType={reportType}
+          token={token}
+          setOpen={setOpen}
+          filters={filters}
+        />
+      ) : (
+        <div className="text-sm text-tx-tertiary font-semibold p-10">
+          Please select "From" and "To" dates.
+        </div>
+      );
+    }
+
+    return (
       <div className="text-sm text-tx-tertiary font-semibold p-10">
-        Only shifts reports enabled for the moment. Please change report type to
-        shifts.
+        This report type is not yet implemented. Please select another report.
       </div>
     );
   };

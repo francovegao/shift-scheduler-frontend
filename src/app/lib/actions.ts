@@ -1633,6 +1633,8 @@ export const generateAdminReport = async (
       type: data.type,
       startDate: data.startDate,
       endDate: data.endDate,
+      companyIds: data.companyIds ?? [],
+      pharmacistIds: data.pharmacistIds ?? [],
     };
 
     const response = await fetch(`${CURRENT_URL}/reports/csv`, {
@@ -1701,16 +1703,19 @@ export const createAddPharmacistRequest = async (
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(
-        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
-      );
+      throw new Error(errorData.message || "Something went wrong.");
     }
 
     return { success: true, error: false };
     //return response.json();
-  } catch (error) {
+  } catch (error: any) {
     console.error("API Error:", error);
-    return { success: false, error: true };
+    //return { success: false, error: true };
+    return {
+      success: false,
+      error: true,
+      message: error.message || "Something went wrong",
+    };
   }
 };
 
@@ -1753,16 +1758,19 @@ export const updateAddPharmacistRequest = async (
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(
-        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
-      );
+      throw new Error(errorData.message || "Something went wrong.");
     }
 
     return { success: true, error: false };
     //return response.json();
-  } catch (error) {
+  } catch (error: any) {
     console.error("API Error:", error);
-    return { success: false, error: true };
+    //return { success: false, error: true };
+    return {
+      success: false,
+      error: true,
+      message: error.message || "Something went wrong",
+    };
   }
 };
 
@@ -1839,15 +1847,17 @@ export const processAddPharmacistRequest = async (
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
-      throw new Error(
-        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
-      );
+      throw new Error(errorData.message || "Something went wrong.");
     }
 
     return { success: true, error: false };
     //return response.json();
-  } catch (error) {
+  } catch (error: any) {
     console.error("API Error:", error);
-    return { success: false, error: true };
+    return {
+      success: false,
+      error: true,
+      message: error.message || "Something went wrong",
+    };
   }
 };

@@ -51,6 +51,7 @@ export default function AddPharmacistRequestForm({
     {
       success: false,
       error: false,
+      message: null,
     },
   );
 
@@ -208,9 +209,7 @@ export default function AddPharmacistRequestForm({
           error={errors?.postalCode}
         />
       </div>
-      {state.error && (
-        <span className="text-red-500">Something went wrong!</span>
-      )}
+      {state.error && <span className="text-red-500"> {state.message}</span>}
       <button className="bg-primary text-white p-2 rounded-md hover:bg-primary-100 cursor-pointer">
         {type === "create" ? "Create" : "Update"}
       </button>

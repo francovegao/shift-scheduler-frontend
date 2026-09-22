@@ -41,6 +41,7 @@ export default function ProcessAddPharmacistRequestForm({
     {
       success: false,
       error: false,
+      message: null,
     },
   );
 
@@ -197,7 +198,7 @@ export default function ProcessAddPharmacistRequestForm({
         Process Request
       </button>
       {state.error && (
-        <span className="text-red-500 text-center">Something went wrong!</span>
+        <span className="text-red-500 text-center">{state.message}</span>
       )}
     </form>
   );

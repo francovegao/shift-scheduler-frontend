@@ -4,12 +4,10 @@ import { useState } from "react";
 
 export default function ReportOptionSelector({ token }: { token: string }) {
   const [reportType, setReportType] = useState<
-    "shifts" | "companies" | "pharmacists"
+    "shifts" | "company" | "pharmacist"
   >("shifts");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-
-  const today = format(new Date(), "yyyy-MM-dd");
 
   return (
     <div className="p-2">
@@ -33,8 +31,8 @@ export default function ReportOptionSelector({ token }: { token: string }) {
                 className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
               >
                 <option value="shifts">Shifts</option>
-                <option value="pharmacists">Pharmacists</option>
-                <option value="companies">Companies</option>
+                <option value="company">By Company</option>
+                <option value="pharmacist">By Pharmacist</option>
               </select>
             </div>
 
@@ -54,6 +52,7 @@ export default function ReportOptionSelector({ token }: { token: string }) {
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
+                min={startDate || undefined}
                 className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
               />
             </div>

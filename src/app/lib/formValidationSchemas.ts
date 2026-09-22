@@ -324,9 +324,14 @@ export type ProcessCancelRequestSchema = z.infer<
 >;
 
 export const generateReportSchema = z.object({
-  type: z.enum(["shifts", "companies", "pharmacists"]),
+  type: z.enum(["shifts", "company", "pharmacist"]),
   startDate: z.coerce.date({ message: "Start date is required" }),
   endDate: z.coerce.date({ message: "End date is required" }),
+  companyIds: z.array(z.string()).optional(),
+  pharmacistIds: z.array(z.string()).optional(),
+}).refine(data => data.endDate >= data.startDate, {
+  message: "End date must be after or equal to start date",
+  path: ["endDate"],
 });
 
 export type GenerateReportSchema = z.infer<typeof generateReportSchema>;
