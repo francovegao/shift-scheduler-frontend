@@ -368,6 +368,33 @@ export async function fetchWeekCounts(week: string, token: string) {
   }
 }
 
+export async function fetchAllPharmacists(token: string) {
+  try {
+    console.log("Fetching all pharmacists data...");
+
+    const url = new URL(`${CURRENT_URL}/users/pharmacists`);
+    url.searchParams.append("limit", "1000");
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    return null;
+  }
+}
+
 export async function fetchUsers(
   query: string,
   currentPage: number,

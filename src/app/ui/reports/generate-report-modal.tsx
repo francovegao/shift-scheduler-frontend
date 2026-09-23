@@ -21,22 +21,7 @@ export default function GenerateReportModal({
   const { appUser, loading } = useAuth();
 
   const Form = () => {
-    if (reportType === "shifts") {
-      return filters.startDate && filters.endDate ? (
-        <ReportForm
-          reportType={reportType}
-          token={token}
-          setOpen={setOpen}
-          filters={filters}
-        />
-      ) : (
-        <div className="text-sm text-tx-tertiary font-semibold p-10">
-          Please select "From" and "To" dates.
-        </div>
-      );
-    }
-
-    if (reportType === "company") {
+    if (reportType === "shifts" || reportType === "company" || reportType === "pharmacist") {
       return filters.startDate && filters.endDate ? (
         <ReportForm
           reportType={reportType}

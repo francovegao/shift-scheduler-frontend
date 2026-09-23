@@ -6,7 +6,7 @@ import { useFormState } from "react-dom";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import z from "zod";
-import { fetchAllCompanies } from "@/app/lib/data";
+import { fetchAllCompanies, fetchAllPharmacists } from "@/app/lib/data";
 import { useState, useEffect as useEffectHook } from "react";
 
 type FormInput = z.input<typeof generateReportSchema>;
@@ -26,13 +26,20 @@ export default function ReportForm({
     endDate?: string;
     type: string;
     companyIds?: string[];
+    pharmacistIds?: string[];
   };
 }) {
   const [companies, setCompanies] = useState<
     Array<{ id: string; name: string }>
   >([]);
   const [loadingCompanies, setLoadingCompanies] = useState(false);
-  const [selectedCompanies, setSelectedCompanies] = useState<any[]>([]);
+  const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
+
+  const [pharmacists, setPharmacists] = useState<
+    Array<{ id: string; name: string }>
+  >([]);
+  const [loadingPharmacists, setLoadingPharmacists] = useState(false);
+  const [selectedPharmacists, setSelectedPharmacists] = useState<string[]>([]);
 
   useEffectHook(() => {
     if (reportType === "company") {
@@ -53,6 +60,26 @@ export default function ReportForm({
     }
   }, [reportType, token]);
 
+  useEffectHook(() => {
+    if (reportType === "pharmacist") {
+      const loadPharmacists = async () => {
+        setLoadingPharmacists(true);
+        const pharmacistsResponse = await fetchAllPharmacists(token);
+        if (pharmacistsResponse?.data) {
+          const mappedPharmacists = pharmacistsResponse.data
+            .map((p: any) => ({
+              id: p.id,
+              name: `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim(),
+            }))
+            .sort((a: any, b: any) => a.name.localeCompare(b.name));
+          setPharmacists(mappedPharmacists);
+        }
+        setLoadingPharmacists(false);
+      };
+      loadPharmacists();
+    }
+  }, [reportType, token]);
+
   const {
     register,
     setValue,
@@ -66,6 +93,7 @@ export default function ReportForm({
       startDate: filters.startDate ? new Date(filters.startDate) : undefined,
       endDate: filters.endDate ? new Date(filters.endDate) : undefined,
       companyIds: filters.companyIds || [],
+      pharmacistIds: filters.pharmacistIds || [],
     },
   });
 
@@ -93,8 +121,9 @@ export default function ReportForm({
   const isDisabled = !filters.startDate || !filters.endDate;
 
   const showCompanySelect = reportType === "company";
+  const showPharmacistSelect = reportType === "pharmacist";
 
-  const handleCheckboxChange = (event: {
+  const handleCompanyCheckboxChange = (event: {
     target: { value: any; checked: any };
   }) => {
     const { value, checked } = event.target;
@@ -103,6 +132,20 @@ export default function ReportForm({
       setSelectedCompanies((prevSelected) => [...prevSelected, value]);
     } else {
       setSelectedCompanies((prevSelected) =>
+        prevSelected.filter((option) => option !== value),
+      );
+    }
+  };
+
+  const handlePharmacistCheckboxChange = (event: {
+    target: { value: any; checked: any };
+  }) => {
+    const { value, checked } = event.target;
+
+    if (checked) {
+      setSelectedPharmacists((prevSelected) => [...prevSelected, value]);
+    } else {
+      setSelectedPharmacists((prevSelected) =>
         prevSelected.filter((option) => option !== value),
       );
     }
@@ -153,26 +196,30 @@ export default function ReportForm({
           <label className="text-tx-body-muted">
             Companies (leave empty for all):
           </label>
-          <ul className="space-y-2 max-h-95 overflow-y-auto border p-2 rounded-md">
-            {companies.map((company) => (
-              <li
-                key={company.id}
-                className="flex items-center border-b border-gray-300"
-              >
-                <input
-                  type="checkbox"
-                  value={company.id}
-                  checked={selectedCompanies.includes(company.id)}
-                  {...register("companyIds")}
-                  onChange={handleCheckboxChange}
-                  className="form-checkbox h-5 w-5 text-indigo-600 transition duration-150 ease-in-out"
-                />
-                <label className="ml-2 text-tx-tertiary">
-                  <p className="font-semibold">{company?.name}</p>
-                </label>
-              </li>
-            ))}
-          </ul>
+          {loadingCompanies ? (
+            <p className="text-xs text-tx-tertiary">Loading companies...</p>
+          ) : (
+            <ul className="space-y-2 max-h-95 overflow-y-auto border p-2 rounded-md">
+              {companies.map((company) => (
+                <li
+                  key={company.id}
+                  className="flex items-center border-b border-gray-300"
+                >
+                  <input
+                    type="checkbox"
+                    value={company.id}
+                    checked={selectedCompanies.includes(company.id)}
+                    {...register("companyIds")}
+                    onChange={handleCompanyCheckboxChange}
+                    className="form-checkbox h-5 w-5 text-indigo-600 transition duration-150 ease-in-out"
+                  />
+                  <label className="ml-2 text-tx-tertiary">
+                    <p className="font-semibold">{company?.name}</p>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          )}
 
           {!selectedCompanies || selectedCompanies.length === 0 ? (
             <p className="text-xs text-tx-tertiary">
@@ -181,6 +228,48 @@ export default function ReportForm({
           ) : (
             <p className="text-xs text-tx-tertiary">
               Pharmacies Selected: {selectedCompanies.length}
+            </p>
+          )}
+        </div>
+      )}
+
+      {showPharmacistSelect && (
+        <div className="p-4 flex flex-col gap-4">
+          <label className="text-tx-body-muted">
+            Pharmacists (leave empty for all):
+          </label>
+          {loadingPharmacists ? (
+            <p className="text-xs text-tx-tertiary">Loading pharmacists...</p>
+          ) : (
+            <ul className="space-y-2 max-h-95 overflow-y-auto border p-2 rounded-md">
+              {pharmacists.map((pharmacist) => (
+                <li
+                  key={pharmacist.id}
+                  className="flex items-center border-b border-gray-300"
+                >
+                  <input
+                    type="checkbox"
+                    value={pharmacist.id}
+                    checked={selectedPharmacists.includes(pharmacist.id)}
+                    {...register("pharmacistIds")}
+                    onChange={handlePharmacistCheckboxChange}
+                    className="form-checkbox h-5 w-5 text-indigo-600 transition duration-150 ease-in-out"
+                  />
+                  <label className="ml-2 text-tx-tertiary">
+                    <p className="font-semibold">{pharmacist?.name}</p>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {!selectedPharmacists || selectedPharmacists.length === 0 ? (
+            <p className="text-xs text-tx-tertiary">
+              No pharmacists selected - will include all pharmacists
+            </p>
+          ) : (
+            <p className="text-xs text-tx-tertiary">
+              Pharmacists Selected: {selectedPharmacists.length}
             </p>
           )}
         </div>
