@@ -36,7 +36,10 @@ export default function ReportForm({
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
 
   const [pharmacists, setPharmacists] = useState<
-    Array<{ id: string; name: string }>
+    Array<{
+      pharmacistId: string;
+      name: string;
+    }>
   >([]);
   const [loadingPharmacists, setLoadingPharmacists] = useState(false);
   const [selectedPharmacists, setSelectedPharmacists] = useState<string[]>([]);
@@ -65,10 +68,12 @@ export default function ReportForm({
       const loadPharmacists = async () => {
         setLoadingPharmacists(true);
         const pharmacistsResponse = await fetchAllPharmacists(token);
+
         if (pharmacistsResponse?.data) {
           const mappedPharmacists = pharmacistsResponse.data
+            .filter((p: any) => p.pharmacistProfile)
             .map((p: any) => ({
-              id: p.id,
+              pharmacistId: p.pharmacistProfile.id,
               name: `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim(),
             }))
             .sort((a: any, b: any) => a.name.localeCompare(b.name));
@@ -244,13 +249,15 @@ export default function ReportForm({
             <ul className="space-y-2 max-h-95 overflow-y-auto border p-2 rounded-md">
               {pharmacists.map((pharmacist) => (
                 <li
-                  key={pharmacist.id}
+                  key={pharmacist.pharmacistId}
                   className="flex items-center border-b border-gray-300"
                 >
                   <input
                     type="checkbox"
-                    value={pharmacist.id}
-                    checked={selectedPharmacists.includes(pharmacist.id)}
+                    value={pharmacist.pharmacistId}
+                    checked={selectedPharmacists.includes(
+                      pharmacist.pharmacistId,
+                    )}
                     {...register("pharmacistIds")}
                     onChange={handlePharmacistCheckboxChange}
                     className="form-checkbox h-5 w-5 text-indigo-600 transition duration-150 ease-in-out"
