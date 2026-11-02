@@ -43,7 +43,7 @@ export default function AdminProcessRequestModal({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="rounded-md cursor-pointer border p-2 hover:bg-gray-200"
+        className="rounded-md cursor-pointer border p-2 hover:bg-gray-200 hover:text-primary hover:text-primary"
       >
         <>
           <WrenchScrewdriverIcon className="w-5" />

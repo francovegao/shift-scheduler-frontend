@@ -956,3 +956,74 @@ export async function fetchPharmacistComments(
     return null;
   }
 }
+
+export async function fetchEmailTemplates(
+  query: string,
+  currentPage: number,
+  queryParams: Object,
+  token: string,
+) {
+  try {
+    console.log("Fetching email templates...");
+
+    const url = new URL(`${CURRENT_URL}/email-templates`);
+    url.searchParams.append("search", query);
+    url.searchParams.append("page", currentPage.toString());
+    url.searchParams.append("limit", "25");
+
+    if (queryParams) {
+      for (const [key, value] of Object.entries(queryParams)) {
+        if (value !== undefined) {
+          url.searchParams.append(key, value.toString());
+        }
+      }
+    }
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    //throw new Error('Failed to fetch companies');
+    return null;
+  }
+}
+
+export async function fetchEmailTemplate(key: string, token: string) {
+  try {
+    console.log("Fetching email template...");
+
+    const url = new URL(`${CURRENT_URL}/email-templates/${key}`);
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    return null;
+  }
+}

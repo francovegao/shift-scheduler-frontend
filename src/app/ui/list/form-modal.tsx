@@ -264,8 +264,8 @@ export default function FormModal({
         className={clsx("rounded-md cursor-pointer", {
           "flex h-10 items-center bg-primary px-4 text-sm font-medium text-white transition-colors hover:bg-primary-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600":
             type === "create",
-          "border p-2 hover:bg-gray-200": type === "update",
-          "p-2 border hover:bg-gray-200": type === "delete",
+          "border p-2 hover:bg-gray-200 hover:text-primary": type === "update",
+          "p-2 border hover:bg-gray-200 hover:text-primary": type === "delete",
         })}
       >
         {type === "create" ? (

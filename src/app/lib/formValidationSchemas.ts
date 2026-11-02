@@ -3,9 +3,7 @@ import z from "zod";
 export const userSchema = z.object({
   id: z.string().optional(),
   email: z.email({ message: "Invalid email address." }),
-  password: z
-    .string()
-    .optional(),
+  password: z.string().optional(),
   firstName: z.string().min(1, { message: "First name is required." }),
   lastName: z.string().min(1, { message: "Last name is required." }),
   phone: z.string().optional(),
@@ -323,16 +321,18 @@ export type ProcessCancelRequestSchema = z.infer<
   typeof processCancelRequestSchema
 >;
 
-export const generateReportSchema = z.object({
-  type: z.enum(["shifts", "company", "pharmacist"]),
-  startDate: z.coerce.date({ message: "Start date is required" }),
-  endDate: z.coerce.date({ message: "End date is required" }),
-  companyIds: z.array(z.string()).optional(),
-  pharmacistIds: z.array(z.string()).optional(),
-}).refine(data => data.endDate >= data.startDate, {
-  message: "End date must be after or equal to start date",
-  path: ["endDate"],
-});
+export const generateReportSchema = z
+  .object({
+    type: z.enum(["shifts", "company", "pharmacist"]),
+    startDate: z.coerce.date({ message: "Start date is required" }),
+    endDate: z.coerce.date({ message: "End date is required" }),
+    companyIds: z.array(z.string()).optional(),
+    pharmacistIds: z.array(z.string()).optional(),
+  })
+  .refine((data) => data.endDate >= data.startDate, {
+    message: "End date must be after or equal to start date",
+    path: ["endDate"],
+  });
 
 export type GenerateReportSchema = z.infer<typeof generateReportSchema>;
 
@@ -416,4 +416,67 @@ export const updatePharmacistCommentSchema = z.object({
 
 export type UpdatePharmacistCommentSchema = z.infer<
   typeof updatePharmacistCommentSchema
+>;
+
+export const updateEmailTemplateSchema = z.object({
+  subjectTemplate: z
+    .string()
+    .min(1, { message: "Subject is required!" })
+    .max(200, { message: "Subject is too long" }),
+  htmlTemplate: z
+    .string()
+    .min(1, { message: "HTML Template is required!" })
+    .max(50000, { message: "HTML Template is too long" }),
+  textTemplate: z
+    .string()
+    .max(50000, { message: "Text Template is too long" })
+    .optional()
+    .nullable(),
+  isActive: z.coerce.boolean().optional(),
+});
+
+export type UpdateEmailTemplateSchema = z.infer<
+  typeof updateEmailTemplateSchema
+>;
+
+export const previewEmailTemplateSchema = z.object({
+  subjectTemplate: z
+    .string()
+    .min(1, { message: "Subject is required!" })
+    .max(200, { message: "Subject is too long" }),
+  htmlTemplate: z
+    .string()
+    .min(1, { message: "HTML Template is required!" })
+    .max(50000, { message: "HTML Template is too long" }),
+  textTemplate: z
+    .string()
+    .max(50000, { message: "Text Template is too long" })
+    .optional()
+    .nullable(),
+});
+
+export type PreviewEmailTemplateSchema = z.infer<
+  typeof previewEmailTemplateSchema
+>;
+
+export const sendTestEmailTemplateSchema = z.object({
+  subjectTemplate: z
+    .string()
+    .min(1, { message: "Subject is required!" })
+    .max(200, { message: "Subject is too long" }),
+  htmlTemplate: z
+    .string()
+    .min(1, { message: "HTML Template is required!" })
+    .max(50000, { message: "HTML Template is too long" }),
+  textTemplate: z
+    .string()
+    .max(50000, { message: "Text Template is too long" })
+    .optional()
+    .nullable(),
+  testRecipient: z.email({ message: "Invalid email" }),
+  key: z.string().min(1, { message: "Template key is required!" }).max(200),
+});
+
+export type SendTestEmailTemplateSchema = z.infer<
+  typeof sendTestEmailTemplateSchema
 >;

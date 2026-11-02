@@ -232,7 +232,7 @@ export default function UsersList() {
           {item.role === "relief_pharmacist" && item.pharmacistProfile && (
             <Link
               href={`pharmacists/${item.id}`}
-              className="rounded-md border p-2 hover:bg-gray-100"
+              className="rounded-md border p-2 hover:bg-gray-100 hover:text-primary"
             >
               <EyeIcon className="w-5" />
             </Link>
@@ -348,7 +348,7 @@ export default function UsersList() {
             {item.role === "relief_pharmacist" && item.pharmacistProfile && (
               <Link
                 href={`pharmacists/${item.id}`}
-                className="rounded-md border p-2 hover:bg-gray-100"
+                className="rounded-md border p-2 hover:bg-gray-100 hover:text-primary"
               >
                 <EyeIcon className="w-5" />
               </Link>

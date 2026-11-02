@@ -192,7 +192,7 @@ export default function CompaniesList() {
           <div className="flex justify-end gap-2">
             <Link
               href={`companies/${item.id}`}
-              className="rounded-md border p-2 hover:bg-gray-100"
+              className="rounded-md border p-2 hover:bg-gray-100 hover:text-primary"
             >
               <EyeIcon className="w-5" />
             </Link>
@@ -290,7 +290,7 @@ export default function CompaniesList() {
           <div className="flex gap-3">
             <Link
               href={`companies/${item.id}`}
-              className="rounded-md border p-2 hover:bg-gray-100"
+              className="rounded-md border p-2 hover:bg-gray-100 hover:text-primary"
             >
               <EyeIcon className="w-5" />
             </Link>

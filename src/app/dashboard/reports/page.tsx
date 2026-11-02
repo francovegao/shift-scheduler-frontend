@@ -2,7 +2,6 @@
 
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { SetStateAction, useEffect, useState } from "react";
-import ShiftCancellationRequestsList from "@/app/ui/cancel-requests/shifts-cancellation-request-list";
 import { useAuth } from "@/app/ui/context/auth-context";
 import ReportOptionSelector from "@/app/ui/reports/report-options-selector";
 

@@ -18,6 +18,9 @@ import {
   ProcessAddPharmacistRequestSchema,
   CreatePharmacistCommentSchema,
   UpdatePharmacistCommentSchema,
+  UpdateEmailTemplateSchema,
+  PreviewEmailTemplateSchema,
+  SendTestEmailTemplateSchema,
 } from "./formValidationSchemas";
 import { timeToMinutes } from "./utils";
 
@@ -1858,6 +1861,160 @@ export const processAddPharmacistRequest = async (
       success: false,
       error: true,
       message: error.message || "Something went wrong",
+    };
+  }
+};
+
+export const updateEmailTemplate = async (
+  token: string,
+  currentState: CurrentState,
+  data: UpdateEmailTemplateSchema,
+  key: string,
+) => {
+  try {
+    console.log("Updating email template...");
+
+    const body = {
+      isActive: data.isActive,
+      subjectTemplate: data.subjectTemplate,
+      htmlTemplate: data.htmlTemplate,
+      textTemplate: data.textTemplate,
+    };
+
+    const response = await fetch(`${CURRENT_URL}/email-templates/${key}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response.json(); // If the API returns error details
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"}`,
+      );
+    }
+
+    const result = await response.json();
+
+    return {
+      success: true,
+      error: false,
+      data: result.data,
+    };
+  } catch (error) {
+    console.error("API Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const previewEmailTemplate = async (
+  token: string,
+  data: PreviewEmailTemplateSchema,
+  key: string,
+) => {
+  try {
+    console.log("Previewing email template...");
+
+    const body = {
+      subjectTemplate: data.subjectTemplate,
+      htmlTemplate: data.htmlTemplate,
+      textTemplate: data.textTemplate,
+    };
+
+    const response = await fetch(
+      `${CURRENT_URL}/email-templates/${key}/preview`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      },
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      return {
+        success: false,
+        error: true,
+        message: result.message || "Email template draft is invalid.",
+        errors: result.errors || [],
+        warnings: result.warnings || [],
+      };
+    }
+
+    return {
+      success: true,
+      error: false,
+      data: result.data || result,
+    };
+  } catch (error: any) {
+    console.error("API Error:", error);
+    return {
+      success: false,
+      error: true,
+      message: error.message || "An unexpected error occurred.",
+      errors: [],
+    };
+  }
+};
+
+export const sendTestTemplateEmail = async (
+  token: string,
+  currentState: any,
+  data: SendTestEmailTemplateSchema,
+) => {
+  try {
+    console.log("Sending test email...");
+
+    const body = {
+      recipientEmail: data.testRecipient,
+      subjectTemplate: data.subjectTemplate,
+      htmlTemplate: data.htmlTemplate,
+      textTemplate: data.textTemplate,
+    };
+
+    const response = await fetch(
+      `${CURRENT_URL}/email-templates/${data.key}/test`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      },
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      return {
+        success: false,
+        error: true,
+        message: result.message || "Email template draft is invalid.",
+        errors: result.errors || [],
+        warnings: result.warnings || [],
+      };
+    }
+
+    return { success: true, error: false };
+    //return response.json();
+  } catch (error: any) {
+    console.error("API Error:", error);
+    return {
+      success: false,
+      error: true,
+      message: error.message || "An unexpected error occurred.",
+      errors: [],
     };
   }
 };

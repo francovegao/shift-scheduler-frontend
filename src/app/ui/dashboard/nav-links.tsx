@@ -13,6 +13,8 @@ import {
   ChevronDoubleRightIcon,
   ChevronDoubleLeftIcon,
   UserPlusIcon,
+  EnvelopeIcon,
+  WrenchScrewdriverIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -125,10 +127,24 @@ const links = [
   },
   // { name: 'Locations', href: '/dashboard/list/locations', icon: BuildingOffice2Icon, visible: ["admin", "pharmacy_manager" ], },
   {
-    name: "Reports",
+    name: "Admin Center",
     href: "/dashboard/reports",
-    icon: DocumentDuplicateIcon,
+    icon: WrenchScrewdriverIcon,
     visible: ["admin"],
+    children: [
+      {
+        name: "Reports",
+        href: "/dashboard/reports",
+        icon: DocumentDuplicateIcon,
+        visible: ["admin"],
+      },
+      {
+        name: "Email Templates",
+        href: "/dashboard/list/email-templates",
+        icon: EnvelopeIcon,
+        visible: ["admin"],
+      },
+    ],
   },
   {
     name: "Profile",

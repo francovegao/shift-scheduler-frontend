@@ -285,7 +285,7 @@ export default function PharmacistsList() {
                   )}
                   <Link
                     href={`pharmacists/${item.id}`}
-                    className="rounded-md border p-2 hover:bg-gray-100"
+                    className="rounded-md border p-2 hover:bg-gray-100 hover:text-primary"
                   >
                     <EyeIcon className="w-5" />
                   </Link>
@@ -321,7 +321,7 @@ export default function PharmacistsList() {
             <div className="flex justify-end gap-2">
               <Link
                 href={`pharmacists/${item.id}`}
-                className="rounded-md border p-2 hover:bg-gray-100"
+                className="rounded-md border p-2 hover:bg-gray-100 hover:text-primary"
               >
                 <EyeIcon className="w-5" />
               </Link>
@@ -481,7 +481,7 @@ export default function PharmacistsList() {
                   <div className="flex gap-2 mt-2">
                     <Link
                       href={`pharmacists/${item.id}`}
-                      className="rounded-md border p-2 hover:bg-gray-100"
+                      className="rounded-md border p-2 hover:bg-gray-100 hover:text-primary"
                     >
                       <EyeIcon className="w-5" />
                     </Link>
@@ -524,7 +524,7 @@ export default function PharmacistsList() {
                   <div className="flex gap-2 mt-2">
                     <Link
                       href={`pharmacists/${item.id}`}
-                      className="rounded-md border p-2 hover:bg-gray-100"
+                      className="rounded-md border p-2 hover:bg-gray-100 hover:text-primary"
                     >
                       <EyeIcon className="w-5" />
                     </Link>
