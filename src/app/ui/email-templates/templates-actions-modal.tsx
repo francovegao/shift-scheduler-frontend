@@ -1,4 +1,5 @@
 import {
+  ArrowRightIcon,
   BeakerIcon,
   EyeIcon,
   PaperAirplaneIcon,
@@ -9,6 +10,8 @@ import { useState } from "react";
 import { useAuth } from "../context/auth-context";
 import PreviewEmailTemplate from "./preview-email-template";
 import SendTestEmailTemplate from "./send-test-email-template";
+import SendManualEmailTemplatePharmacists from "./send-manual-email-template-pharmacists";
+import Link from "next/link";
 
 export default function EmailTemplatesActionsModal({
   type,
@@ -16,7 +19,11 @@ export default function EmailTemplatesActionsModal({
   data,
   templateKey,
 }: {
-  type: "preview" | "send_test" | "send_manual";
+  type:
+    | "preview"
+    | "send_test"
+    | "send_manual_pharmacists"
+    | "send_manual_shift_pharmacists";
   token: string;
   data?: any;
   templateKey?: string;
@@ -40,8 +47,26 @@ export default function EmailTemplatesActionsModal({
         data={data}
         setOpen={setOpen}
       />
-    ) : type === "send_manual" ? (
-      <>Not yet implemented</>
+    ) : type === "send_manual_pharmacists" ? (
+      <SendManualEmailTemplatePharmacists
+        type={type}
+        token={token}
+        setOpen={setOpen}
+      />
+    ) : type === "send_manual_shift_pharmacists" ? (
+      <div className="gap-4 p-4 py-6">
+        <p className="mb-4">
+          To send a specific shift email notification please go to the shift
+          list page and select the specific shift to notify about.
+        </p>
+        <Link
+          href={`/dashboard/shifts?page=1&status=open`}
+          className="inline-flex items-center text-blue-400 hover:underline hover:text-foreground"
+        >
+          View open shifts
+          <ArrowRightIcon className="h-4 w-4 ml-1" />
+        </Link>
+      </div>
     ) : (
       <div>"Something went wrong!"</div>
     );
@@ -71,7 +96,8 @@ export default function EmailTemplatesActionsModal({
             Send Test
           </>
         ) : null}
-        {type === "send_manual" ? (
+        {type === "send_manual_pharmacists" ||
+        type === "send_manual_shift_pharmacists" ? (
           <>
             <PaperAirplaneIcon className="w-5" />
             Send to Users

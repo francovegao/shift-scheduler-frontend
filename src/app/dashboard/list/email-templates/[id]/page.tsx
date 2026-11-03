@@ -327,9 +327,20 @@ export default function EmailTemplatePage({
               }}
               templateKey={templateKey}
             />
-            {emailTemplate.allowManualSend && (
-              <EmailTemplatesActionsModal type={"send_manual"} token={token} />
-            )}
+            {emailTemplate.allowManualSend &&
+              templateKey === "multiple_open_shifts_manual_notification" && (
+                <EmailTemplatesActionsModal
+                  type={"send_manual_pharmacists"}
+                  token={token}
+                />
+              )}
+            {emailTemplate.allowManualSend &&
+              templateKey === "open_shift_manual_notification" && (
+                <EmailTemplatesActionsModal
+                  type={"send_manual_shift_pharmacists"}
+                  token={token}
+                />
+              )}
           </div>
 
           {/* FORM */}
@@ -371,7 +382,7 @@ export default function EmailTemplatePage({
                 <label className="text-tx-body-muted">Name:</label>
                 <p>{emailTemplate.name}</p>
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col break-all">
                 <label className="text-tx-body-muted">Template key:</label>
                 <p>{emailTemplate.key}</p>
               </div>

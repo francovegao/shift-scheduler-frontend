@@ -140,7 +140,7 @@ export default function Notifications() {
                 {getTimeAgo(item.createdAt)}
               </span>
             </div>
-            <p className="text-sm font-medium mt-1">{item.message}</p>
+            <p className="text-sm font-medium mt-1 break-all">{item.message}</p>
             <div>{getActionLink(item)}</div>
             <button
               onClick={() => markAsRead(item.id)}

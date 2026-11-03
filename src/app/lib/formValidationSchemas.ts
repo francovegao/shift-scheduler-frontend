@@ -246,19 +246,18 @@ export type TakeShiftSchema = z.infer<typeof takeShiftSchema>;
 export const manualEmailSchema = z
   .object({
     notificationType: z.enum(["specific_shift", "general"]),
-    id: z.string({ message: "Shift ID is required!" }),
+    id: z.string().optional(),
     userIds: z.array(z.string()),
   })
   .superRefine((data, ctx) => {
-    if (
-      data.notificationType === "specific_shift" &&
-      (!data.id || data.id.trim() === "")
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Shift ID is required for specific shift notifications!",
-        path: ["id"], // Attaches the error message directly to the 'id' field
-      });
+    if (data.notificationType === "specific_shift") {
+      if (!data.id || data.id.trim() === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Shift ID is required for specific shift notifications!",
+          path: ["id"],
+        });
+      }
     }
   });
 

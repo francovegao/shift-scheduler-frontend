@@ -164,7 +164,7 @@ export default function EmailTemplatesList() {
           <div className="flex items-center gap-4">
             <div className="flex flex-col justify-center gap-2">
               <h3 className="font-semibold leading-none">{item.name}</h3>
-              <p className="text-xs text-tx-body-muted mt-1 break-words">
+              <p className="text-xs text-tx-body-muted mt-1 break-all">
                 Key: {item.key}
               </p>
               <h3 className="text-xs font-medium mt-1 break-words">
@@ -177,7 +177,9 @@ export default function EmailTemplatesList() {
         {/* EXTRA INFO */}
         <div className="bg-surface-muted/50 p-3 rounded-lg mb-4">
           <div className="flex flex-col">
-            <p className="text-xs">Updated by: {item?.updatedBy?.firstName}</p>
+            <p className="text-xs break-words">
+              Updated by: {item?.updatedBy?.firstName}
+            </p>
           </div>
         </div>
 
