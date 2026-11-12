@@ -96,6 +96,7 @@ export default function ShiftForm({
     defaultValues: {
       repeatType: "NONE",
       pharmacistId: data?.pharmacistId || paramsPharmacistId || "",
+      companyId: data?.companyId || "",
       status: data?.status || "open",
       dates: [] as { value: string }[],
     },
@@ -408,18 +409,20 @@ export default function ShiftForm({
             {role === "admin" || role === "pharmacy_manager" ? (
               <div className="flex flex-col gap-2 w-full md:w-1/4">
                 <label className="text-xs text-tx-body-muted">Company</label>
-                <input
-                  type="text"
-                  value={selectedCompanyName || ""}
-                  disabled
-                  className="p-2 rounded-md text-sm w-full border border-surface-muted bg-surface text-tx-primary disabled:bg-surface-muted/50 disabled:text-tx-disabled cursor-not-allowed"
-                />
-
-                <input
-                  type="hidden"
+                <select
+                  className={`ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full transition-colors ${
+                    !data ? "bg-gray-200" : "bg-surface"
+                  }`}
                   {...register("companyId")}
-                  value={selectedCompanyId ?? ""}
-                />
+                  disabled={!data}
+                >
+                  <option value=""></option>
+                  {companies.map((company: { id: string; name: string }) => (
+                    <option value={company.id} key={company.id}>
+                      {company?.name}
+                    </option>
+                  ))}
+                </select>
 
                 {errors.companyId?.message && (
                   <p className="text-xs text-red-400">
