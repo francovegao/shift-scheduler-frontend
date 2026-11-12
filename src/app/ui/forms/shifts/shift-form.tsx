@@ -411,10 +411,12 @@ export default function ShiftForm({
                 <label className="text-xs text-tx-body-muted">Company</label>
                 <select
                   className={`ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full transition-colors ${
-                    !data ? "bg-gray-200" : "bg-surface"
+                    !data || role === "pharmacy_manager"
+                      ? "bg-gray-200"
+                      : "bg-surface"
                   }`}
                   {...register("companyId")}
-                  disabled={!data}
+                  disabled={!data || role === "pharmacy_manager"}
                 >
                   <option value=""></option>
                   {companies.map((company: { id: string; name: string }) => (
