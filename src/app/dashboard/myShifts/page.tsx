@@ -1,5 +1,9 @@
 "use client";
 
+import { acceptRefresh, recoverPage } from "@/app/lib/refresh-response";
+
+import { useDataRevision } from "@/app/lib/data-revisions";
+
 import { fetchMyShifts } from "@/app/lib/data";
 import { formatPayRate, getFullAddress } from "@/app/lib/utils";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
@@ -119,6 +123,7 @@ const columns = [
 export default function PharmacistShiftsList() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const shiftsRevision = useDataRevision("shifts");
   const { firebaseUser, appUser, loading } = useAuth();
   const [isFetching, setIsFetching] = useState(true);
   const [token, setToken] = useState("");
@@ -143,8 +148,8 @@ export default function PharmacistShiftsList() {
 
   // Fetch shifts when token is ready
   useEffect(() => {
+    let active = true;
     const getShifts = async () => {
-      setIsFetching(true);
       try {
         const page = searchParams.get("page");
         const query = searchParams.get("query");
@@ -175,18 +180,23 @@ export default function PharmacistShiftsList() {
           queryParams,
           token,
         );
-        setShifts(shiftsResponse?.data ?? []);
-        setTotalPages(shiftsResponse?.meta?.totalPages ?? 1);
+        if (!active || !acceptRefresh(shiftsResponse, "shifts", "data", "dashboard-myShifts-page")) return;
+        if (recoverPage(shiftsResponse, currentPage, searchParams, router)) return;
+        if (active) setShifts(shiftsResponse?.data ?? []);
+        if (active) setTotalPages(shiftsResponse?.meta?.totalPages ?? 1);
       } catch (err) {
         console.error("Failed to fetch shifts", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
     if (token) {
       getShifts();
     }
-  }, [token, searchParams]);
+    return () => {
+      active = false;
+    };
+  }, [token, searchParams, shiftsRevision]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

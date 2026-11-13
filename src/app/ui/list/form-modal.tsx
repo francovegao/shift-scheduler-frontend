@@ -1,5 +1,7 @@
 "use client";
 
+import { invalidateData, type DataResource } from "@/app/lib/data-revisions";
+
 import {
   PencilIcon,
   PlusIcon,
@@ -9,6 +11,7 @@ import {
 import clsx from "clsx";
 import { Dispatch, JSX, SetStateAction, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { usePathname, useRouter } from "next/navigation";
 import { useFormState } from "react-dom";
 import { toast } from "react-toastify";
 import {
@@ -32,6 +35,17 @@ const deleteActionMap = {
   shiftSeries: deleteShiftSeries,
   file: deleteFileRecord,
   addPharmacistRequest: deleteAddPharmacistRequest,
+};
+
+const deletedResourceMap: Record<keyof typeof deleteActionMap, DataResource[]> = {
+  user: ["users", "pharmacists"],
+  company: ["companies", "locations", "shifts", "users"],
+  location: ["locations", "companies", "shifts", "users"],
+  pharmacist: ["pharmacists", "users", "shifts"],
+  shift: ["shifts"],
+  shiftSeries: ["shifts"],
+  file: ["files", "users", "pharmacists", "companies", "locations"],
+  addPharmacistRequest: ["requests"],
 };
 
 const UserForm = dynamic(() => import("../forms/users/user-form"), {
@@ -139,6 +153,8 @@ export default function FormModal({
   relatedData,
 }: FormContainerProps & { relatedData?: any }) {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
   const Form = () => {
     const [shiftSeriesSelectedOption, setShiftSeriesSelectedOption] =
@@ -165,7 +181,16 @@ export default function FormModal({
       if (state.success) {
         toast(`${table} has been deleted!`, { toastId: "unique-toast" });
         setOpen(false);
-        window.location.reload();
+        invalidateData(...deletedResourceMap[actionTable]);
+        const detailLists = {
+          company: "companies",
+          location: "locations",
+          pharmacist: "pharmacists",
+        } as const;
+        const detailList = detailLists[table as keyof typeof detailLists];
+        if (detailList && pathname === `/dashboard/list/${detailList}/${id}`) {
+          router.replace(`/dashboard/list/${detailList}`);
+        }
       }
     }, [state]);
 

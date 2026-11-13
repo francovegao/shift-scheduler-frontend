@@ -1,5 +1,7 @@
 "use client";
 
+import { invalidateData } from "@/app/lib/data-revisions";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import {
@@ -121,7 +123,7 @@ export default function SelectAllowedCompaniesForm({
     if (state.success) {
       toast(`Pharmacist Permissions Saved!`, { toastId: "unique-toast" });
       setOpen(false);
-      window.location.reload();
+      invalidateData("pharmacists", "companies", "shifts", "users");
     }
   }, [state, setOpen]);
 

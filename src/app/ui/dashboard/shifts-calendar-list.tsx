@@ -1,5 +1,9 @@
 "use client";
 
+import { acceptRefresh } from "@/app/lib/refresh-response";
+
+import { useDataRevision } from "@/app/lib/data-revisions";
+
 import { fetchShiftsByDate } from "@/app/lib/data";
 import { SetStateAction, useEffect, useState } from "react";
 import { useAuth } from "../context/auth-context";
@@ -14,6 +18,7 @@ export default function ShiftsCalendarList({
 }: {
   dateParam: string | undefined;
 }) {
+  const shiftsRevision = useDataRevision("shifts");
   const { firebaseUser, appUser, loading } = useAuth();
   const [isFetching, setIsFetching] = useState(true);
   const [token, setToken] = useState("");
@@ -35,22 +40,26 @@ export default function ShiftsCalendarList({
 
   // Fetch shifts when token is ready
   useEffect(() => {
+    let active = true;
     const getShifts = async () => {
-      setIsFetching(true);
       try {
         const shiftsResponse = await fetchShiftsByDate(date, token);
-        setShifts(shiftsResponse?.data ?? []);
+        if (!active || !acceptRefresh(shiftsResponse, "shifts", "data", "ui-dashboard-shifts-calendar-list")) return;
+        if (active) setShifts(shiftsResponse?.data ?? []);
         //setTotalPages(shiftsResponse?.meta?.totalPages ?? 1);
       } catch (err) {
         console.error("Failed to fetch shifts by date", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
     if (token) {
       getShifts();
     }
-  }, [token, date]);
+    return () => {
+      active = false;
+    };
+  }, [token, date, shiftsRevision]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

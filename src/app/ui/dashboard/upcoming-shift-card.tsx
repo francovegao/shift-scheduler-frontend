@@ -1,3 +1,4 @@
+import { invalidateData } from "@/app/lib/data-revisions";
 import { clockInShift, clockOutShift } from "@/app/lib/actions";
 import { getFullAddress } from "@/app/lib/utils";
 import { formatInTimeZone } from "date-fns-tz";
@@ -18,7 +19,7 @@ export default function UpcomingShiftCard({ shift, token }: any) {
     setLoading(true);
     try {
       await clockInShift(token, shift.id);
-      window.location.reload();
+      invalidateData("shifts");
     } catch (err) {
       console.error(err);
       toast(`Failed to clock in. Please try again.`, {
@@ -34,7 +35,7 @@ export default function UpcomingShiftCard({ shift, token }: any) {
     setLoading(true);
     try {
       await clockOutShift(token, shift.id);
-      window.location.reload();
+      invalidateData("shifts");
     } catch (err) {
       console.error(err);
       toast(`Failed to clock out. Please try again.`, {

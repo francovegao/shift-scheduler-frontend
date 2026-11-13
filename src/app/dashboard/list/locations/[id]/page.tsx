@@ -1,5 +1,10 @@
 "use client";
 
+import { acceptRefresh } from "@/app/lib/refresh-response";
+import { useRouter } from "next/navigation";
+
+import { invalidateData, useDataRevision } from "@/app/lib/data-revisions";
+
 import ShiftsGraph from "@/app/ui/list/shifts-graph";
 import {
   UserCircleIcon,
@@ -20,7 +25,6 @@ import FormContainer from "@/app/ui/list/form-container";
 import { fetchOneLocation } from "@/app/lib/data";
 import { getFullAddress } from "@/app/lib/utils";
 import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
-import { notFound } from "next/navigation";
 
 export default function SingleLocationPage({
   params,
@@ -29,8 +33,13 @@ export default function SingleLocationPage({
 }) {
   const { id } = use(params);
 
+  const locationsRevision = useDataRevision("locations");
+  const filesRevision = useDataRevision("files");
+  const shiftsRevision = useDataRevision("shifts");
   const { firebaseUser, appUser, loading } = useAuth();
   const [isFetching, setIsFetching] = useState(true);
+  const [fetchFailed, setFetchFailed] = useState(false);
+  const router = useRouter();
   const [token, setToken] = useState("");
   const [location, setLocation] = useState<any | null>(null);
   const [counts, setCounts] = useState<any | null>(null);
@@ -46,27 +55,49 @@ export default function SingleLocationPage({
 
   // Fetch location when token is ready
   useEffect(() => {
+    let active = true;
     const getLocation = async () => {
-      setIsFetching(true);
       try {
         const locationResponse = await fetchOneLocation(id, token);
-        setLocation(locationResponse.data ?? null);
-        setCounts(locationResponse.meta ?? null);
+        if (!active) return;
+        if (locationResponse?.notFound) {
+          router.replace("/dashboard/list/locations");
+          return;
+        }
+        if (!acceptRefresh(locationResponse, "locations")) {
+          setFetchFailed(true);
+          return;
+        }
+        setFetchFailed(false);
+        if (active) setLocation(locationResponse.data ?? null);
+        if (active) setCounts(locationResponse.meta ?? null);
       } catch (err) {
         console.error("Failed to fetch location", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
     if (token) {
       getLocation();
     }
-  }, [token, id]);
+    return () => {
+      active = false;
+    };
+  }, [token, id, locationsRevision, filesRevision, shiftsRevision, router]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
   if (!location) {
-    notFound();
+    return (
+      <div className="p-4">
+        <p>{fetchFailed ? "Could not load location." : "Location was not found."}</p>
+        {fetchFailed && (
+          <button type="button" onClick={() => invalidateData("locations")} className="text-secondary underline">
+            Retry
+          </button>
+        )}
+      </div>
+    );
   }
 
   const role = appUser.role;

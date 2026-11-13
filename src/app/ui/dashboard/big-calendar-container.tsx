@@ -1,5 +1,9 @@
 "use client";
 
+import { acceptRefresh } from "@/app/lib/refresh-response";
+
+import { useDataRevision } from "@/app/lib/data-revisions";
+
 import {
   fetchAllMyShifts,
   fetchCompanyShifts,
@@ -25,6 +29,7 @@ export default function BigCalendarContainer({
     | "upcoming_shifts_manager";
   id?: string;
 }) {
+  const shiftsRevision = useDataRevision("shifts");
   const { firebaseUser, appUser, loading } = useAuth();
   const [isFetching, setIsFetching] = useState(true);
   const [token, setToken] = useState("");
@@ -43,8 +48,8 @@ export default function BigCalendarContainer({
   }, [firebaseUser]);
 
   useEffect(() => {
+    let active = true;
     const fetchData = async () => {
-      setIsFetching(true);
       try {
         const queryParams: Record<string, string> = {};
         switch (type) {
@@ -62,28 +67,32 @@ export default function BigCalendarContainer({
             }
 
             const shiftsResponse = await fetchAllMyShifts(token, queryParams);
-            setShifts(shiftsResponse?.data ?? []);
+            if (!active || !acceptRefresh(shiftsResponse, "shifts", "data", "ui-dashboard-big-calendar-container")) return;
+            if (active) setShifts(shiftsResponse?.data ?? []);
             break;
           case "single_pharmacist":
             if (id) {
               const shiftsResponse = await fetchPharmacistShifts(id, token);
-              setShifts(shiftsResponse?.data ?? []);
+              if (!active || !acceptRefresh(shiftsResponse, "shifts", "data", "ui-dashboard-big-calendar-container")) return;
+              if (active) setShifts(shiftsResponse?.data ?? []);
             }
             break;
           case "single_company":
             if (id) {
               const shiftsResponse = await fetchCompanyShifts(id, token);
+              if (!active || !acceptRefresh(shiftsResponse, "shifts", "data", "ui-dashboard-big-calendar-container")) return;
               const allShifts = shiftsResponse?.data ?? [];
               const filteredShifts = allShifts.filter(
                 (shift: any) => shift.location === null,
               );
-              setShifts(filteredShifts);
+              if (active) setShifts(filteredShifts);
             }
             break;
           case "single_location":
             if (id) {
               const shiftsResponse = await fetchLocationShifts(id, token);
-              setShifts(shiftsResponse?.data ?? []);
+              if (!active || !acceptRefresh(shiftsResponse, "shifts", "data", "ui-dashboard-big-calendar-container")) return;
+              if (active) setShifts(shiftsResponse?.data ?? []);
             }
             break;
           case "past_shifts_manager":
@@ -104,7 +113,8 @@ export default function BigCalendarContainer({
               token,
               queryParams,
             );
-            setShifts(pastShiftsResponse?.data ?? []);
+            if (!active || !acceptRefresh(pastShiftsResponse, "shifts", "data", "ui-dashboard-big-calendar-container")) return;
+            if (active) setShifts(pastShiftsResponse?.data ?? []);
             break;
           case "upcoming_shifts_manager":
             queryParams["timeFilter"] = "upcoming";
@@ -124,7 +134,8 @@ export default function BigCalendarContainer({
               token,
               queryParams,
             );
-            setShifts(upcomingShiftsResponse?.data ?? []);
+            if (!active || !acceptRefresh(upcomingShiftsResponse, "shifts", "data", "ui-dashboard-big-calendar-container")) return;
+            if (active) setShifts(upcomingShiftsResponse?.data ?? []);
             break;
           default:
             break;
@@ -132,12 +143,15 @@ export default function BigCalendarContainer({
       } catch (err) {
         console.error("Failed to fetch big calendar shifts", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
 
     if (token) fetchData();
-  }, [type, token, currentCompanyId]);
+    return () => {
+      active = false;
+    };
+  }, [type, token, currentCompanyId, shiftsRevision]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

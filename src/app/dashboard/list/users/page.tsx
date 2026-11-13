@@ -1,5 +1,9 @@
 "use client";
 
+import { acceptRefresh, recoverPage } from "@/app/lib/refresh-response";
+
+import { useDataRevision } from "@/app/lib/data-revisions";
+
 import { fetchUsers } from "@/app/lib/data";
 import { displayRole } from "@/app/lib/utils";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
@@ -14,7 +18,7 @@ import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/list/table-search";
 import { EyeIcon } from "@heroicons/react/16/solid";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { SetStateAction, useEffect, useState, use } from "react";
 
 type UserList = User & { company: Company } & { location: Location } & {
@@ -81,6 +85,8 @@ const columns = [
 ];
 
 export default function UsersList() {
+  const usersRevision = useDataRevision("users");
+  const filesRevision = useDataRevision("files");
   const { firebaseUser, appUser, loading } = useAuth();
   const [isFetching, setIsFetching] = useState(true);
   const [token, setToken] = useState("");
@@ -88,6 +94,7 @@ export default function UsersList() {
   const [totalPages, setTotalPages] = useState<number>(1);
 
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   // Get token
   useEffect(() => {
@@ -100,8 +107,8 @@ export default function UsersList() {
 
   // Fetch users when token is ready
   useEffect(() => {
+    let active = true;
     const getUsers = async () => {
-      setIsFetching(true);
       try {
         const page = searchParams.get("page");
         const query = searchParams.get("query");
@@ -122,18 +129,23 @@ export default function UsersList() {
           queryParams,
           token,
         );
-        setUsers(usersResponse?.data ?? []);
-        setTotalPages(usersResponse?.meta?.totalPages ?? 1);
+        if (!active || !acceptRefresh(usersResponse, "users", "data", "dashboard-list-users-page")) return;
+        if (recoverPage(usersResponse, currentPage, searchParams, router)) return;
+        if (active) setUsers(usersResponse?.data ?? []);
+        if (active) setTotalPages(usersResponse?.meta?.totalPages ?? 1);
       } catch (err) {
         console.error("Failed to fetch users", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
     if (token) {
       getUsers();
     }
-  }, [token, searchParams]);
+    return () => {
+      active = false;
+    };
+  }, [token, searchParams, usersRevision, filesRevision]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

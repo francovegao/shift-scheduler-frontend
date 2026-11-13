@@ -1,5 +1,10 @@
 "use client";
 
+import { acceptRefresh } from "@/app/lib/refresh-response";
+import { useRouter } from "next/navigation";
+
+import { invalidateData, useDataRevision } from "@/app/lib/data-revisions";
+
 import Image from "next/image";
 import ShiftsGraph from "@/app/ui/list/shifts-graph";
 import {
@@ -21,7 +26,6 @@ import FormContainer from "@/app/ui/list/form-container";
 import { fetchOneCompany } from "@/app/lib/data";
 import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
 import { getFullAddress } from "@/app/lib/utils";
-import { notFound } from "next/navigation";
 import ManageFilesModal from "@/app/ui/files/manage-files-modal";
 
 export default function SingleLocationPage({
@@ -31,8 +35,13 @@ export default function SingleLocationPage({
 }) {
   const { id } = use(params);
 
+  const companiesRevision = useDataRevision("companies");
+  const filesRevision = useDataRevision("files");
+  const shiftsRevision = useDataRevision("shifts");
   const { firebaseUser, appUser, loading } = useAuth();
   const [isFetching, setIsFetching] = useState(true);
+  const [fetchFailed, setFetchFailed] = useState(false);
+  const router = useRouter();
   const [token, setToken] = useState("");
   const [company, setCompany] = useState<any | null>(null);
   const [counts, setCounts] = useState<any | null>(null);
@@ -48,27 +57,49 @@ export default function SingleLocationPage({
 
   // Fetch company when token is ready
   useEffect(() => {
+    let active = true;
     const getCompany = async () => {
-      setIsFetching(true);
       try {
         const companyResponse = await fetchOneCompany(id, token);
-        setCompany(companyResponse.data ?? null);
-        setCounts(companyResponse.meta ?? null);
+        if (!active) return;
+        if (companyResponse?.notFound) {
+          router.replace("/dashboard/list/companies");
+          return;
+        }
+        if (!acceptRefresh(companyResponse, "companies")) {
+          setFetchFailed(true);
+          return;
+        }
+        setFetchFailed(false);
+        if (active) setCompany(companyResponse.data ?? null);
+        if (active) setCounts(companyResponse.meta ?? null);
       } catch (err) {
         console.error("Failed to fetch company", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
     if (token) {
       getCompany();
     }
-  }, [token, id]);
+    return () => {
+      active = false;
+    };
+  }, [token, id, companiesRevision, filesRevision, shiftsRevision, router]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
   if (!company) {
-    notFound();
+    return (
+      <div className="p-4">
+        <p>{fetchFailed ? "Could not load company." : "Company was not found."}</p>
+        {fetchFailed && (
+          <button type="button" onClick={() => invalidateData("companies")} className="text-secondary underline">
+            Retry
+          </button>
+        )}
+      </div>
+    );
   }
 
   const role = appUser.role;

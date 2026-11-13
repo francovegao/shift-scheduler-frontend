@@ -1,5 +1,9 @@
 "use client";
 
+import { acceptRefresh, recoverPage } from "@/app/lib/refresh-response";
+
+import { useDataRevision } from "@/app/lib/data-revisions";
+
 import { fetchLocations } from "@/app/lib/data";
 import Pagination from "@/app/ui/list/pagination";
 import Table from "@/app/ui/list/table";
@@ -10,7 +14,7 @@ import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import { SetStateAction, useEffect, useState, use } from "react";
 import FormContainer from "@/app/ui/list/form-container";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import SortListColumns from "@/app/ui/list/sort-list-columns";
 
 type LocationsList = Location & { company: Company };
@@ -95,6 +99,8 @@ const columns = [
 ];
 
 export default function LocationsList() {
+  const locationsRevision = useDataRevision("locations");
+  const filesRevision = useDataRevision("files");
   const { firebaseUser, appUser, loading } = useAuth();
   const [token, setToken] = useState("");
 
@@ -103,6 +109,7 @@ export default function LocationsList() {
   const [isFetching, setIsFetching] = useState(true);
 
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   // Get token
   useEffect(() => {
@@ -115,8 +122,8 @@ export default function LocationsList() {
 
   // Fetch locations client-side
   useEffect(() => {
+    let active = true;
     const getLocations = async () => {
-      setIsFetching(true);
       try {
         const page = searchParams.get("page");
         const query = searchParams.get("query");
@@ -137,19 +144,24 @@ export default function LocationsList() {
           queryParams,
           token,
         );
-        setLocations(locationsResponse?.data ?? []);
-        setTotalPages(locationsResponse?.meta?.totalPages ?? 1);
+        if (!active || !acceptRefresh(locationsResponse, "locations", "data", "dashboard-list-locations-page")) return;
+        if (recoverPage(locationsResponse, currentPage, searchParams, router)) return;
+        if (active) setLocations(locationsResponse?.data ?? []);
+        if (active) setTotalPages(locationsResponse?.meta?.totalPages ?? 1);
       } catch (err) {
         console.error("Failed to fetch locations", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
 
     if (token) {
       getLocations();
     }
-  }, [token, searchParams]);
+    return () => {
+      active = false;
+    };
+  }, [token, searchParams, locationsRevision, filesRevision]);
 
   if (loading || isFetching) return <div>Loading...</div>;
 

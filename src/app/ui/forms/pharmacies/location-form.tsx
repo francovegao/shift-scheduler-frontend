@@ -1,5 +1,7 @@
 "use client";
 
+import { invalidateData } from "@/app/lib/data-revisions";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../input-field";
@@ -58,7 +60,7 @@ export default function LocationForm({
         toastId: "unique-toast",
       });
       setOpen(false);
-      window.location.reload();
+      invalidateData("locations", "companies", "shifts");
     }
   }, [state, type, setOpen]);
 

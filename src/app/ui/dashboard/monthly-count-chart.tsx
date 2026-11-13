@@ -1,5 +1,9 @@
 "use client";
 
+import { acceptRefresh } from "@/app/lib/refresh-response";
+
+import { useDataRevision } from "@/app/lib/data-revisions";
+
 import { Pie, PieChart, ResponsiveContainer } from "recharts";
 import Status from "../list/status";
 import { useAuth } from "../context/auth-context";
@@ -33,6 +37,7 @@ export const MonthShiftCounts = ({
 }: {
   isAnimationActive?: boolean;
 }) => {
+  const shiftsRevision = useDataRevision("shifts");
   const { firebaseUser, appUser, loading } = useAuth();
   const [isFetching, setIsFetching] = useState(true);
   const [token, setToken] = useState("");
@@ -58,22 +63,26 @@ export const MonthShiftCounts = ({
 
   // Fetch counts when token is ready
   useEffect(() => {
+    let active = true;
     const getCounts = async () => {
-      setIsFetching(true);
       try {
         const month = `${selectedYear}-${selectedMonth}`;
         const countsResponse = await fetchMonthCounts(month, token);
-        setCounts(countsResponse.meta.counts ?? null);
+        if (!active || !acceptRefresh(countsResponse, "shifts", "meta", "ui-dashboard-monthly-count-chart")) return;
+        if (active) setCounts(countsResponse.meta.counts ?? null);
       } catch (err) {
         console.error("Failed to fetch counts", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
     if (token) {
       getCounts();
     }
-  }, [token, selectedMonth, selectedYear]);
+    return () => {
+      active = false;
+    };
+  }, [token, selectedMonth, selectedYear, shiftsRevision]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

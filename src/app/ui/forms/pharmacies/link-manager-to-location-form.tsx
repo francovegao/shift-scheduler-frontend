@@ -1,5 +1,7 @@
 "use client";
 
+import { invalidateData } from "@/app/lib/data-revisions";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -64,7 +66,7 @@ export default function LinkManagerToLocationForm({
     if (state.success) {
       toast(`Manager linked to Location!`, { toastId: "unique-toast" });
       setOpen(false);
-      window.location.reload();
+      invalidateData("locations", "users");
     }
   }, [state, setOpen]);
 

@@ -1,5 +1,9 @@
 "use client";
 
+import { acceptRefresh, recoverPage } from "@/app/lib/refresh-response";
+
+import { useDataRevision } from "@/app/lib/data-revisions";
+
 import { fetchPharmacists } from "@/app/lib/data";
 import { getFullAddress } from "@/app/lib/utils";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
@@ -12,7 +16,7 @@ import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/list/table-search";
 import { EyeIcon } from "@heroicons/react/16/solid";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { SetStateAction, useEffect, useState, use } from "react";
 import Image from "next/image";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
@@ -84,6 +88,8 @@ const columns = [
 ];
 
 export default function PharmacistsList() {
+  const pharmacistsRevision = useDataRevision("pharmacists");
+  const filesRevision = useDataRevision("files");
   const { firebaseUser, appUser, loading } = useAuth();
   const [isFetching, setIsFetching] = useState(true);
   const [token, setToken] = useState("");
@@ -91,6 +97,7 @@ export default function PharmacistsList() {
   const [totalPages, setTotalPages] = useState<number>(1);
 
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   // Get token
   useEffect(() => {
@@ -103,8 +110,8 @@ export default function PharmacistsList() {
 
   // Fetch pharmacists when token is ready
   useEffect(() => {
+    let active = true;
     const getPharmacists = async () => {
-      setIsFetching(true);
       try {
         const page = searchParams.get("page");
         const query = searchParams.get("query");
@@ -125,18 +132,23 @@ export default function PharmacistsList() {
           queryParams,
           token,
         );
-        setPharmacists(pharmacistsResponse?.data ?? []);
-        setTotalPages(pharmacistsResponse?.meta?.totalPages ?? 1);
+        if (!active || !acceptRefresh(pharmacistsResponse, "pharmacists", "data", "dashboard-list-pharmacists-page")) return;
+        if (recoverPage(pharmacistsResponse, currentPage, searchParams, router)) return;
+        if (active) setPharmacists(pharmacistsResponse?.data ?? []);
+        if (active) setTotalPages(pharmacistsResponse?.meta?.totalPages ?? 1);
       } catch (err) {
         console.error("Failed to fetch pharmacists", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
     if (token) {
       getPharmacists();
     }
-  }, [token, searchParams]);
+    return () => {
+      active = false;
+    };
+  }, [token, searchParams, pharmacistsRevision, filesRevision]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

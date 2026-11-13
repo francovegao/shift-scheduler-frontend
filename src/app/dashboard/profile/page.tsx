@@ -1,5 +1,9 @@
 "use client";
 
+import { acceptRefresh } from "@/app/lib/refresh-response";
+
+import { useDataRevision } from "@/app/lib/data-revisions";
+
 import { fetchUserInfo } from "@/app/lib/data";
 import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
@@ -36,6 +40,11 @@ type User = {
 };
 
 export default function ProfilePage() {
+  const usersRevision = useDataRevision("users");
+  const filesRevision = useDataRevision("files");
+  const companiesRevision = useDataRevision("companies");
+  const locationsRevision = useDataRevision("locations");
+  const pharmacistsRevision = useDataRevision("pharmacists");
   const { firebaseUser, appUser, loading } = useAuth();
   const [isFetching, setIsFetching] = useState(true);
   const [token, setToken] = useState("");
@@ -52,23 +61,27 @@ export default function ProfilePage() {
   }, [firebaseUser]);
 
   useEffect(() => {
+    let active = true;
     const getUser = async () => {
-      setIsFetching(true);
       try {
         if (appUser?.id) {
           const userResponse = await fetchUserInfo(appUser.id, token);
-          setUser(userResponse?.data ?? null);
+          if (!active || !acceptRefresh(userResponse, "users", "data", "dashboard-profile-page")) return;
+          if (active) setUser(userResponse?.data ?? null);
         }
       } catch (err) {
         console.error("Failed to fetch user", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
     if (token) {
       getUser();
     }
-  }, [token, appUser]);
+    return () => {
+      active = false;
+    };
+  }, [token, appUser, usersRevision, filesRevision, companiesRevision, locationsRevision, pharmacistsRevision]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser || !user)

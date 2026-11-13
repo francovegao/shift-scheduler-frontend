@@ -1,5 +1,6 @@
 "use client";
 
+import { invalidateData } from "@/app/lib/data-revisions";
 import { cancelShiftRequestSchema } from "@/app/lib/formValidationSchemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dispatch, SetStateAction, useEffect } from "react";
@@ -54,7 +55,7 @@ export default function RequestCancelShiftForm({
     if (state.success) {
       toast(`Cancellation request sent!`, { toastId: "unique-toast" });
       setOpen(false);
-      // window.location.reload();
+      invalidateData("requests");
     }
   }, [state, setOpen]);
 

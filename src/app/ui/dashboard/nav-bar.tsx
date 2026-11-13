@@ -1,5 +1,9 @@
 "use client";
 
+import { acceptRefresh } from "@/app/lib/refresh-response";
+
+import { useDataRevision } from "@/app/lib/data-revisions";
+
 import {
   BellIcon,
   BuildingOfficeIcon,
@@ -56,6 +60,11 @@ type File = {
 };
 
 export default function NavBar() {
+  const usersRevision = useDataRevision("users");
+  const filesRevision = useDataRevision("files");
+  const companiesRevision = useDataRevision("companies");
+  const locationsRevision = useDataRevision("locations");
+  const pharmacistsRevision = useDataRevision("pharmacists");
   const { firebaseUser, appUser, loading } = useAuth();
   const { notifications } = useNotifications();
   const [isFetching, setIsFetching] = useState(true);
@@ -78,23 +87,27 @@ export default function NavBar() {
   }, [firebaseUser]);
 
   useEffect(() => {
+    let active = true;
     const getUser = async () => {
-      setIsFetching(true);
       try {
         if (appUser?.id) {
           const userResponse = await fetchUserInfo(appUser.id, token);
-          setUser(userResponse?.data ?? null);
+          if (!active || !acceptRefresh(userResponse, "users", "data", "ui-dashboard-nav-bar")) return;
+          if (active) setUser(userResponse?.data ?? null);
         }
       } catch (err) {
         console.error("Failed to fetch user", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
     if (token) {
       getUser();
     }
-  }, [token, appUser]);
+    return () => {
+      active = false;
+    };
+  }, [token, appUser, usersRevision, filesRevision, companiesRevision, locationsRevision, pharmacistsRevision]);
 
   useEffect(() => {
     if (user && !currentCompanyId) {

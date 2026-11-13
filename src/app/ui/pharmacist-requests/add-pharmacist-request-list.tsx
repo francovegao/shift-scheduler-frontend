@@ -1,4 +1,6 @@
-import { useSearchParams } from "next/navigation";
+import { acceptRefresh, recoverPage } from "@/app/lib/refresh-response";
+import { useDataRevision } from "@/app/lib/data-revisions";
+import { useRouter, useSearchParams } from "next/navigation";
 import Pagination from "../list/pagination";
 import { useEffect, useState } from "react";
 import { fetchAddPharmacistRequests } from "@/app/lib/data";
@@ -86,16 +88,18 @@ export default function AddPharmacistRequestsList({
   token: string;
   appUser: any;
 }) {
+  const requestsRevision = useDataRevision("requests");
   const [isFetching, setIsFetching] = useState(true);
   const [pharmacistRequests, setPharmacistRequests] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState<number>(1);
 
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   // Fetch requests when token is ready
   useEffect(() => {
+    let active = true;
     const getShiftCancellationRequests = async () => {
-      setIsFetching(true);
       try {
         const page = searchParams.get("page");
 
@@ -105,18 +109,23 @@ export default function AddPharmacistRequestsList({
           currentPage,
           token,
         );
-        setPharmacistRequests(pharmacistRequestsResponse?.data ?? []);
-        setTotalPages(pharmacistRequestsResponse?.meta?.totalPages ?? 1);
+        if (!active || !acceptRefresh(pharmacistRequestsResponse, "requests", "data", "ui-pharmacist-requests-add-pharmacist-request-list")) return;
+        if (recoverPage(pharmacistRequestsResponse, currentPage, searchParams, router)) return;
+        if (active) setPharmacistRequests(pharmacistRequestsResponse?.data ?? []);
+        if (active) setTotalPages(pharmacistRequestsResponse?.meta?.totalPages ?? 1);
       } catch (err) {
         console.error("Failed to fetch add pharmacist requests", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
     if (token) {
       getShiftCancellationRequests();
     }
-  }, [token, searchParams]);
+    return () => {
+      active = false;
+    };
+  }, [token, searchParams, requestsRevision]);
 
   if (isFetching) return <div>Loading...</div>;
 

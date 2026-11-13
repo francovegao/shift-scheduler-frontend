@@ -1,5 +1,9 @@
 "use client";
 
+import { acceptRefresh, recoverPage } from "@/app/lib/refresh-response";
+
+import { useDataRevision } from "@/app/lib/data-revisions";
+
 import { fetchCompanies } from "@/app/lib/data";
 import Pagination from "@/app/ui/list/pagination";
 import ApprovedStatus from "@/app/ui/list/status";
@@ -11,7 +15,7 @@ import { AuthWrapper } from "@/app/ui/authentication/auth-wrapper";
 import { useAuth } from "@/app/ui/context/auth-context";
 import { SetStateAction, useEffect, useState, use } from "react";
 import FormContainer from "@/app/ui/list/form-container";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import SortListColumns from "@/app/ui/list/sort-list-columns";
 import Image from "next/image";
 import { getFullAddress } from "@/app/lib/utils";
@@ -65,6 +69,8 @@ const columns = [
 ];
 
 export default function CompaniesList() {
+  const companiesRevision = useDataRevision("companies");
+  const filesRevision = useDataRevision("files");
   const { firebaseUser, appUser, loading } = useAuth();
   const [isFetching, setIsFetching] = useState(true);
   const [token, setToken] = useState("");
@@ -72,6 +78,7 @@ export default function CompaniesList() {
   const [totalPages, setTotalPages] = useState<number>(1);
 
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   // Get token
   useEffect(() => {
@@ -84,8 +91,8 @@ export default function CompaniesList() {
 
   // Fetch companies client-side
   useEffect(() => {
+    let active = true;
     const getCompanies = async () => {
-      setIsFetching(true);
       try {
         const page = searchParams.get("page");
         const query = searchParams.get("query");
@@ -106,18 +113,23 @@ export default function CompaniesList() {
           queryParams,
           token,
         );
-        setCompanies(companiesResponse?.data ?? []);
-        setTotalPages(companiesResponse?.meta?.totalPages ?? 1);
+        if (!active || !acceptRefresh(companiesResponse, "companies", "data", "dashboard-list-companies-page")) return;
+        if (recoverPage(companiesResponse, currentPage, searchParams, router)) return;
+        if (active) setCompanies(companiesResponse?.data ?? []);
+        if (active) setTotalPages(companiesResponse?.meta?.totalPages ?? 1);
       } catch (err) {
         console.error("Failed to fetch companies", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
     if (token) {
       getCompanies();
     }
-  }, [token, searchParams]);
+    return () => {
+      active = false;
+    };
+  }, [token, searchParams, companiesRevision, filesRevision]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

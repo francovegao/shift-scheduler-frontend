@@ -1,3 +1,4 @@
+import { invalidateData } from "@/app/lib/data-revisions";
 import { processAddPharmacistRequest } from "@/app/lib/actions";
 import { processAddPharmacistRequestSchema } from "@/app/lib/formValidationSchemas";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -53,7 +54,7 @@ export default function ProcessAddPharmacistRequestForm({
     if (state.success) {
       toast(`Request Processed!`, { toastId: "unique-toast" });
       setOpen(false);
-      window.location.reload();
+      invalidateData("requests", "pharmacists", "users");
     }
   }, [state, setOpen]);
 

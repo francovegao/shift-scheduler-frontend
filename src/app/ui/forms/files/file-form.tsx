@@ -1,5 +1,7 @@
 "use client";
 
+import { invalidateData } from "@/app/lib/data-revisions";
+
 import {
   createFileRecord,
   getSignedUrl,
@@ -158,7 +160,7 @@ export default function FileForm({
         },
       );
       setOpen(false);
-      window.location.reload();
+      invalidateData("files", "users", "pharmacists", "companies", "locations");
     }
   }, [state, type, setOpen]);
 

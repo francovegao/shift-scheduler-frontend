@@ -60,7 +60,6 @@ export default function NotifyOpenShiftForm({
     if (state.success) {
       toast(`Emails sent!`, { toastId: "unique-toast" });
       setOpen(false);
-      // window.location.reload();
     }
   }, [state, setOpen]);
 

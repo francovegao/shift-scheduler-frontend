@@ -656,6 +656,8 @@ export async function fetchOnePharmacist(id: string, token: string) {
       },
     });
 
+    if (response.status === 404) return { data: null, notFound: true };
+
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
@@ -683,6 +685,8 @@ export async function fetchOneCompany(id: string, token: string) {
       },
     });
 
+    if (response.status === 404) return { data: null, notFound: true };
+
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       const errorData = await response.json(); // If the API returns error details
@@ -709,6 +713,8 @@ export async function fetchOneLocation(id: string, token: string) {
         Authorization: `Bearer ${token}`,
       },
     });
+
+    if (response.status === 404) return { data: null, notFound: true };
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)

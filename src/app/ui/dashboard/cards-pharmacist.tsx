@@ -1,5 +1,9 @@
 "use client";
 
+import { acceptRefresh } from "@/app/lib/refresh-response";
+
+import { useDataRevision } from "@/app/lib/data-revisions";
+
 import {
   ClockIcon,
   BookOpenIcon,
@@ -18,6 +22,7 @@ const iconMap = {
 };
 
 export default function CardWrapperPharmacist() {
+  const shiftsRevision = useDataRevision("shifts");
   const { firebaseUser, appUser, loading } = useAuth();
   const [isFetching, setIsFetching] = useState(true);
   const [token, setToken] = useState("");
@@ -37,25 +42,29 @@ export default function CardWrapperPharmacist() {
 
   // Fetch data when token is ready
   useEffect(() => {
+    let active = true;
     const getData = async () => {
-      setIsFetching(true);
       try {
         const queryParams: Record<string, string> = {};
         const cardResponse = await fetchAllMyShifts(token, queryParams);
-        setOpenShifts(cardResponse.meta.totalOpen);
-        setTakenShifts(cardResponse.meta.totalTaken);
-        setCompletedShifts(cardResponse.meta.totalCompleted);
-        setCancelledShifts(cardResponse.meta.totalCancelled);
+        if (!active || !acceptRefresh(cardResponse, "shifts", "meta", "ui-dashboard-cards-pharmacist")) return;
+        if (active) setOpenShifts(cardResponse.meta.totalOpen);
+        if (active) setTakenShifts(cardResponse.meta.totalTaken);
+        if (active) setCompletedShifts(cardResponse.meta.totalCompleted);
+        if (active) setCancelledShifts(cardResponse.meta.totalCancelled);
       } catch (err) {
         console.error("Failed to fetch cards data", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
     if (token) {
       getData();
     }
-  }, [token]);
+    return () => {
+      active = false;
+    };
+  }, [token, shiftsRevision]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

@@ -1,5 +1,7 @@
 "use client";
 
+import { invalidateData } from "@/app/lib/data-revisions";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../input-field";
@@ -83,6 +85,7 @@ export default function PharmacistForm({
 
   useEffect(() => {
     if (state.success) {
+      invalidateData("pharmacists", "users", "shifts");
       if ((!canViewAllPharmacies || !canViewAllPayRates) && type === "create") {
         toast(
           `Pharmacist Profile has been ${type === "create" ? "created" : "updated"}!`,
@@ -99,7 +102,6 @@ export default function PharmacistForm({
           { toastId: "unique-toast" },
         );
         setOpen(false);
-        window.location.reload();
       }
     }
   }, [state, type, setOpen]);
