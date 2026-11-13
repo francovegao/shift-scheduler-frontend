@@ -22,7 +22,9 @@ export default function BigCalendarContainer({
     | "single_company"
     | "single_location"
     | "past_shifts_manager"
-    | "upcoming_shifts_manager";
+    | "upcoming_shifts_manager"
+    | "upcoming_shifts_pharmacist"
+    | "past_shifts_pharmacist";
   id?: string;
 }) {
   const { firebaseUser, appUser, loading } = useAuth();
@@ -48,6 +50,14 @@ export default function BigCalendarContainer({
       try {
         const queryParams: Record<string, string> = {};
         switch (type) {
+          case "upcoming_shifts_pharmacist":
+          case "past_shifts_pharmacist": {
+            queryParams.timeFilter =
+              type === "upcoming_shifts_pharmacist" ? "upcoming" : "past";
+            const shiftsResponse = await fetchAllMyShifts(token, queryParams);
+            setShifts(shiftsResponse?.data ?? []);
+            break;
+          }
           case "dashboard_pharmacist":
           case "dashboard_manager":
             //Set current selected companyId

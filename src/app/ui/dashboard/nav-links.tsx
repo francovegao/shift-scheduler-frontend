@@ -92,6 +92,20 @@ const links = [
     href: "/dashboard/myShifts",
     icon: CalendarDaysIcon,
     visible: ["relief_pharmacist"],
+    children: [
+      {
+        name: "Upcoming",
+        href: "/dashboard/myShifts/upcoming",
+        icon: ChevronDoubleRightIcon,
+        visible: ["relief_pharmacist"],
+      },
+      {
+        name: "Past",
+        href: "/dashboard/myShifts/past",
+        icon: ChevronDoubleLeftIcon,
+        visible: ["relief_pharmacist"],
+      },
+    ],
   },
   {
     name: "Users",
