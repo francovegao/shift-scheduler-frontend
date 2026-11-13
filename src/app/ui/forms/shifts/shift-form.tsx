@@ -3,8 +3,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import InputField from "../input-field";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { shiftSchema } from "@/app/lib/formValidationSchemas";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import {
+  minutesSinceMidnight,
+  shiftSchema,
+  validDateTime,
+} from "@/app/lib/formValidationSchemas";
 import z from "zod";
 import { useFormState } from "react-dom";
 import {
@@ -26,6 +30,32 @@ import { usePathname } from "next/navigation";
 // Infer the input and output types from the schema
 type FormInput = z.input<typeof shiftSchema>;
 type FormOutput = z.output<typeof shiftSchema>;
+
+const formatForDatetimeLocal = (isoString?: string, timeZone?: string) =>
+  isoString && timeZone
+    ? formatInTimeZone(isoString, timeZone, "yyyy-MM-dd'T'HH:mm")
+    : "";
+const formatForTimeLocal = (isoString?: string, timeZone?: string) =>
+  isoString && timeZone ? formatInTimeZone(isoString, timeZone, "HH:mm") : "";
+const validDate = (value?: string) =>
+  !!value &&
+  /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+  !Number.isNaN(Date.parse(value)) &&
+  new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
+const nextMinute = (value: string) => {
+  const [date, time] = value.split("T");
+  const [year, month, day] = date.split("-").map(Number);
+  const [hour, minute] = time.split(":").map(Number);
+  return new Date(Date.UTC(year, month - 1, day, hour, minute + 1))
+    .toISOString()
+    .slice(0, 16);
+};
+const nextTimeMinute = (value: string) => {
+  const minute = minutesSinceMidnight(value);
+  return minute === null || minute === 1439
+    ? undefined
+    : `${String(Math.floor((minute + 1) / 60)).padStart(2, "0")}:${String((minute + 1) % 60).padStart(2, "0")}`;
+};
 
 export default function ShiftForm({
   type,
@@ -84,6 +114,23 @@ export default function ShiftForm({
 
   const paramsPharmacistId = paramsPharmacist?.pharmacistProfile?.id || "";
 
+  const initialStartTime = initialDate
+    ? format(initialDate, "yyyy-MM-dd'T'HH:mm")
+    : formatForDatetimeLocal(data?.startTime, data?.company?.timezone);
+  const initialEndTime = initialDate
+    ? format(addHours(initialDate, 8), "yyyy-MM-dd'T'HH:mm")
+    : formatForDatetimeLocal(data?.endTime, data?.company?.timezone);
+  const initialStartMinutes = data
+    ? formatForTimeLocal(data.startTime, data?.company?.timezone)
+    : initialDate
+      ? format(initialDate, "HH:mm")
+      : "";
+  const initialEndMinutes = data
+    ? formatForTimeLocal(data.endTime, data?.company?.timezone)
+    : initialDate
+      ? format(addHours(initialDate, 8), "HH:mm")
+      : "";
+
   const {
     register,
     watch,
@@ -99,6 +146,13 @@ export default function ShiftForm({
       companyId: data?.companyId || "",
       status: data?.status || "open",
       dates: [] as { value: string }[],
+      scope: "current",
+      startTime: initialStartTime,
+      endTime: initialEndTime,
+      startDate: initialDate ? format(initialDate, "yyyy-MM-dd") : "",
+      endDate: "",
+      startMinutes: initialStartMinutes,
+      endMinutes: initialEndMinutes,
     },
   });
 
@@ -107,6 +161,14 @@ export default function ShiftForm({
   const isDaily = repeatType === "DAILY";
   const isWeekly = repeatType === "WEEKLY";
   const isMultiple = repeatType === "BULK";
+  const previousRepeatType = useRef(repeatType);
+
+  useEffect(() => {
+    if (previousRepeatType.current !== repeatType && repeatType === "BULK") {
+      setValue("startDate", "");
+    }
+    previousRepeatType.current = repeatType;
+  }, [repeatType, setValue]);
 
   // Watch the value of the published field
   const isPublished = watch("published", data ? data.published : true);
@@ -116,6 +178,55 @@ export default function ShiftForm({
     name: "dates",
   });
   const temporaryDate = watch("startDate");
+  const startTime = watch("startTime");
+  const endTime = watch("endTime");
+  const startDate = watch("startDate");
+  const endDate = watch("endDate");
+  const startMinutes = watch("startMinutes");
+  const endMinutes = watch("endMinutes");
+  const currentScope = !data || shiftSeriesSelectedOption === "current";
+  const datesActive = isDaily || isWeekly;
+  const timeOnlyActive =
+    datesActive || isMultiple || (!isRepetitive && !currentScope);
+  const singleTimesActive = !isRepetitive && currentScope;
+  const hasTimeEndSlot = nextTimeMinute(startMinutes ?? "") !== undefined;
+
+  useEffect(() => {
+    if (
+      singleTimesActive &&
+      endTime &&
+      (!validDateTime(startTime ?? "") ||
+        !validDateTime(endTime) ||
+        endTime <= (startTime ?? ""))
+    ) {
+      setValue("endTime", "", { shouldValidate: true });
+    }
+  }, [singleTimesActive, startTime, endTime, setValue]);
+
+  useEffect(() => {
+    if (
+      datesActive &&
+      endDate &&
+      (!validDate(startDate) ||
+        !validDate(endDate) ||
+        endDate < (startDate ?? ""))
+    ) {
+      setValue("endDate", "", { shouldValidate: true });
+    }
+  }, [datesActive, startDate, endDate, setValue]);
+
+  useEffect(() => {
+    if (
+      timeOnlyActive &&
+      endMinutes &&
+      (minutesSinceMidnight(startMinutes ?? "") === null ||
+        minutesSinceMidnight(endMinutes) === null ||
+        minutesSinceMidnight(endMinutes)! <=
+          minutesSinceMidnight(startMinutes ?? "")!)
+    ) {
+      setValue("endMinutes", "", { shouldValidate: true });
+    }
+  }, [timeOnlyActive, startMinutes, endMinutes, setValue]);
 
   //Remove pharmacistId if published === False
   useEffect(() => {
@@ -167,7 +278,7 @@ export default function ShiftForm({
       shiftSeriesId: data?.seriesId, // from initial data prop
     };
 
-    formAction(finalData);
+    formAction(finalData as Parameters<typeof formAction>[0]);
   });
 
   useEffect(() => {
@@ -179,20 +290,6 @@ export default function ShiftForm({
       window.location.reload();
     }
   }, [state, type, setOpen]);
-
-  const formatForDatetimeLocal = (isoString: string, timeZone: string) => {
-    if (!isoString) return "";
-
-    // Directly format the UTC date into the string format required by the input
-    // for the specific timezone provided.
-    return formatInTimeZone(isoString, timeZone, "yyyy-MM-dd'T'HH:mm");
-  };
-
-  const formatForTimeLocal = (isoString: string, timeZone: string) => {
-    if (!isoString) return "";
-
-    return formatInTimeZone(isoString, timeZone, "HH:mm");
-  };
 
   if (loading) return <div>Loading...</div>;
   if (!appUser) return <div>Please sign in to continue</div>;
@@ -286,10 +383,11 @@ export default function ShiftForm({
     setValue("locationId", selected.type === "location" ? selected.id : "");
   };
 
-  const handleShiftSeriesOptonChange = (event: {
+  const handleShiftSeriesOptionChange = (event: {
     target: { value: SetStateAction<string> };
   }) => {
     setShiftSeriesSelectedOption(event.target.value);
+    setValue("scope", event.target.value as "current" | "future" | "all");
   };
 
   //Render conditions
@@ -544,7 +642,14 @@ export default function ShiftForm({
                   label="End Date"
                   name="endDate"
                   type="date"
-                  inputProps={{ min: today }}
+                  inputProps={{
+                    min: validDate(startDate)
+                      ? startDate! > today
+                        ? startDate
+                        : today
+                      : today,
+                    disabled: !validDate(startDate),
+                  }}
                   register={register}
                   error={errors?.endDate}
                 />
@@ -565,8 +670,18 @@ export default function ShiftForm({
                     initialDate ? format(addHours(initialDate, 8), "HH:mm") : ""
                   }
                   register={register}
+                  inputProps={{
+                    min: nextTimeMinute(startMinutes ?? ""),
+                    disabled: !hasTimeEndSlot,
+                  }}
                   error={errors?.endMinutes}
                 />
+
+                {startMinutes === "23:59" && (
+                  <p className="text-xs text-red-400 w-full">
+                    Choose a start time before 23:59 to allow an end time.
+                  </p>
+                )}
 
                 <div className="flex items-center gap-2">
                   <input
@@ -604,7 +719,14 @@ export default function ShiftForm({
                       label="End Time"
                       name="endTime"
                       type="datetime-local"
-                      inputProps={{ min: now }}
+                      inputProps={{
+                        min: validDateTime(startTime ?? "")
+                          ? nextMinute(startTime!) > now
+                            ? nextMinute(startTime!)
+                            : now
+                          : now,
+                        disabled: !validDateTime(startTime ?? ""),
+                      }}
                       defaultValue={
                         initialDate
                           ? format(
@@ -654,9 +776,18 @@ export default function ShiftForm({
                           : ""
                       }
                       register={register}
+                      inputProps={{
+                        min: nextTimeMinute(startMinutes ?? ""),
+                        disabled: !hasTimeEndSlot,
+                      }}
                       error={errors?.endMinutes}
                       containerClassName="w-full md:w-[48%]"
                     />
+                    {startMinutes === "23:59" && (
+                      <p className="text-xs text-red-400 w-full">
+                        Choose a start time before 23:59 to allow an end time.
+                      </p>
+                    )}
                   </React.Fragment>
                 )}
               </>
@@ -755,7 +886,6 @@ export default function ShiftForm({
                   register={register}
                   error={errors?.startMinutes}
                 />
-
                 <InputField
                   label="End Time (Daily)"
                   name="endMinutes"
@@ -764,8 +894,18 @@ export default function ShiftForm({
                     initialDate ? format(addHours(initialDate, 8), "HH:mm") : ""
                   }
                   register={register}
+                  inputProps={{
+                    min: nextTimeMinute(startMinutes ?? ""),
+                    disabled: !hasTimeEndSlot,
+                  }}
                   error={errors?.endMinutes}
                 />
+
+                {startMinutes === "23:59" && (
+                  <p className="text-xs text-red-400 w-full">
+                    Choose a start time before 23:59 to allow an end time.
+                  </p>
+                )}
               </>
             )}
 
@@ -883,7 +1023,7 @@ export default function ShiftForm({
                       name="scope"
                       value="current"
                       checked={shiftSeriesSelectedOption === "current"}
-                      onChange={handleShiftSeriesOptonChange}
+                      onChange={handleShiftSeriesOptionChange}
                     />
                     <label htmlFor="current" className="ml-1">
                       This shift only
@@ -896,7 +1036,7 @@ export default function ShiftForm({
                       name="scope"
                       value="future"
                       checked={shiftSeriesSelectedOption === "future"}
-                      onChange={handleShiftSeriesOptonChange}
+                      onChange={handleShiftSeriesOptionChange}
                     />
                     <label htmlFor="future" className="ml-1">
                       This and future shifts
@@ -909,7 +1049,7 @@ export default function ShiftForm({
                       name="scope"
                       value="all"
                       checked={shiftSeriesSelectedOption === "all"}
-                      onChange={handleShiftSeriesOptonChange}
+                      onChange={handleShiftSeriesOptionChange}
                     />
                     <label htmlFor="all" className="ml-1">
                       All shifts in the series (except completed and cancelled
