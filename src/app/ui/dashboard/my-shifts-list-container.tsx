@@ -1,5 +1,7 @@
 "use client";
 
+import { useDataRevision } from "@/app/lib/data-revisions";
+import { acceptRefresh, recoverPage } from "@/app/lib/refresh-response";
 import { fetchMyShifts } from "@/app/lib/data";
 import { formatPayRate, getFullAddress } from "@/app/lib/utils";
 import { useAuth } from "@/app/ui/context/auth-context";
@@ -11,7 +13,7 @@ import Status from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/list/table-search";
 import { formatInTimeZone } from "date-fns-tz";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { SetStateAction, useEffect, useState } from "react";
 import SendEmailModal from "@/app/ui/list/email-modal";
 
@@ -129,7 +131,9 @@ export default function MyShiftsListContainer({
   timeFilter,
   bigCalendarType,
 }: MyShiftsListProps) {
+  const router = useRouter();
   const searchParams = useSearchParams();
+  const shiftsRevision = useDataRevision("shifts");
   const { firebaseUser, appUser, loading } = useAuth();
   const [isFetching, setIsFetching] = useState(true);
   const [token, setToken] = useState("");
@@ -147,6 +151,7 @@ export default function MyShiftsListContainer({
 
   // Fetch shifts when token is ready
   useEffect(() => {
+    let active = true;
     const getShifts = async () => {
       setIsFetching(true);
       try {
@@ -181,18 +186,33 @@ export default function MyShiftsListContainer({
           queryParams,
           token,
         );
-        setShifts(shiftsResponse?.data ?? []);
-        setTotalPages(shiftsResponse?.meta?.totalPages ?? 1);
+        if (
+          !active ||
+          !acceptRefresh(
+            shiftsResponse,
+            "shifts",
+            "data",
+            "ui-dashboard-myShifts-list-container",
+          )
+        )
+          return;
+        if (recoverPage(shiftsResponse, currentPage, searchParams, router))
+          return;
+        if (active) setShifts(shiftsResponse?.data ?? []);
+        if (active) setTotalPages(shiftsResponse?.meta?.totalPages ?? 1);
       } catch (err) {
         console.error("Failed to fetch shifts", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
     if (token) {
       getShifts();
     }
-  }, [token, searchParams, timeFilter]);
+    return () => {
+      active = false;
+    };
+  }, [token, searchParams, shiftsRevision]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
