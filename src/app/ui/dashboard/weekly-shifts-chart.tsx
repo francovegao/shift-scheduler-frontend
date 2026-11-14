@@ -1,5 +1,9 @@
 "use client";
 
+import { acceptRefresh } from "@/app/lib/refresh-response";
+
+import { useDataRevision } from "@/app/lib/data-revisions";
+
 import {
   BarChart,
   Bar,
@@ -26,6 +30,7 @@ const WEEK_OPTIONS: { label: string; value: WeekType }[] = [
 ];
 
 export const WeeklyShiftsChart = () => {
+  const shiftsRevision = useDataRevision("shifts");
   const { firebaseUser, appUser, loading } = useAuth();
   const [isFetching, setIsFetching] = useState(true);
   const [token, setToken] = useState("");
@@ -44,21 +49,25 @@ export const WeeklyShiftsChart = () => {
 
   // Fetch counts when token is ready
   useEffect(() => {
+    let active = true;
     const getCounts = async () => {
-      setIsFetching(true);
       try {
         const countsResponse = await fetchWeekCounts(selectedWeek, token);
-        setWeekData(countsResponse.data ?? null);
+        if (!active || !acceptRefresh(countsResponse, "shifts", "meta", "ui-dashboard-weekly-shifts-chart")) return;
+        if (active) setWeekData(countsResponse.data ?? null);
       } catch (err) {
         console.error("Failed to fetch counts", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
     if (token) {
       getCounts();
     }
-  }, [token, selectedWeek]);
+    return () => {
+      active = false;
+    };
+  }, [token, selectedWeek, shiftsRevision]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

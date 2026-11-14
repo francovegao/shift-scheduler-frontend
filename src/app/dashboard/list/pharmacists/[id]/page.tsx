@@ -1,5 +1,10 @@
 "use client";
 
+import { acceptRefresh } from "@/app/lib/refresh-response";
+import { useRouter } from "next/navigation";
+
+import { invalidateData, useDataRevision } from "@/app/lib/data-revisions";
+
 import ShiftsGraph from "@/app/ui/list/shifts-graph";
 import PharmacistComments from "@/app/ui/list/pharmacist-comments";
 import {
@@ -20,7 +25,6 @@ import { fetchOnePharmacist } from "@/app/lib/data";
 import FormContainer from "@/app/ui/list/form-container";
 import BigCalendarContainer from "@/app/ui/dashboard/big-calendar-container";
 import { getDisplayFileName, getFullAddress } from "@/app/lib/utils";
-import { notFound } from "next/navigation";
 import RelatedDataModal from "@/app/ui/list/related-data-modal";
 import ApprovedStatus from "@/app/ui/list/status";
 import { getDownloadUrl } from "@/app/lib/actions";
@@ -33,8 +37,14 @@ export default function SinglePharmacistPage({
 }) {
   const { id } = use(params);
 
+  const pharmacistsRevision = useDataRevision("pharmacists");
+  const filesRevision = useDataRevision("files");
+  const shiftsRevision = useDataRevision("shifts");
+  const usersRevision = useDataRevision("users");
   const { firebaseUser, appUser, loading } = useAuth();
   const [isFetching, setIsFetching] = useState(true);
+  const [fetchFailed, setFetchFailed] = useState(false);
+  const router = useRouter();
   const [token, setToken] = useState("");
   const [pharmacist, setPharmacist] = useState<any | null>(null);
   const [counts, setCounts] = useState<any | null>(null);
@@ -50,27 +60,49 @@ export default function SinglePharmacistPage({
 
   // Fetch pharmacist when token is ready
   useEffect(() => {
+    let active = true;
     const getPharmacist = async () => {
-      setIsFetching(true);
       try {
         const pharmacistResponse = await fetchOnePharmacist(id, token);
-        setPharmacist(pharmacistResponse.data ?? null);
-        setCounts(pharmacistResponse.meta ?? null);
+        if (!active) return;
+        if (pharmacistResponse?.notFound) {
+          router.replace("/dashboard/list/pharmacists");
+          return;
+        }
+        if (!acceptRefresh(pharmacistResponse, "pharmacists")) {
+          setFetchFailed(true);
+          return;
+        }
+        setFetchFailed(false);
+        if (active) setPharmacist(pharmacistResponse.data ?? null);
+        if (active) setCounts(pharmacistResponse.meta ?? null);
       } catch (err) {
         console.error("Failed to fetch pharmacist", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
     if (token) {
       getPharmacist();
     }
-  }, [token, id]);
+    return () => {
+      active = false;
+    };
+  }, [token, id, pharmacistsRevision, filesRevision, shiftsRevision, usersRevision, router]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;
   if (!pharmacist) {
-    notFound();
+    return (
+      <div className="p-4">
+        <p>{fetchFailed ? "Could not load pharmacist." : "Pharmacist was not found."}</p>
+        {fetchFailed && (
+          <button type="button" onClick={() => invalidateData("pharmacists")} className="text-secondary underline">
+            Retry
+          </button>
+        )}
+      </div>
+    );
   }
 
   async function openFile(fileId: string) {

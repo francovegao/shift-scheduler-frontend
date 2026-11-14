@@ -1,3 +1,5 @@
+import { useDataRevision } from "@/app/lib/data-revisions";
+import { acceptRefresh } from "@/app/lib/refresh-response";
 import { useEffect, useState } from "react";
 import FormModal from "./form-modal";
 import {
@@ -34,9 +36,16 @@ export default function FormContainer({
   id,
   initialDate,
 }: FormContainerProps) {
+  const companiesRevision = useDataRevision("companies");
+  const locationsRevision = useDataRevision("locations");
+  const pharmacistsRevision = useDataRevision("pharmacists");
   const { appUser, loading } = useAuth();
+  const role = appUser?.role;
+  const companyId = appUser?.companyId || undefined;
 
-  const [isFetching, setIsFetching] = useState(false);
+  const [isFetching, setIsFetching] = useState(
+    type !== "delete" && (table === "shift" || table === "location"),
+  );
   const [relatedData, setRelatedData] = useState<any>({});
 
   const currentCompanyId = useSelectedCompany(
@@ -45,16 +54,17 @@ export default function FormContainer({
 
   useEffect(() => {
     if (type === "delete") return;
+    let active = true;
 
     const fetchData = async () => {
-      setIsFetching(true);
       try {
         switch (table) {
           case "location": {
             //Fetch users that have role = location_manager and locationId is empty
             //Fetch companies to link the location to the company
             const companiesResponse = await fetchCompanies("", 1, {}, token); //TODO: Update this fetch to get all the companies, not just the limited by page
-            setRelatedData({ companies: companiesResponse?.data ?? [] });
+            if (!active || !acceptRefresh(companiesResponse, "companies")) return;
+            if (active) setRelatedData({ companies: companiesResponse?.data ?? [] });
             break;
           }
           case "shift":
@@ -69,7 +79,13 @@ export default function FormContainer({
                 token,
                 50,
               ); //TODO: Update this fetch to get all the pharmacists without a pharmacist profile and not just the limited by page
-              setRelatedData({
+              if (
+                !active ||
+                !acceptRefresh(companiesRes, "companies") ||
+                !acceptRefresh(locationsRes, "locations") ||
+                !acceptRefresh(pharmacistsRes, "pharmacists")
+              ) return;
+              if (active) setRelatedData({
                 pharmacists: pharmacistsRes?.data ?? [],
                 companies: companiesRes?.data ?? [],
                 locations: locationsRes?.data ?? [],
@@ -95,7 +111,13 @@ export default function FormContainer({
                 token,
                 50,
               ); //TODO: Update this fetch to get all the pharmacists without a pharmacist profile and not just the limited by page
-              setRelatedData({
+              if (
+                !active ||
+                !acceptRefresh(companyRes, "companies") ||
+                !acceptRefresh(locationsRes, "locations") ||
+                !acceptRefresh(pharmacistsRes, "pharmacists")
+              ) return;
+              if (active) setRelatedData({
                 pharmacists: pharmacistsRes?.data ?? [],
                 companies: [companyRes?.data],
                 locations: locationsRes?.data ?? [],
@@ -111,7 +133,12 @@ export default function FormContainer({
                 token,
                 50,
               ); //TODO: Update this fetch to get all the pharmacists without a pharmacist profile and not just the limited by page
-              setRelatedData({
+              if (
+                !active ||
+                !acceptRefresh(companyRes, "companies") ||
+                !acceptRefresh(pharmacistsRes, "pharmacists")
+              ) return;
+              if (active) setRelatedData({
                 pharmacists: pharmacistsRes?.data ?? [],
                 companies: [companyRes?.data],
               });
@@ -134,18 +161,18 @@ export default function FormContainer({
       } catch (err) {
         console.error("Failed to fetch related data", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
 
     if (token) fetchData();
-  }, [table, type, token]);
+    return () => {
+      active = false;
+    };
+  }, [table, type, token, role, companyId, currentCompanyId, companiesRevision, locationsRevision, pharmacistsRevision]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!appUser) return <div>Please sign in to continue</div>;
-
-  const role = appUser.role;
-  const companyId = appUser.companyId || undefined;
 
   return (
     <div>

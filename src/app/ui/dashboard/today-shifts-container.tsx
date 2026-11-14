@@ -1,5 +1,9 @@
 "use client";
 
+import { acceptRefresh } from "@/app/lib/refresh-response";
+
+import { useDataRevision } from "@/app/lib/data-revisions";
+
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/auth-context";
 import UpcomingShiftCard from "./upcoming-shift-card";
@@ -8,6 +12,7 @@ import { addDays, format } from "date-fns";
 import Link from "next/link";
 
 export default function TodayShiftsContainer() {
+  const shiftsRevision = useDataRevision("shifts");
   const { firebaseUser, appUser, loading } = useAuth();
   const [token, setToken] = useState("");
   const [shifts, setShifts] = useState([]);
@@ -20,10 +25,9 @@ export default function TodayShiftsContainer() {
   }, [firebaseUser]);
 
   useEffect(() => {
+    let active = true;
     const fetchShifts = async () => {
       if (!token) return;
-
-      setIsFetching(true);
 
       try {
         if (appUser?.id) {
@@ -37,17 +41,21 @@ export default function TodayShiftsContainer() {
             format(nextWeek, "yyyy-MM-dd"),
             "3",
           );
-          setShifts(shiftsResponse?.data ?? []);
+          if (!active || !acceptRefresh(shiftsResponse, "shifts", "data", "ui-dashboard-today-shifts-container")) return;
+          if (active) setShifts(shiftsResponse?.data ?? []);
         }
       } catch (err) {
         console.error("Failed to fetch today shifts", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
 
     fetchShifts();
-  }, [token, appUser]);
+    return () => {
+      active = false;
+    };
+  }, [token, appUser, shiftsRevision]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

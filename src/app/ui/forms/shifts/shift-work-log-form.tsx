@@ -1,3 +1,4 @@
+import { invalidateData } from "@/app/lib/data-revisions";
 import { upsertShiftWorKLog } from "@/app/lib/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dispatch, SetStateAction, useEffect } from "react";
@@ -68,7 +69,7 @@ export default function ShiftWorkLogForm({
     if (state.success) {
       toast(`Woklog upserted!`, { toastId: "unique-toast" });
       setOpen(false);
-      window.location.reload();
+      invalidateData("shifts");
     }
   }, [state, setOpen]);
 

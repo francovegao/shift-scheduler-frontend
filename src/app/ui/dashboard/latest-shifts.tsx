@@ -1,5 +1,9 @@
 "use client";
 
+import { acceptRefresh } from "@/app/lib/refresh-response";
+
+import { useDataRevision } from "@/app/lib/data-revisions";
+
 import { ArrowPathIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../context/auth-context";
 import { SetStateAction, useEffect, useState } from "react";
@@ -23,6 +27,7 @@ const companyColors: Record<string, string> = {
 };
 
 export default function LatestShifts() {
+  const shiftsRevision = useDataRevision("shifts");
   const { firebaseUser, appUser, loading } = useAuth();
   const [isFetching, setIsFetching] = useState(true);
   const [token, setToken] = useState("");
@@ -44,8 +49,8 @@ export default function LatestShifts() {
 
   // Fetch latest shifts when token is ready
   useEffect(() => {
+    let active = true;
     const getLatestShifts = async () => {
-      setIsFetching(true);
       try {
         const queryParams: Record<string, string> = {};
 
@@ -64,17 +69,21 @@ export default function LatestShifts() {
           token,
           queryParams,
         );
-        setLatestShifts(latestShiftsResponse?.data ?? []);
+        if (!active || !acceptRefresh(latestShiftsResponse, "shifts", "data", "ui-dashboard-latest-shifts")) return;
+        if (active) setLatestShifts(latestShiftsResponse?.data ?? []);
       } catch (err) {
         console.error("Failed to fetch latest shifts", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
     if (token) {
       getLatestShifts();
     }
-  }, [token, currentCompanyId]);
+    return () => {
+      active = false;
+    };
+  }, [token, currentCompanyId, shiftsRevision]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

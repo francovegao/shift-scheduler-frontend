@@ -1,3 +1,4 @@
+import { invalidateData } from "@/app/lib/data-revisions";
 import { Dispatch, SetStateAction, useActionState, useEffect } from "react";
 import z from "zod";
 import InputField from "../input-field";
@@ -68,7 +69,7 @@ export default function AddPharmacistRequestForm({
         },
       );
       setOpen(false);
-      window.location.reload();
+      invalidateData("requests");
     }
   }, [state, type, setOpen]);
 

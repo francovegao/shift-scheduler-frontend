@@ -1,5 +1,9 @@
 "use client";
 
+import { acceptRefresh } from "@/app/lib/refresh-response";
+
+import { useDataRevision } from "@/app/lib/data-revisions";
+
 import {
   ClockIcon,
   BuildingOffice2Icon,
@@ -18,6 +22,11 @@ const iconMap = {
 };
 
 export default function CardWrapperAdmin() {
+  const shiftsRevision = useDataRevision("shifts");
+  const usersRevision = useDataRevision("users");
+  const pharmacistsRevision = useDataRevision("pharmacists");
+  const companiesRevision = useDataRevision("companies");
+  const locationsRevision = useDataRevision("locations");
   const { firebaseUser, appUser, loading } = useAuth();
   const [isFetching, setIsFetching] = useState(true);
   const [token, setToken] = useState("");
@@ -38,24 +47,28 @@ export default function CardWrapperAdmin() {
 
   // Fetch data when token is ready
   useEffect(() => {
+    let active = true;
     const getData = async () => {
-      setIsFetching(true);
       try {
         const cardResponse = await fetchAdminCardsData(token);
-        setShifts(cardResponse.numberOfShifts);
-        setCompanies(cardResponse.numberOfCompanies);
-        setDraftShifts(cardResponse.numberOfDraftShifts);
-        setPharmacists(cardResponse.numberOfPharmacists);
+        if (!active || !acceptRefresh(cardResponse, "shifts", null, "ui-dashboard-cards-admin")) return;
+        if (active) setShifts(cardResponse.numberOfShifts);
+        if (active) setCompanies(cardResponse.numberOfCompanies);
+        if (active) setDraftShifts(cardResponse.numberOfDraftShifts);
+        if (active) setPharmacists(cardResponse.numberOfPharmacists);
       } catch (err) {
         console.error("Failed to fetch cards data", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
     if (token) {
       getData();
     }
-  }, [token]);
+    return () => {
+      active = false;
+    };
+  }, [token, shiftsRevision, usersRevision, pharmacistsRevision, companiesRevision, locationsRevision]);
 
   if (loading || isFetching) return <div>Loading...</div>;
   if (!firebaseUser || !appUser) return <div>Please sign in to continue</div>;

@@ -1,9 +1,11 @@
+import { acceptRefresh, recoverPage } from "@/app/lib/refresh-response";
+import { useDataRevision } from "@/app/lib/data-revisions";
 import { useEffect, useState } from "react";
 import Pagination from "../list/pagination";
 import Table from "../list/table";
 import Status from "../list/status";
 import { formatInTimeZone } from "date-fns-tz";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { fetchShiftCancellationRequests } from "@/app/lib/data";
 import AdminProcessRequestModal from "../admin-requests/admin-process-request-modal";
 
@@ -106,6 +108,7 @@ export default function ShiftCancellationRequestsList({
   token: string;
   appUser: any;
 }) {
+  const requestsRevision = useDataRevision("requests");
   const [isFetching, setIsFetching] = useState(true);
   const [shiftCancellationRequests, setShiftCancellationRequests] = useState<
     any[]
@@ -113,11 +116,12 @@ export default function ShiftCancellationRequestsList({
   const [totalPages, setTotalPages] = useState<number>(1);
 
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   // Fetch requests when token is ready
   useEffect(() => {
+    let active = true;
     const getShiftCancellationRequests = async () => {
-      setIsFetching(true);
       try {
         const page = searchParams.get("page");
 
@@ -125,20 +129,25 @@ export default function ShiftCancellationRequestsList({
 
         const shiftCancellationRequestsResponse =
           await fetchShiftCancellationRequests(currentPage, token);
-        setShiftCancellationRequests(
+        if (!active || !acceptRefresh(shiftCancellationRequestsResponse, "requests", "data", "ui-cancel-requests-shifts-cancellation-request-list")) return;
+        if (recoverPage(shiftCancellationRequestsResponse, currentPage, searchParams, router)) return;
+        if (active) setShiftCancellationRequests(
           shiftCancellationRequestsResponse?.data ?? [],
         );
-        setTotalPages(shiftCancellationRequestsResponse?.meta?.totalPages ?? 1);
+        if (active) setTotalPages(shiftCancellationRequestsResponse?.meta?.totalPages ?? 1);
       } catch (err) {
         console.error("Failed to fetch shift cancellation requests", err);
       } finally {
-        setIsFetching(false);
+        if (active) setIsFetching(false);
       }
     };
     if (token) {
       getShiftCancellationRequests();
     }
-  }, [token, searchParams]);
+    return () => {
+      active = false;
+    };
+  }, [token, searchParams, requestsRevision]);
 
   if (isFetching) return <div>Loading...</div>;
 

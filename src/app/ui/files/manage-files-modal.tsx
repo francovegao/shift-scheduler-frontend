@@ -1,3 +1,4 @@
+import { invalidateData } from "@/app/lib/data-revisions";
 import {
   CloudArrowUpIcon,
   PencilIcon,
@@ -45,7 +46,7 @@ export default function ManageFilesModal({
           { toastId: "unique-toast" },
         );
         setOpen(false);
-        window.location.reload();
+        invalidateData("files", "users", "pharmacists", "companies", "locations");
       }
     }, [state]);
 

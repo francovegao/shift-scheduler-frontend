@@ -1,5 +1,7 @@
 "use client";
 
+import { invalidateData } from "@/app/lib/data-revisions";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import InputField from "../input-field";
@@ -287,7 +289,7 @@ export default function ShiftForm({
         toastId: "unique-toast",
       });
       setOpen(false);
-      window.location.reload();
+      invalidateData("shifts");
     }
   }, [state, type, setOpen]);
 
@@ -311,7 +313,7 @@ export default function ShiftForm({
     // location_manager starts at step 2
     if (role === "location_manager") {
       setCompanyApproved(relatedData.companies?.[0]?.approved ?? false);
-      setStep(2);
+      setStep((currentStep) => Math.max(currentStep, 2));
     }
 
     // Build unified list
