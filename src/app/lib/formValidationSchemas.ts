@@ -126,63 +126,168 @@ export const getCompanyPermissionsSchema = (type: string) => {
   });
 };
 
-export const singleShiftSchema = z.object({
-  repeatType: z.literal("NONE"),
+const validDate = (value: string) =>
+  /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+  !Number.isNaN(Date.parse(value)) &&
+  new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
 
-  id: z.string().optional(),
-  companyId: z.string().min(1, { message: "Company is required." }),
-  locationId: z.string().optional(),
-  title: z.string(),
-  description: z.string().optional(),
-  startTime: z.coerce.string({ message: "Start date is required" }),
-  endTime: z.coerce.string({ message: "End date is required" }),
-  payRate: z.string().min(1, { message: "Pay rate is required." }),
-  status: z.enum(["open", "taken", "cancelled", "completed"]),
-  published: z.coerce.boolean({ message: "Published is required." }),
-  pharmacistId: z.string().optional(),
+export const validDateTime = (value: string) => {
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return false;
+  const [date, time] = value.split("T");
+  const [hour, minute] = time.split(":").map(Number);
+  return (
+    validDate(date) &&
+    hour < 24 &&
+    minute < 60 &&
+    !Number.isNaN(Date.parse(value))
+  );
+};
 
-  //extra fields not needed for single shift
-  startMinutes: z.any().optional(),
-  endMinutes: z.any().optional(),
-  startDate: z.any().optional(),
-  endDate: z.any().optional(),
-  daysOfWeek: z.any().optional(),
-  excludeWeekends: z.any().optional(),
-  dates: z.any().optional(),
-});
+export const minutesSinceMidnight = (value: unknown) => {
+  if (typeof value !== "string" || !/^\d{2}:\d{2}$/.test(value)) return null;
+  const [hour, minute] = value.split(":").map(Number);
+  return hour < 24 && minute < 60 ? hour * 60 + minute : null;
+};
+
+const requiredDate = (label: string) =>
+  z
+    .string()
+    .min(1, `${label} is required.`)
+    .refine(validDate, `Invalid ${label.toLowerCase()}.`);
+const requiredTime = (label: string) =>
+  z
+    .string()
+    .min(1, `${label} is required.`)
+    .refine(
+      (value) => minutesSinceMidnight(value) !== null,
+      `Invalid ${label.toLowerCase()}.`,
+    );
+
+const validateTimePair = (
+  data: { startMinutes?: string; endMinutes?: string },
+  ctx: z.RefinementCtx,
+) => {
+  const start = minutesSinceMidnight(data.startMinutes ?? "");
+  const end = minutesSinceMidnight(data.endMinutes ?? "");
+  if (start === 1439) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["startMinutes"],
+      message: "Choose a start time before 23:59 to allow an end time.",
+    });
+  }
+  if (start !== null && end !== null && end <= start) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["endMinutes"],
+      message: "End time must be later than start time on the same day.",
+    });
+  }
+};
+
+export const singleShiftSchema = z
+  .object({
+    repeatType: z.literal("NONE"),
+
+    id: z.string().optional(),
+    companyId: z.string().min(1, { message: "Company is required." }),
+    locationId: z.string().optional(),
+    title: z.string(),
+    description: z.string().optional(),
+    startTime: z.string().default(""),
+    endTime: z.string().default(""),
+    scope: z.enum(["current", "future", "all"]).optional(),
+    payRate: z.string().min(1, { message: "Pay rate is required." }),
+    status: z.enum(["open", "taken", "cancelled", "completed"]),
+    published: z.coerce.boolean({ message: "Published is required." }),
+    pharmacistId: z.string().optional(),
+
+    //extra fields not needed for single shift
+    startMinutes: z.any().optional(),
+    endMinutes: z.any().optional(),
+    startDate: z.any().optional(),
+    endDate: z.any().optional(),
+    daysOfWeek: z.any().optional(),
+    excludeWeekends: z.any().optional(),
+    dates: z.any().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.scope === "future" || data.scope === "all") {
+      for (const [name, value] of [
+        ["startMinutes", data.startMinutes],
+        ["endMinutes", data.endMinutes],
+      ] as const) {
+        if (typeof value !== "string" || minutesSinceMidnight(value) === null) {
+          ctx.addIssue({
+            code: "custom",
+            path: [name],
+            message: `${name === "startMinutes" ? "Start" : "End"} time is required and must be valid.`,
+          });
+        }
+      }
+      validateTimePair(data, ctx);
+      return;
+    }
+    for (const [name, value] of [
+      ["startTime", data.startTime],
+      ["endTime", data.endTime],
+    ] as const) {
+      if (!value || !validDateTime(value))
+        ctx.addIssue({
+          code: "custom",
+          path: [name],
+          message: `${name === "startTime" ? "Start" : "End"} date and time is required and must be valid.`,
+        });
+    }
+    if (
+      data.startTime &&
+      data.endTime &&
+      validDateTime(data.startTime) &&
+      validDateTime(data.endTime) &&
+      data.endTime <= data.startTime
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["endTime"],
+        message: "End time must be later than start time.",
+      });
+    }
+  });
 
 export type SingleShiftSchema = z.infer<typeof singleShiftSchema>;
 
-export const bulkShiftsSchema = z.object({
-  repeatType: z.literal("BULK"),
+export const bulkShiftsSchema = z
+  .object({
+    repeatType: z.literal("BULK"),
 
-  id: z.string().optional(),
-  companyId: z.string().min(1, { message: "Company is required." }),
-  locationId: z.string().optional(),
-  title: z.string(),
-  description: z.string().optional(),
-  payRate: z.string().min(1, { message: "Pay rate is required." }),
-  status: z.enum(["open", "taken", "cancelled", "completed"]),
-  dates: z
-    .array(
-      z.object({
-        value: z.string().min(1, "Invalid date"),
-      }),
-    )
-    .min(1, "Please add at least one shift date"),
-  startMinutes: z.string().min(1, { message: "Start time is required." }),
-  endMinutes: z.string().min(1, { message: "End time is required." }),
-  published: z.coerce.boolean({ message: "Published is required." }),
-  pharmacistId: z.string().optional(),
+    id: z.string().optional(),
+    companyId: z.string().min(1, { message: "Company is required." }),
+    locationId: z.string().optional(),
+    title: z.string(),
+    description: z.string().optional(),
+    payRate: z.string().min(1, { message: "Pay rate is required." }),
+    status: z.enum(["open", "taken", "cancelled", "completed"]),
+    dates: z
+      .array(
+        z.object({
+          value: z.string().min(1, "Invalid date"),
+        }),
+      )
+      .min(1, "Please add at least one shift date"),
+    startMinutes: requiredTime("Start time"),
+    endMinutes: requiredTime("End time"),
+    published: z.coerce.boolean({ message: "Published is required." }),
+    pharmacistId: z.string().optional(),
 
-  //extra fields not needed for bulk shift
-  startTime: z.any().optional(),
-  endTime: z.any().optional(),
-  startDate: z.any().optional(),
-  endDate: z.any().optional(),
-  daysOfWeek: z.any().optional(),
-  excludeWeekends: z.any().optional(),
-});
+    //extra fields not needed for bulk shift
+    startTime: z.any().optional(),
+    endTime: z.any().optional(),
+    startDate: z.any().optional(),
+    endDate: z.any().optional(),
+    daysOfWeek: z.any().optional(),
+    excludeWeekends: z.any().optional(),
+  })
+  .superRefine(validateTimePair);
 
 export type BulkShiftsSchema = z.infer<typeof bulkShiftsSchema>;
 
@@ -196,11 +301,11 @@ export const seriesShiftSchema = z
     title: z.string(),
     description: z.string().optional(),
     payRate: z.string().min(1, { message: "Pay rate is required." }),
-    startMinutes: z.string().min(1, { message: "Start time is required." }),
-    endMinutes: z.string().min(1, { message: "End time is required." }),
+    startMinutes: requiredTime("Start time"),
+    endMinutes: requiredTime("End time"),
     daysOfWeek: z.array(z.coerce.number().int()).default([]),
-    startDate: z.coerce.date({ message: "Start date is required" }),
-    endDate: z.coerce.date({ message: "End date is required" }),
+    startDate: requiredDate("Start date").transform((value) => new Date(value)),
+    endDate: requiredDate("End date").transform((value) => new Date(value)),
     excludeWeekends: z.coerce.boolean().default(false),
     published: z.coerce.boolean({ message: "Published is required." }),
 
@@ -213,6 +318,14 @@ export const seriesShiftSchema = z
     dates: z.any().optional(),
   })
   .superRefine((data, ctx) => {
+    validateTimePair(data, ctx);
+    if (data.endDate < data.startDate) {
+      ctx.addIssue({
+        path: ["endDate"],
+        message: "End date must be after or equal to start date.",
+        code: "custom",
+      });
+    }
     if (
       data.repeatType === "WEEKLY" &&
       (!data.daysOfWeek || data.daysOfWeek.length === 0)
