@@ -37,6 +37,8 @@ type Shift = {
   title: string;
   description?: string;
   startTime: string;
+  localStartTime: string;
+  localEndTime: string;
   endTime: string;
   payRate: string;
   status: string;
@@ -82,6 +84,8 @@ type User = {
 type WorkLogs = {
   id: string;
   clockIn: string;
+  localClockIn: string | null;
+  localClockOut: string | null;
   clockOut: string;
 };
 

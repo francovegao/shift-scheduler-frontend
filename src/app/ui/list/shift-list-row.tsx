@@ -1,5 +1,5 @@
 import { getFullAddress } from "@/app/lib/utils";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatWallClock } from "@/app/lib/wall-clock";
 import Status from "./status";
 import Link from "next/link";
 import SendEmailModal from "./email-modal";
@@ -20,6 +20,8 @@ type Shift = {
   title: string;
   description?: string;
   startTime: string;
+  localStartTime: string;
+  localEndTime: string;
   endTime: string;
   payRate: string;
   status: string;
@@ -65,6 +67,8 @@ type User = {
 type WorkLogs = {
   id: string;
   clockIn: string;
+  localClockIn: string | null;
+  localClockOut: string | null;
   clockOut: string;
 };
 
@@ -77,6 +81,7 @@ export default function ShiftListRow({
   token: string;
   role: string | null;
 }) {
+  console.log(item);
   return (
     <tr
       key={item.id}
@@ -109,15 +114,11 @@ export default function ShiftListRow({
       <td className="table-cell whitespace-nowrap px-3 py-3">
         <div className="flex flex-col">
           <span className="font-medium text-tx-primary">
-            {formatInTimeZone(
-              item.startTime,
-              item.company?.timezone,
-              "MMM dd, yyyy",
-            )}
+            {formatWallClock(item.localStartTime, "MMM DD, YYYY")}
           </span>
           <span className="text-xs text-tx-body-muted">
-            {formatInTimeZone(item.startTime, item.company?.timezone, "HH:mm")}-
-            {formatInTimeZone(item.endTime, item.company?.timezone, "HH:mm")}
+            {formatWallClock(item.localStartTime, "HH:mm")}-
+            {formatWallClock(item.localEndTime, "HH:mm")}
           </span>
           <span className="font-medium text-sm">
             ${parseFloat(item.payRate).toFixed(2)} /hr
@@ -133,11 +134,7 @@ export default function ShiftListRow({
               <p className="text-sm text-tx-body-muted font-semibold">
                 In:{" "}
                 <span className="text-tx-secondary">
-                  {formatInTimeZone(
-                    item.workLogs?.[0]?.clockIn,
-                    item.company?.timezone,
-                    "HH:mm",
-                  )}
+                  {formatWallClock(item.workLogs?.[0]?.localClockIn, "HH:mm")}
                 </span>
               </p>
             )}
@@ -145,11 +142,7 @@ export default function ShiftListRow({
               <p className="text-sm text-tx-body-muted font-semibold">
                 Out:{" "}
                 <span className="text-tx-secondary">
-                  {formatInTimeZone(
-                    item.workLogs?.[0]?.clockOut,
-                    item.company?.timezone,
-                    "HH:mm",
-                  )}
+                  {formatWallClock(item.workLogs?.[0]?.localClockOut, "HH:mm")}
                 </span>
               </p>
             )}

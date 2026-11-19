@@ -9,10 +9,9 @@ import { takeShiftSchema } from "@/app/lib/formValidationSchemas";
 import z from "zod";
 import { useFormState } from "react-dom";
 import { takeShift } from "@/app/lib/actions";
-import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { formatPayRate, getFullAddress } from "@/app/lib/utils";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatWallClock } from "@/app/lib/wall-clock";
 
 // Infer the input and output types from the schema
 type FormInput = z.input<typeof takeShiftSchema>;
@@ -144,19 +143,11 @@ export default function TakeShiftForm({
         {/* SHIFT INFO */}
         <div className="bg-surface-muted/50 p-3 rounded-lg mb-4">
           <h3 className="font-semibold">
-            {formatInTimeZone(
-              data.startTime,
-              data.company?.timezone,
-              "EEE MMM dd, yyyy",
-            )}
+            {formatWallClock(data.localStartTime, "ddd MMM DD, YYYY")}
           </h3>
           <p className="text-sm text-tx-body-muted">
-            {formatInTimeZone(data.startTime, data.company?.timezone, "HH:mm")}-
-            {formatInTimeZone(
-              data.endTime,
-              data.company?.timezone,
-              "HH:mm",
-            )}{" "}
+            {formatWallClock(data.localStartTime, "HH:mm")}-
+            {formatWallClock(data.localEndTime, "HH:mm")}{" "}
           </p>
           <div className="flex flex-col mt-2">
             <h3 className="font-semibold">{data.title}</h3>

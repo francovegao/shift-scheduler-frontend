@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Pagination from "../list/pagination";
 import Table from "../list/table";
 import Status from "../list/status";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatWallClock } from "@/app/lib/wall-clock";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchShiftCancellationRequests } from "@/app/lib/data";
 import AdminProcessRequestModal from "../admin-requests/admin-process-request-modal";
@@ -31,6 +31,8 @@ type Shift = {
   title: string;
   description?: string;
   startTime: string;
+  localStartTime: string;
+  localEndTime: string;
   endTime: string;
   payRate: string;
   status: string;
@@ -180,24 +182,12 @@ export default function ShiftCancellationRequestsList({
             </p>
           )}
           <span className="font-medium">
-            {formatInTimeZone(
-              item.shift.startTime,
-              item.shift.company?.timezone,
-              "MMM dd, yyyy",
-            )}
+            {formatWallClock(item.shift.localStartTime, "MMM DD, YYYY")}
           </span>
           <span className="text-sm text-tx-body-muted">
-            {formatInTimeZone(
-              item.shift.startTime,
-              item.shift.company?.timezone,
-              "HH:mm",
-            )}
+            {formatWallClock(item.shift.localStartTime, "HH:mm")}
             -
-            {formatInTimeZone(
-              item.shift.endTime,
-              item.shift.company?.timezone,
-              "HH:mm",
-            )}
+            {formatWallClock(item.shift.localEndTime, "HH:mm")}
           </span>
           <span className="text-sm text-tx-body-muted">
             ${parseFloat(item.shift.payRate).toFixed(2)} /hr
@@ -282,24 +272,12 @@ export default function ShiftCancellationRequestsList({
           </p>
         )}
         <p className="font-medium">
-          {formatInTimeZone(
-            item.shift.startTime,
-            item.shift.company?.timezone,
-            "MMM dd, yyyy",
-          )}
+          {formatWallClock(item.shift.localStartTime, "MMM DD, YYYY")}
         </p>
         <p className="text-sm text-tx-body-muted">
-          {formatInTimeZone(
-            item.shift.startTime,
-            item.shift.company?.timezone,
-            "HH:mm",
-          )}
+          {formatWallClock(item.shift.localStartTime, "HH:mm")}
           -
-          {formatInTimeZone(
-            item.shift.endTime,
-            item.shift.company?.timezone,
-            "HH:mm",
-          )}
+          {formatWallClock(item.shift.localEndTime, "HH:mm")}
         </p>
         <p className="text-sm text-tx-body-muted">
           ${parseFloat(item.shift.payRate).toFixed(2)} /hr

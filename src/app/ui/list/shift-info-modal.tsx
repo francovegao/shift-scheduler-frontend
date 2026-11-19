@@ -1,9 +1,8 @@
 "use client";
 
-import { Dispatch, SetStateAction } from "react";
 import { formatPayRate, getFullAddress } from "@/app/lib/utils";
 import Status from "./status";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatWallClock } from "@/app/lib/wall-clock";
 import { CalendarIcon } from "@heroicons/react/24/outline";
 import SendEmailModal from "./email-modal";
 import { useAuth } from "../context/auth-context";
@@ -32,16 +31,10 @@ export default function ShiftInfoModal({
     const baseUrl =
       "https://calendar.google.com/calendar/render?action=TEMPLATE";
 
-    const start = formatInTimeZone(
-      event.startTime,
-      event.company?.timezone,
-      "yyyyMMdd'T'HHmmssXXX",
-    );
-    const end = formatInTimeZone(
-      event.endTime,
-      event.company?.timezone,
-      "yyyyMMdd'T'HHmmssXXX",
-    );
+    const toCalendarUTC = (value: string) =>
+      new Date(value).toISOString().replace(/[-:]|\.\d{3}/g, "");
+    const start = toCalendarUTC(event.startTime);
+    const end = toCalendarUTC(event.endTime);
     const appLink = `https://shifthappens.vercel.app/`;
     const eventDetails = `Details: ${event.title || ""}: ${event.description || ""} \n\n<a href="${appLink}">Click here to view all details</a>`;
 
@@ -81,11 +74,7 @@ export default function ShiftInfoModal({
                   <p className="text-sm text-tx-body-muted font-semibold">
                     In:{" "}
                     <span className="text-tx-secondary">
-                      {formatInTimeZone(
-                        workLog?.clockIn,
-                        data.company?.timezone,
-                        "HH:mm",
-                      )}
+                      {formatWallClock(workLog?.localClockIn, "HH:mm")}
                     </span>
                   </p>
                 )}
@@ -93,11 +82,7 @@ export default function ShiftInfoModal({
                   <p className="text-sm text-tx-body-muted font-semibold">
                     Out:{" "}
                     <span className="text-tx-secondary">
-                      {formatInTimeZone(
-                        workLog?.clockOut,
-                        data.company?.timezone,
-                        "HH:mm",
-                      )}
+                      {formatWallClock(workLog?.localClockOut, "HH:mm")}
                     </span>
                   </p>
                 )}
@@ -113,15 +98,11 @@ export default function ShiftInfoModal({
         {/* BODY: Date & Time */}
         <div className="mb-4">
           <h3 className="font-bold text-tx-primary">
-            {formatInTimeZone(
-              data.startTime,
-              data.company?.timezone,
-              "EEEE, MMM dd, yyyy",
-            )}
+            {formatWallClock(data.localStartTime, "dddd, MMM DD, YYYY")}
           </h3>
           <p className="text-tx-primary">
-            {formatInTimeZone(data.startTime, data.company?.timezone, "HH:mm")}{" "}
-            - {formatInTimeZone(data.endTime, data.company?.timezone, "HH:mm")}
+            {formatWallClock(data.localStartTime, "HH:mm")} -{" "}
+            {formatWallClock(data.localEndTime, "HH:mm")}
           </p>
           <p className="font-semibold text-tx-muted">{data?.title}</p>
           <p className="text-xs text-tx-body-muted break-words">

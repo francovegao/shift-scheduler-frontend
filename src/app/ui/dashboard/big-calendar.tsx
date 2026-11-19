@@ -14,7 +14,6 @@ import Status from "../list/status";
 import TakeShiftForm from "../forms/shifts/take-shift-form";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import ShiftInfoModal from "../list/shift-info-modal";
-import { toZonedTime } from "date-fns-tz";
 import { Event } from "react-big-calendar";
 import ColorCodes from "./color-codes";
 import StatusIcon from "./status-icon";
@@ -64,19 +63,13 @@ export default function BigCalendar({
 
   const [selectedSlotStart, setSelecteSlotStart] = useState<Date | null>(null);
 
-  //Change events UTC time to desired Timezone (to avoid displaying events in user's local timezone)
   useEffect(() => {
     if (data) {
-      const reformatted = data.map((event) => {
-        const startUtcDate = new Date(event.start);
-        const endUtcDate = new Date(event.end);
-        return {
-          ...event,
-          start: toZonedTime(startUtcDate, event.shift.company.timezone),
-          end: toZonedTime(endUtcDate, event.shift.company.timezone),
-        };
-      });
-      setEvents(reformatted);
+      setEvents(data.map((event) => ({
+        ...event,
+        start: new Date(event.shift.localStartTime),
+        end: new Date(event.shift.localEndTime),
+      })));
     }
   }, [data]);
 

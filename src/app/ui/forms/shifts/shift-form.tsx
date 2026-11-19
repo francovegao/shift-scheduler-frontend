@@ -24,7 +24,6 @@ import { toast } from "react-toastify";
 import { useAuth } from "../../context/auth-context";
 import { getFullAddress } from "@/app/lib/utils";
 import { useSelectedCompany } from "@/app/lib/useSelectedCompany";
-import { formatInTimeZone } from "date-fns-tz";
 import { addHours, format } from "date-fns";
 import React from "react";
 import { usePathname } from "next/navigation";
@@ -33,12 +32,8 @@ import { usePathname } from "next/navigation";
 type FormInput = z.input<typeof shiftSchema>;
 type FormOutput = z.output<typeof shiftSchema>;
 
-const formatForDatetimeLocal = (isoString?: string, timeZone?: string) =>
-  isoString && timeZone
-    ? formatInTimeZone(isoString, timeZone, "yyyy-MM-dd'T'HH:mm")
-    : "";
-const formatForTimeLocal = (isoString?: string, timeZone?: string) =>
-  isoString && timeZone ? formatInTimeZone(isoString, timeZone, "HH:mm") : "";
+const formatForDatetimeLocal = (value?: string) => value?.slice(0, 16) ?? "";
+const formatForTimeLocal = (value?: string) => value?.slice(11, 16) ?? "";
 const validDate = (value?: string) =>
   !!value &&
   /^\d{4}-\d{2}-\d{2}$/.test(value) &&
@@ -118,17 +113,17 @@ export default function ShiftForm({
 
   const initialStartTime = initialDate
     ? format(initialDate, "yyyy-MM-dd'T'HH:mm")
-    : formatForDatetimeLocal(data?.startTime, data?.company?.timezone);
+    : formatForDatetimeLocal(data?.localStartTime);
   const initialEndTime = initialDate
     ? format(addHours(initialDate, 8), "yyyy-MM-dd'T'HH:mm")
-    : formatForDatetimeLocal(data?.endTime, data?.company?.timezone);
+    : formatForDatetimeLocal(data?.localEndTime);
   const initialStartMinutes = data
-    ? formatForTimeLocal(data.startTime, data?.company?.timezone)
+    ? formatForTimeLocal(data?.localStartTime)
     : initialDate
       ? format(initialDate, "HH:mm")
       : "";
   const initialEndMinutes = data
-    ? formatForTimeLocal(data.endTime, data?.company?.timezone)
+    ? formatForTimeLocal(data?.localEndTime)
     : initialDate
       ? format(addHours(initialDate, 8), "HH:mm")
       : "";
@@ -708,10 +703,7 @@ export default function ShiftForm({
                       defaultValue={
                         initialDate
                           ? format(initialDate, "yyyy-MM-dd'T'HH:mm")
-                          : formatForDatetimeLocal(
-                              data?.startTime,
-                              data?.company.timezone,
-                            )
+                          : formatForDatetimeLocal(data?.localStartTime)
                       }
                       register={register}
                       error={errors?.startTime}
@@ -735,10 +727,7 @@ export default function ShiftForm({
                               addHours(initialDate, 8),
                               "yyyy-MM-dd'T'HH:mm",
                             )
-                          : formatForDatetimeLocal(
-                              data?.endTime,
-                              data?.company.timezone,
-                            )
+                          : formatForDatetimeLocal(data?.localEndTime)
                       }
                       register={register}
                       error={errors?.endTime}
@@ -754,10 +743,7 @@ export default function ShiftForm({
                       type="time"
                       defaultValue={
                         data?.startTime
-                          ? formatForTimeLocal(
-                              data?.startTime,
-                              data?.company.timezone,
-                            )
+                          ? formatForTimeLocal(data?.localStartTime)
                           : ""
                       }
                       register={register}
@@ -771,10 +757,7 @@ export default function ShiftForm({
                       type="time"
                       defaultValue={
                         data?.endTime
-                          ? formatForTimeLocal(
-                              data?.endTime,
-                              data?.company.timezone,
-                            )
+                          ? formatForTimeLocal(data?.localEndTime)
                           : ""
                       }
                       register={register}

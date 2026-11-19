@@ -1,5 +1,5 @@
 import { getFullAddress } from "@/app/lib/utils";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatWallClock } from "@/app/lib/wall-clock";
 import Status from "./status";
 import Link from "next/link";
 import SendEmailModal from "./email-modal";
@@ -20,6 +20,8 @@ type Shift = {
   title: string;
   description?: string;
   startTime: string;
+  localStartTime: string;
+  localEndTime: string;
   endTime: string;
   payRate: string;
   status: string;
@@ -65,6 +67,8 @@ type User = {
 type WorkLogs = {
   id: string;
   clockIn: string;
+  localClockIn: string | null;
+  localClockOut: string | null;
   clockOut: string;
 };
 
@@ -89,11 +93,7 @@ export default function ShiftListCard({
                 <p className="text-sm text-tx-body-muted font-semibold">
                   In:{" "}
                   <span className="text-tx-secondary">
-                    {formatInTimeZone(
-                      item.workLogs?.[0]?.clockIn,
-                      item.company?.timezone,
-                      "HH:mm",
-                    )}
+                    {formatWallClock(item.workLogs?.[0]?.localClockIn, "HH:mm")}
                   </span>
                 </p>
               )}
@@ -101,11 +101,7 @@ export default function ShiftListCard({
                 <p className="text-sm text-tx-body-muted font-semibold">
                   Out:{" "}
                   <span className="text-tx-secondary">
-                    {formatInTimeZone(
-                      item.workLogs?.[0]?.clockOut,
-                      item.company?.timezone,
-                      "HH:mm",
-                    )}
+                    {formatWallClock(item.workLogs?.[0]?.localClockOut, "HH:mm")}
                   </span>
                 </p>
               )}
@@ -130,15 +126,11 @@ export default function ShiftListCard({
       {/* BODY: Date & Time */}
       <div className="mb-4">
         <h3 className="font-bold text-tx-primary">
-          {formatInTimeZone(
-            item.startTime,
-            item.company?.timezone,
-            "EEEE, MMM dd, yyyy",
-          )}
+          {formatWallClock(item.localStartTime, "dddd, MMM DD, YYYY")}
         </h3>
         <p className="text-tx-secondary">
-          {formatInTimeZone(item.startTime, item.company?.timezone, "HH:mm")} -{" "}
-          {formatInTimeZone(item.endTime, item.company?.timezone, "HH:mm")}
+          {formatWallClock(item.localStartTime, "HH:mm")} -{" "}
+          {formatWallClock(item.localEndTime, "HH:mm")}
         </p>
         <p className="font-semibold">{item?.title}</p>
         <p className="text-xs text-tx-body-muted break-words">
