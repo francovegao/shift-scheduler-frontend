@@ -50,7 +50,6 @@ export default function LocationForm({
   );
 
   const onSubmit = handleSubmit((data) => {
-    console.log(data);
     formAction(data);
   });
 
