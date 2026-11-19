@@ -10,7 +10,7 @@ import { useAuth } from "../context/auth-context";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import TakeShiftForm from "../forms/shifts/take-shift-form";
 import ShiftInfoModal from "../list/shift-info-modal";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatWallClock } from "@/app/lib/wall-clock";
 import { formatPayRate } from "@/app/lib/utils";
 
 export default function ShiftsCalendarList({
@@ -72,8 +72,6 @@ export default function ShiftsCalendarList({
   };
 
   return shifts.map((event) => {
-    const startTime = new Date(event.startTime);
-    const endTime = new Date(event.endTime);
 
     return (
       <div
@@ -94,8 +92,8 @@ export default function ShiftsCalendarList({
           </div>
           <div className="flex flex-col w-1/3">
             <span className="text-tx-body-muted text-xs">
-              {formatInTimeZone(startTime, event.company.timezone, "HH:mm")}-
-              {formatInTimeZone(endTime, event.company.timezone, "HH:mm")}
+              {formatWallClock(event.localStartTime, "HH:mm")}-
+              {formatWallClock(event.localEndTime, "HH:mm")}
             </span>
             <span className="text-tx-body-muted text-xs">
               {formatPayRate(event.payRate)}

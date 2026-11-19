@@ -19,7 +19,7 @@ import { SetStateAction, useEffect, useState } from "react";
 import FilterDate from "@/app/ui/list/filter-date";
 import FilterPayRate from "@/app/ui/list/filter-pay-rate";
 import PharmacistAccessGuard from "@/app/ui/authorization/pharmacists-access-guard";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatWallClock } from "@/app/lib/wall-clock";
 
 type ShiftList = Shift & { company: Company } & { location: Location } & {
   pharmacist: Pharmacist & { user: User };
@@ -32,6 +32,8 @@ type Shift = {
   title: string;
   description?: string;
   startTime: string;
+  localStartTime: string;
+  localEndTime: string;
   endTime: string;
   payRate: string;
   status: string;
@@ -250,15 +252,11 @@ export default function OpenShiftsList() {
       </td>
       <td className="table-cell px-3 py-3 max-w-[200px]">
         <p className="whitespace-nowrap">
-          {formatInTimeZone(
-            item.startTime,
-            item.company?.timezone,
-            "MMM dd, yyyy",
-          )}
+          {formatWallClock(item.localStartTime, "MMM DD, YYYY")}
         </p>
         <p className="whitespace-nowrap">
-          {formatInTimeZone(item.startTime, item.company?.timezone, "HH:mm")}-
-          {formatInTimeZone(item.endTime, item.company?.timezone, "HH:mm")}
+          {formatWallClock(item.localStartTime, "HH:mm")}-
+          {formatWallClock(item.localEndTime, "HH:mm")}
         </p>
         <div className="flex flex-col mt-1 min-w-0">
           <h3 className="font-semibold break-words">{item?.title}</h3>
@@ -334,15 +332,11 @@ export default function OpenShiftsList() {
       {/* SHIFT INFO */}
       <div className="bg-surface-muted/50 p-3 rounded-lg mb-4">
         <p>
-          {formatInTimeZone(
-            item.startTime,
-            item.company?.timezone,
-            "MMM dd, yyyy",
-          )}
+          {formatWallClock(item.localStartTime, "MMM DD, YYYY")}
         </p>
         <p>
-          {formatInTimeZone(item.startTime, item.company?.timezone, "HH:mm")}-
-          {formatInTimeZone(item.endTime, item.company?.timezone, "HH:mm")}
+          {formatWallClock(item.localStartTime, "HH:mm")}-
+          {formatWallClock(item.localEndTime, "HH:mm")}
         </p>
         <div className="flex flex-col mt-1">
           <h3 className="font-semibold">{item?.title}</h3>

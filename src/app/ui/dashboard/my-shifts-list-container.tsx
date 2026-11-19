@@ -12,7 +12,7 @@ import Pagination from "@/app/ui/list/pagination";
 import Status from "@/app/ui/list/status";
 import Table from "@/app/ui/list/table";
 import TableSearch from "@/app/ui/list/table-search";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatWallClock } from "@/app/lib/wall-clock";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SetStateAction, useEffect, useState } from "react";
 import SendEmailModal from "@/app/ui/list/email-modal";
@@ -31,6 +31,8 @@ type Shift = {
   title: string;
   description?: string;
   startTime: string;
+  localStartTime: string;
+  localEndTime: string;
   endTime: string;
   payRate: string;
   status: string;
@@ -74,6 +76,8 @@ type User = {
 
 type WorkLogs = {
   clockIn: string;
+  localClockIn: string | null;
+  localClockOut: string | null;
   clockOut: string;
 };
 
@@ -258,15 +262,11 @@ export default function MyShiftsListContainer({
       </td>
       <td className="table-cell px-3 py-3 max-w-[200px]">
         <p className="whitespace-nowrap">
-          {formatInTimeZone(
-            item.startTime,
-            item.company?.timezone,
-            "MMM dd, yyyy",
-          )}
+          {formatWallClock(item.localStartTime, "MMM DD, YYYY")}
         </p>
         <p className="whitespace-nowrap">
-          {formatInTimeZone(item.startTime, item.company?.timezone, "HH:mm")}-
-          {formatInTimeZone(item.endTime, item.company?.timezone, "HH:mm")}
+          {formatWallClock(item.localStartTime, "HH:mm")}-
+          {formatWallClock(item.localEndTime, "HH:mm")}
         </p>
         <div className="flex flex-col mt-1 min-w-0">
           <h3 className="font-semibold break-words">{item?.title}</h3>
@@ -286,11 +286,7 @@ export default function MyShiftsListContainer({
               <p className="text-sm text-tx-body-muted font-semibold">
                 In:{" "}
                 <span className="text-tx-secondary">
-                  {formatInTimeZone(
-                    item.workLogs?.[0]?.clockIn,
-                    item.company?.timezone,
-                    "HH:mm",
-                  )}
+                  {formatWallClock(item.workLogs?.[0]?.localClockIn, "HH:mm")}
                 </span>
               </p>
             )}
@@ -298,11 +294,7 @@ export default function MyShiftsListContainer({
               <p className="text-sm text-tx-body-muted font-semibold">
                 Out:{" "}
                 <span className="text-tx-secondary">
-                  {formatInTimeZone(
-                    item.workLogs?.[0]?.clockOut,
-                    item.company?.timezone,
-                    "HH:mm",
-                  )}
+                  {formatWallClock(item.workLogs?.[0]?.localClockOut, "HH:mm")}
                 </span>
               </p>
             )}
@@ -349,11 +341,7 @@ export default function MyShiftsListContainer({
                 <p className="text-sm text-tx-body-muted font-semibold">
                   In:{" "}
                   <span className="text-tx-secondary">
-                    {formatInTimeZone(
-                      item.workLogs?.[0]?.clockIn,
-                      item.company?.timezone,
-                      "HH:mm",
-                    )}
+                    {formatWallClock(item.workLogs?.[0]?.localClockIn, "HH:mm")}
                   </span>
                 </p>
               )}
@@ -361,11 +349,7 @@ export default function MyShiftsListContainer({
                 <p className="text-sm text-tx-body-muted font-semibold">
                   Out:{" "}
                   <span className="text-tx-secondary">
-                    {formatInTimeZone(
-                      item.workLogs?.[0]?.clockOut,
-                      item.company?.timezone,
-                      "HH:mm",
-                    )}
+                    {formatWallClock(item.workLogs?.[0]?.localClockOut, "HH:mm")}
                   </span>
                 </p>
               )}
@@ -413,15 +397,11 @@ export default function MyShiftsListContainer({
       {/* SHIFT INFO */}
       <div className="bg-surface-muted/50 p-3 rounded-lg mb-4">
         <p>
-          {formatInTimeZone(
-            item.startTime,
-            item.company?.timezone,
-            "MMM dd, yyyy",
-          )}
+          {formatWallClock(item.localStartTime, "MMM DD, YYYY")}
         </p>
         <p>
-          {formatInTimeZone(item.startTime, item.company?.timezone, "HH:mm")}-
-          {formatInTimeZone(item.endTime, item.company?.timezone, "HH:mm")}
+          {formatWallClock(item.localStartTime, "HH:mm")}-
+          {formatWallClock(item.localEndTime, "HH:mm")}
         </p>
         <div className="flex flex-col mt-1">
           <h3 className="font-semibold">{item?.title}</h3>

@@ -12,7 +12,7 @@ import ApprovedStatus from "../list/status";
 import ShiftInfoModal from "../list/shift-info-modal";
 import Link from "next/link";
 import { useSelectedCompany } from "@/app/lib/useSelectedCompany";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatWallClock } from "@/app/lib/wall-clock";
 
 const companyColors: Record<string, string> = {
   "Create Compounding": "bg-[rgb(104,163,67)] text-white",
@@ -158,24 +158,12 @@ export default function LatestShifts() {
 
                 <div className="text-right">
                   <p className={` text-sm font-medium`}>
-                    {formatInTimeZone(
-                      item.startTime,
-                      item?.company?.timezone,
-                      "MMM dd, yyyy",
-                    )}
+                    {formatWallClock(item.localStartTime, "MMM DD, YYYY")}
                   </p>
                   <p className="text-sm">
-                    {formatInTimeZone(
-                      item.startTime,
-                      item?.company?.timezone,
-                      "HH:mm",
-                    )}
+                    {formatWallClock(item.localStartTime, "HH:mm")}
                     -
-                    {formatInTimeZone(
-                      item.endTime,
-                      item?.company?.timezone,
-                      "HH:mm",
-                    )}
+                    {formatWallClock(item.localEndTime, "HH:mm")}
                   </p>
                 </div>
                 {openEventId === item.id && role !== "relief_pharmacist" && (

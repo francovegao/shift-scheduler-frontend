@@ -8,8 +8,7 @@ import { toast } from "react-toastify";
 import z from "zod";
 import InputField from "../input-field";
 import { shiftWorkLogSchema } from "@/app/lib/formValidationSchemas";
-import { format } from "date-fns";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatWallClock } from "@/app/lib/wall-clock";
 
 // Infer the input and output types from the schema
 type FormInput = z.input<typeof shiftWorkLogSchema>;
@@ -37,18 +36,10 @@ export default function ShiftWorkLogForm({
       shiftId: data?.id || "",
       pharmacistId: data?.pharmacist?.id || "",
       startMinutes: data.workLogs?.[0]?.clockIn
-        ? formatInTimeZone(
-            data.workLogs?.[0]?.clockIn,
-            data.company?.timezone,
-            "HH:mm",
-          )
+        ? formatWallClock(data.workLogs?.[0]?.localClockIn, "HH:mm")
         : "",
       endMinutes: data.workLogs?.[0]?.clockOut
-        ? formatInTimeZone(
-            data.workLogs?.[0]?.clockOut,
-            data.company?.timezone,
-            "HH:mm",
-          )
+        ? formatWallClock(data.workLogs?.[0]?.localClockOut, "HH:mm")
         : "",
     },
   });

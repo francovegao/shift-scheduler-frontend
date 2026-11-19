@@ -1,7 +1,7 @@
 import { invalidateData } from "@/app/lib/data-revisions";
 import { clockInShift, clockOutShift } from "@/app/lib/actions";
 import { getFullAddress } from "@/app/lib/utils";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatWallClock } from "@/app/lib/wall-clock";
 import { useState } from "react";
 import Status from "../list/status";
 import { toast } from "react-toastify";
@@ -47,25 +47,11 @@ export default function UpcomingShiftCard({ shift, token }: any) {
     }
   };
 
-  const companyTodayStr = formatInTimeZone(
-    new Date(),
-    shift.company?.timezone,
-    "yyyy-MM-dd",
-  );
-
-  const tomorrowDate = new Date();
-  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-  const companyTomorrowStr = formatInTimeZone(
-    tomorrowDate,
-    shift.company?.timezone,
-    "yyyy-MM-dd",
-  );
-
-  const shiftDateStr = formatInTimeZone(
-    shift.startTime,
-    shift.company?.timezone,
-    "yyyy-MM-dd",
-  );
+  const companyTodayStr = shift.localToday;
+  const companyTomorrowStr = new Date(
+    Date.parse(companyTodayStr + "T00:00:00Z") + 86_400_000,
+  ).toISOString().slice(0, 10);
+  const shiftDateStr = shift.localStartTime.slice(0, 10);
 
   const isToday = shiftDateStr === companyTodayStr;
   const isTomorrow = shiftDateStr === companyTomorrowStr;
@@ -117,26 +103,14 @@ export default function UpcomingShiftCard({ shift, token }: any) {
                 {dateBadge}
               </span>
               <p className="text-sm font-medium text-tx-tertiary">
-                {formatInTimeZone(
-                  shift.startTime,
-                  shift.company?.timezone,
-                  "EEE MMM dd, yyyy",
-                )}
+                {formatWallClock(shift.localStartTime, "ddd MMM DD, YYYY")}
               </p>
             </div>
 
             <p className="text-sm text-tx-body-muted">
-              {formatInTimeZone(
-                shift.startTime,
-                shift.company?.timezone,
-                "HH:mm",
-              )}{" "}
+              {formatWallClock(shift.localStartTime, "HH:mm")}{" "}
               -{" "}
-              {formatInTimeZone(
-                shift.endTime,
-                shift.company?.timezone,
-                "HH:mm",
-              )}
+              {formatWallClock(shift.localEndTime, "HH:mm")}
             </p>
           </div>
           <div className="flex flex-col border-t border-gray-50 pt-2">
@@ -163,15 +137,7 @@ export default function UpcomingShiftCard({ shift, token }: any) {
               ) : (
                 <div className="flex flex-col gap-2 items-center w-full">
                   <p className="text-sm text-tx-muted text-center">
-                    Clock in at{" "}
-                    <span className="font-semibold">
-                      {formatInTimeZone(
-                        new Date(),
-                        shift.company?.timezone,
-                        "HH:mm",
-                      )}
-                    </span>
-                    ?
+                    Clock in now?
                   </p>
                   <div className="flex gap-2 w-full justify-center">
                     <button
@@ -199,11 +165,7 @@ export default function UpcomingShiftCard({ shift, token }: any) {
                 <p className="text-sm text-tx-body-muted font-semibold">
                   Clocked In:{" "}
                   <span className="text-tx-secondary">
-                    {formatInTimeZone(
-                      workLog?.clockIn,
-                      shift.company?.timezone,
-                      "HH:mm",
-                    )}
+                    {formatWallClock(workLog?.localClockIn, "HH:mm")}
                   </span>
                 </p>
               </div>
@@ -217,15 +179,7 @@ export default function UpcomingShiftCard({ shift, token }: any) {
               ) : (
                 <div className="flex flex-col gap-2 items-center w-full">
                   <p className="text-sm text-tx-muted text-center">
-                    Clock out at{" "}
-                    <span className="font-semibold">
-                      {formatInTimeZone(
-                        new Date(),
-                        shift.company?.timezone,
-                        "HH:mm",
-                      )}
-                    </span>
-                    ?
+                    Clock out now?
                   </p>
                   <div className="flex gap-2 w-full justify-center">
                     <button
@@ -252,21 +206,13 @@ export default function UpcomingShiftCard({ shift, token }: any) {
               <p className="text-sm text-tx-body-muted font-semibold">
                 In:{" "}
                 <span className="text-tx-secondary">
-                  {formatInTimeZone(
-                    workLog?.clockIn,
-                    shift.company?.timezone,
-                    "HH:mm",
-                  )}
+                  {formatWallClock(workLog?.localClockIn, "HH:mm")}
                 </span>
               </p>
               <p className="text-sm text-tx-body-muted font-semibold">
                 Out:{" "}
                 <span className="text-tx-secondary">
-                  {formatInTimeZone(
-                    workLog?.clockOut,
-                    shift.company?.timezone,
-                    "HH:mm",
-                  )}
+                  {formatWallClock(workLog?.localClockOut, "HH:mm")}
                 </span>
               </p>
               <div className="mt-1 flex justify-end sm:justify-start md:justify-end">
